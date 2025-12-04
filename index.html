@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 
 <head>
@@ -7,6 +7,8 @@
 
 	<title>Generative Models for Approximating Cardinality Sketches</title>
 
+	<script src="reveal_anim_lib.js"></script>
+
 	<link rel="stylesheet" href="dist/reset.css">
 	<link rel="stylesheet" href="dist/reveal.css">
 	<link rel="stylesheet" href="dist/theme/serif.css">
@@ -14,7 +16,6 @@
 	<!-- Theme used for syntax highlighted code -->
 	<link rel="stylesheet" href="plugin/highlight/monokai.css">
 
-	<!--  -->
 	<style>
 		:root {
 			--r-background-color: white;
@@ -23,18 +24,33 @@
 			--palecyan: rgb(204, 238, 255);
 		}
 
-		.table-container {
-			display: flex;
-			justify-content: space-around;
-			position: relative;
+		.demo-iframe {
+			border: 2px solid var(--r-main-color);
+			border-radius: 8px;
+			background: white;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		}
+
+		.placeholder-demo {
+			border: 2px dashed #ccc;
+			border-radius: 8px;
+			background: #f8f9fa;
+			padding: 40px;
+			text-align: center;
+			color: #666;
+			font-style: italic;
+		}
+
+		.section-header {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white !important;
+			padding: 20px;
+			border-radius: 10px;
 		}
 
 		table {
 			border-collapse: collapse;
-			border-spacing: 0;
-			/* remove any default spacing */
 			border: 1.5px solid #333;
-			/* <= add this for the outer border */
 			margin: 20px;
 		}
 
@@ -42,12 +58,379 @@
 		th {
 			overflow: hidden;
 			border: inherit;
-			border-collapse: collapse;
 			padding: 8px 12px;
 			transition: background-color 0.6s ease;
 		}
 
-		svg {
+		/* Approximate Sketches Section Styles */
+		.formula-box {
+			background: #f8f9fa;
+			border-left: 4px solid #667eea;
+			padding: 15px;
+			margin: 20px 0;
+			font-family: 'Courier New', monospace;
+		}
+
+		.comparison-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin: 20px 0;
+		}
+
+		.comparison-box {
+			padding: 20px;
+			border-radius: 8px;
+			border: 2px solid #ccc;
+		}
+
+		.traditional {
+			background: var(--palered);
+		}
+
+		.approximate {
+			background: var(--palegreen);
+		}
+
+		.key-insight {
+			background: var(--palecyan);
+			padding: 20px;
+			border-radius: 8px;
+			border-left: 6px solid #0066cc;
+			margin: 20px 0;
+		}
+
+		.diagram-placeholder {
+			border: 2px dashed #999;
+			background: #f5f5f5;
+			padding: 60px 20px;
+			text-align: center;
+			color: #666;
+			font-style: italic;
+			border-radius: 8px;
+			margin: 20px 0;
+		}
+
+		/* BERT Flow Diagram Styles */
+		.query-box {
+			background: #f8f9fa;
+			border-left: 4px solid #667eea;
+			padding: 15px;
+			margin: 20px 0;
+			border-radius: 4px;
+			font-size: 0.8em;
+		}
+
+		.query-box .label {
+			color: #667eea;
+			font-weight: bold;
+			margin-bottom: 8px;
+			font-size: 0.9em;
+			text-transform: uppercase;
+		}
+
+		.query-box pre {
+			margin: 0;
+			font-family: 'Courier New', monospace;
+			font-size: 0.95em;
+			color: #333;
+			white-space: pre-wrap;
+		}
+
+		.query-box .filter-highlight {
+			background: #fff3e0;
+			padding: 2px 4px;
+			border-radius: 2px;
+		}
+
+		.query-box .join-highlight {
+			background: #e8f5e9;
+			padding: 2px 4px;
+			border-radius: 2px;
+			font-weight: bold;
+		}
+
+		.flow-diagram {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 20px;
+			margin: 30px 0;
+		}
+
+		.flow-table {
+			border-collapse: collapse;
+			border: 2px solid #333;
+			background: white;
+			font-size: 0.75em;
+		}
+
+		.flow-table th {
+			background: #667eea;
+			color: white;
+			padding: 10px 15px;
+			text-align: left;
+			border: 1px solid #333;
+			font-size: 0.9em;
+		}
+
+		.flow-table td {
+			padding: 10px 15px;
+			border: 1px solid #ddd;
+		}
+
+		.flow-table td:first-child {
+			background: #f0f0f0;
+			font-weight: bold;
+			min-width: 100px;
+		}
+
+		.flow-table .input-cell {
+			background: #e3f2fd;
+			font-family: 'Courier New', monospace;
+			min-width: 120px;
+		}
+
+		.flow-table .masked-cell {
+			background: #fff3e0;
+			border: 2px dashed #ff9800;
+			font-weight: bold;
+			font-style: italic;
+			color: #ff9800;
+		}
+
+		.bert-box {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			padding: 30px 25px;
+			border-radius: 10px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 1.1em;
+			box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+			min-width: 120px;
+		}
+
+		.arrow-large {
+			font-size: 2.5em;
+			color: #667eea;
+			font-weight: bold;
+		}
+
+		.output-box {
+			background: #e8f5e9;
+			border: 2px solid #4caf50;
+			padding: 20px;
+			border-radius: 8px;
+			min-width: 220px;
+			font-size: 0.75em;
+		}
+
+		.output-box .output-title {
+			font-weight: bold;
+			margin-bottom: 10px;
+			color: #333;
+		}
+
+		.output-box .output-values {
+			font-family: 'Courier New', monospace;
+			font-size: 0.95em;
+			color: #333;
+		}
+
+		.output-box .output-formula {
+			margin-top: 12px;
+			padding-top: 12px;
+			border-top: 1px solid #4caf50;
+			color: #333;
+		}
+
+		/* Training Data Table Styles */
+		.data-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 0.85em;
+			margin: 20px 0;
+			border: 2px solid #333;
+		}
+
+		.data-table th {
+			background: #667eea;
+			color: white;
+			padding: 12px;
+			border: 1px solid #333;
+		}
+
+		.data-table td {
+			padding: 12px;
+			border: 1px solid #ddd;
+			text-align: center;
+		}
+
+		/* Compact Training Pipeline */
+		.compact-training {
+			border: 2px solid #333;
+			border-radius: 8px;
+			overflow: hidden;
+			margin: 20px 0;
+		}
+
+		.compact-training table {
+			width: 100%;
+			border-collapse: collapse;
+			margin: 0;
+		}
+
+		.compact-training th {
+			background: #667eea;
+			color: white;
+			padding: 12px;
+			border: 1px solid #333;
+			font-size: 0.85em;
+		}
+
+		.compact-training td {
+			padding: 12px;
+			border: 1px solid #ddd;
+			font-size: 0.85em;
+		}
+
+		/* Variation 3: Visual Pipeline Styles */
+		.horizontal-flow-3 {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+			margin: 30px 0;
+			justify-content: center;
+		}
+
+		.flow-box-3 {
+			border: 2px solid #ddd;
+			border-radius: 8px;
+			padding: 18px;
+			background: white;
+		}
+
+		.flow-box-3.input {
+			background: #fff3e0;
+			border-color: #ff9800;
+			min-width: 140px;
+		}
+
+		.flow-box-3.model {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			min-width: 100px;
+			text-align: center;
+			font-weight: bold;
+		}
+
+		.flow-box-3.sketch {
+			background: white;
+			border-color: #4caf50;
+			min-width: 160px;
+		}
+
+		.flow-box-3.join {
+			background: #e3f2fd;
+			border-color: #2196f3;
+			min-width: 100px;
+			text-align: center;
+		}
+
+		.flow-box-3 .box-title {
+			font-weight: bold;
+			margin-bottom: 10px;
+			font-size: 0.85em;
+		}
+
+		.flow-box-3.input .box-title {
+			color: #e65100;
+		}
+
+		.flow-box-3.sketch .box-title {
+			color: #2e7d32;
+		}
+
+		.flow-box-3.join .box-title {
+			color: #1565c0;
+		}
+
+		.flow-box-3 .box-content {
+			font-size: 0.75em;
+			font-family: 'Courier New', monospace;
+			line-height: 1.5;
+		}
+
+		.flow-box-3.model .box-content {
+			font-size: 0.7em;
+			font-weight: normal;
+		}
+
+		.sketch-visual {
+			display: flex;
+			gap: 3px;
+			margin-top: 8px;
+			height: 40px;
+			align-items: flex-end;
+		}
+
+		.sketch-bar {
+			flex: 1;
+			background: #4caf50;
+			border-radius: 2px 2px 0 0;
+			min-width: 8px;
+		}
+
+		.relation-pipeline {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+
+		.pipeline-row {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
+
+		.relation-label {
+			background: #667eea;
+			color: white;
+			padding: 8px 15px;
+			border-radius: 6px;
+			font-weight: bold;
+			font-size: 0.85em;
+			min-width: 90px;
+			text-align: center;
+		}
+
+		.arrow-h {
+			font-size: 1.5em;
+			color: #667eea;
+			font-weight: bold;
+		}
+
+		/* Join Ordering Section Styles */
+		.join-section .table-container {
+			display: flex;
+			justify-content: space-around;
+			align-items: flex-start;
+			position: relative;
+			min-height: 250px;
+		}
+
+		.join-section table {
+			font-size: 0.6em;
+			margin: 10px;
+		}
+
+		.join-section td,
+		.join-section th {
+			padding: 6px 10px;
+		}
+
+		.join-section svg {
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -56,139 +439,1964 @@
 			height: 100%;
 		}
 
-		.reveal .slides section {
-			overflow: visible !important;
+		.join-section .flattened {
+			height: 0 !important;
+			padding: 0 !important;
+			font-size: 0 !important;
+			opacity: 0.3;
+			transition: all 0.6s ease;
+		}
+
+		.join-section .flattened td {
+			padding: 0 !important;
+			border: none;
+		}
+
+		.join-section .dim {
+			opacity: 0.3;
+			transition: opacity 0.6s ease;
+		}
+
+		.join-section .highlight-red { background-color: var(--palered) !important; }
+		.join-section .highlight-green { background-color: var(--palegreen) !important; }
+		.join-section .highlight-cyan { background-color: var(--palecyan) !important; }
+		.join-section .highlight-yellow { background-color: rgb(255, 255, 204) !important; }
+		.join-section .highlight-orange { background-color: rgb(255, 229, 204) !important; }
+
+		.join-section .cost-box {
+			background: #f0f8ff;
+			border: 2px solid #2196f3;
+			padding: 12px;
+			border-radius: 8px;
+			margin: 15px auto;
+			max-width: 600px;
+			font-size: 0.85em;
+		}
+
+		.join-section .cost-bad {
+			background: #ffe6e6;
+			border-color: #cc0000;
+		}
+
+		.join-section .cost-good {
+			background: #e6ffe6;
+			border-color: #00cc00;
+		}
+
+		.join-section .formula {
+			font-family: 'Courier New', monospace;
+			font-size: 1.0em;
+			margin: 5px 0;
+		}
+
+		.join-section .intermediate-result {
+			border: 3px dashed #ff9800 !important;
+		}
+
+		.join-section .final-result {
+			border: 3px solid #00cc00 !important;
+		}
+
+		.join-section .note {
+			background: #fff3e0;
+			border-left: 4px solid #ff9800;
+			padding: 12px;
+			margin: 15px auto;
+			max-width: 700px;
+			border-radius: 4px;
+			font-size: 0.85em;
+		}
+
+		.join-section .arrow-text {
+			font-size: 2em;
+			color: #667eea;
+			font-weight: bold;
+			align-self: center;
+			margin: 0 10px;
+		}
+
+		.join-section .comparison-container {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin: 20px auto;
+			max-width: 900px;
+		}
+
+		.join-section .plan-box {
+			border: 3px solid #ddd;
+			border-radius: 10px;
+			padding: 15px;
+			background: white;
+			font-size: 0.85em;
+		}
+
+		.join-section .plan-bad {
+			border-color: #cc0000;
+			background: #fff5f5;
+		}
+
+		.join-section .plan-good {
+			border-color: #00cc00;
+			background: #f5fff5;
+		}
+
+		.join-section .step-item {
+			margin: 8px 0;
+			padding: 8px;
+			background: white;
+			border-radius: 5px;
+			border: 1px solid #ddd;
+		}
+
+		.join-section .table-label {
+			font-weight: bold;
+			color: #667eea;
+			font-size: 0.75em;
+			text-align: center;
+			margin-bottom: 5px;
 		}
 	</style>
 
 </head>
 
 <body>
-	<svg style="height: 0; width: 0; position: absolute;">
-		<defs>
-			<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto"
-				markerUnits="strokeWidth">
-				<path d="M0,0 L10,3.5 L0,7 Z" fill="black" />
-			</marker>
-		</defs>
-	</svg>
 	<div class="reveal">
 		<div class="slides">
 
+			<!-- ============================================ -->
+			<!-- TITLE SLIDE -->
+			<!-- ============================================ -->
 			<section>
-				<h3>Generative Models for Approximating Cardinality Sketches</h3>
-				<!-- add a horizontal line to separate authors from the title -->
+				<h2>Generative Models for Approximating Cardinality Sketches</h2>
 				<hr>
-				<p>Brian Tsan</p>
+				<p><strong>Brian Tsan</strong></p>
+				<p>UC Merced</p>
 				<p>btsan@ucmerced.edu</p>
+				<p><small>Advisor: Professor Florin Rusu</small></p>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- TABLE OF CONTENTS -->
+			<!-- ============================================ -->
+			<section style="font-size: 0.8em;">
+				<h2 class="section-header">Table of Contents</h2>
+				<ol>
+					<li>Motivations — Query Optimization</li>
+					<li>AGMS (Tug-of-War) Sketch</li>
+					<li>Other Sketches</li>
+					<li><strong>Generative Models for Approximate Sketching</strong></li>
+					<ol>
+						<li><em>Neural Networks</em></li>
+						<li><em>Sum-Product Networks</em></li>
+					</ol>
+					<li>Experimental Results</li>
+					<li>Summary & Conclusion</li>
+				</ol>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SECTION 1: MOTIVATION & CONTEXT -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Section 1: Motivation & Context</h2>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- JOIN ORDERING EXAMPLE -->
+			<!-- ============================================ -->
+			<section class="join-section" data-auto-animate>
+				<h3>Joins</h3>
+				<p>Find all students enrolled in special seminar courses</p>
+					<pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.55em; text-align: left;">
+SELECT s.name, e.student_id, c.course_name
+FROM Students s
+JOIN Enrollments e ON s.student_id = e.student_id
+JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
+			</section>
+
+			<section class="join-section" data-auto-animate>
+				<h3>Joins</h3>
+					<div class="table-container">
+						<div>
+							<div class="table-label" data-id="students-table">Students (5 rows)</div>
+							<table data-id="students-table">
+								<tr><th>ID</th><th>Name</th></tr>
+								<tr><td>1</td><td>Alice</td></tr>
+								<tr><td>2</td><td>Bob</td></tr>
+								<tr><td>3</td><td>Carol</td></tr>
+								<tr><td>4</td><td>Dave</td></tr>
+								<tr><td>5</td><td>Eve</td></tr>
+							</table>
+						</div>
+						<div>
+							<div class="table-label">Enrollments (10 rows)</div>
+							<table data-id="enrollments-table">
+								<tr><th>SID</th><th>CID</th></tr>
+								<tr><td>1</td><td>101</td></tr>
+								<tr><td>2</td><td>101</td></tr>
+								<tr><td>1</td><td>201</td></tr>
+								<tr><td>3</td><td>201</td></tr>
+								<tr><td>4</td><td>202</td></tr>
+								<tr><td>5</td><td>202</td></tr>
+								<tr><td>2</td><td>203</td></tr>
+								<tr><td>3</td><td>203</td></tr>
+								<tr><td>4</td><td>204</td></tr>
+								<tr><td>5</td><td>205</td></tr>
+							</table>
+						</div>
+						<div>
+							<div class="table-label">SpecialCourses (2 rows)</div>
+							<table data-id="special-table">
+								<tr><th>ID</th><th>Course</th></tr>
+								<tr><td>101</td><td>CS101</td></tr>
+								<tr><td>201</td><td>CS102</td></tr>
+							</table>
+						</div>
+					</div>
+			</section>
+
+			<!-- BAD PLAN -->
+			<section class="join-section">
+				<section data-auto-animate>
+					<h4>Plan A: Join Students First (Bad Plan)</h4>
+					<p style="font-size: 0.85em;">Step 1: Students ⋈ Enrollments</p>
+					<div class="table-container">
+						<div>
+								<div class="table-label" data-id="students-table">Students</div>
+								<table data-id="students-table">
+									<tr><th>ID</th><th>Name</th></tr>
+									<tr><td>1</td><td>Alice</td></tr>
+									<tr><td>2</td><td>Bob</td></tr>
+									<tr><td>3</td><td>Carol</td></tr>
+									<tr><td>4</td><td>Dave</td></tr>
+									<tr><td>5</td><td>Eve</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label"  data-id="enrollments-table">Enrollments</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr><td>1</td><td>101</td></tr>
+									<tr><td>2</td><td>101</td></tr>
+									<tr><td>1</td><td>201</td></tr>
+									<tr><td>3</td><td>201</td></tr>
+									<tr><td>4</td><td>202</td></tr>
+									<tr><td>5</td><td>202</td></tr>
+									<tr><td>2</td><td>203</td></tr>
+									<tr><td>3</td><td>203</td></tr>
+									<tr><td>4</td><td>204</td></tr>
+									<tr><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 5 × 10 = 50 comparisons</p>
+					</section>
+
+					<section data-auto-animate>
+						<h4>Plan A: Join Students First (Bad Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1: Students ⋈ Enrollments</p>
+						<div class="table-container">
+							<div>
+								<div class="table-label" data-id="students-table">Students</div>
+								<table data-id="students-table">
+									<tr><th>ID</th><th>Name</th></tr>
+									<tr class="highlight-red"><td>1</td><td>Alice</td></tr>
+									<tr class="highlight-green"><td>2</td><td>Bob</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>Carol</td></tr>
+									<tr class="highlight-yellow"><td>4</td><td>Dave</td></tr>
+									<tr class="highlight-orange"><td>5</td><td>Eve</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label"  data-id="enrollments-table">Enrollments</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr class="highlight-red"><td>1</td><td>101</td></tr>
+									<tr class="highlight-green"><td>2</td><td>101</td></tr>
+									<tr class="highlight-red"><td>1</td><td>201</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>201</td></tr>
+									<tr class="highlight-yellow"><td>4</td><td>202</td></tr>
+									<tr class="highlight-orange"><td>5</td><td>202</td></tr>
+									<tr class="highlight-green"><td>2</td><td>203</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>203</td></tr>
+									<tr class="highlight-yellow"><td>4</td><td>204</td></tr>
+									<tr class="highlight-orange"><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 5 × 10 = 50 comparisons</p>
+					</section>
+
+					<section id="bad-step1-animated" data-auto-animate>
+						<h4>Plan A: Join Students First (Bad Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1: Students ⋈ Enrollments</p>
+						<div class="table-container">
+							<svg id="bad-step1-svg"></svg>
+							<div>
+								<div class="table-label" data-id="students-table">Students</div>
+								<table data-id="students-table">
+									<tr><th>ID</th><th>Name</th></tr>
+									<tr id="bad-s1" class="highlight-red"><td>1</td><td>Alice</td></tr>
+									<tr id="bad-s2" class="highlight-green"><td>2</td><td>Bob</td></tr>
+									<tr id="bad-s3" class="highlight-cyan"><td>3</td><td>Carol</td></tr>
+									<tr id="bad-s4" class="highlight-yellow"><td>4</td><td>Dave</td></tr>
+									<tr id="bad-s5" class="highlight-orange"><td>5</td><td>Eve</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label"  data-id="enrollments-table">Enrollments</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr id="bad-e1" class="highlight-red"><td>1</td><td>101</td></tr>
+									<tr id="bad-e2" class="highlight-green"><td>2</td><td>101</td></tr>
+									<tr id="bad-e3" class="highlight-red"><td>1</td><td>201</td></tr>
+									<tr id="bad-e4" class="highlight-cyan"><td>3</td><td>201</td></tr>
+									<tr id="bad-e5" class="highlight-yellow"><td>4</td><td>202</td></tr>
+									<tr id="bad-e6" class="highlight-orange"><td>5</td><td>202</td></tr>
+									<tr id="bad-e7" class="highlight-green"><td>2</td><td>203</td></tr>
+									<tr id="bad-e8" class="highlight-cyan"><td>3</td><td>203</td></tr>
+									<tr id="bad-e9" class="highlight-yellow"><td>4</td><td>204</td></tr>
+									<tr id="bad-e10" class="highlight-orange"><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 5 × 10 = 50 comparisons</p>
+					</section>
+
+					<section data-auto-animate>
+						<h4>Plan A: Join Students First (Bad Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1 Result: 10 intermediate rows</p>
+						<div class="table-container" style="justify-content: center;">
+							<div>
+								<div class="table-label">Intermediate Result</div>
+								<table data-id="bad-intermediate" class="intermediate-result">
+									<tr><th>Name</th><th>SID</th><th>CID</th></tr>
+									<tr class="highlight-red"><td>Alice</td><td>1</td><td>101</td></tr>
+									<tr class="highlight-green"><td>Bob</td><td>2</td><td>101</td></tr>
+									<tr class="highlight-red"><td>Alice</td><td>1</td><td>201</td></tr>
+									<tr class="highlight-cyan"><td>Carol</td><td>3</td><td>201</td></tr>
+									<tr class="highlight-yellow"><td>Dave</td><td>4</td><td>202</td></tr>
+									<tr class="highlight-orange"><td>Eve</td><td>5</td><td>202</td></tr>
+									<tr class="highlight-green"><td>Bob</td><td>2</td><td>203</td></tr>
+									<tr class="highlight-cyan"><td>Carol</td><td>3</td><td>203</td></tr>
+									<tr class="highlight-yellow"><td>Dave</td><td>4</td><td>204</td></tr>
+									<tr class="highlight-orange"><td>Eve</td><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+					</section>
+
+					<section data-auto-animate>
+						<h4>Plan A: Join Students First (Bad Plan)</h4>
+						<p style="font-size: 0.85em;">Step 2: Result ⋈ SpecialCourses</p>
+						<div class="table-container">
+							<div>
+								<div class="table-label">Intermediate (10 rows)</div>
+								<table data-id="bad-intermediate" class="intermediate-result">
+									<tr><th>Name</th><th>CID</th></tr>
+									<tr class="highlight-red"><td>Alice</td><td>101</td></tr>
+									<tr class="highlight-green"><td>Bob</td><td>101</td></tr>
+									<tr class="highlight-red"><td>Alice</td><td>201</td></tr>
+									<tr class="highlight-cyan"><td>Carol</td><td>201</td></tr>
+									<tr class="dim"><td>Dave</td><td>202</td></tr>
+									<tr class="dim"><td>Eve</td><td>202</td></tr>
+									<tr class="dim"><td>Bob</td><td>203</td></tr>
+									<tr class="dim"><td>Carol</td><td>203</td></tr>
+									<tr class="dim"><td>Dave</td><td>204</td></tr>
+									<tr class="dim"><td>Eve</td><td>205</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label" data-id="spcourses-table">SpecialCourses</div>
+								<table data-id="special-table">
+									<tr><th>ID</th><th>Course</th></tr>
+									<tr class="highlight-red"><td>101</td><td>CS101</td></tr>
+									<tr class="highlight-cyan"><td>201</td><td>CS102</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 10 × 2 = 20 comparisons</p>
+					</section>
+
+
+					<section id="bad-step2-animated" data-auto-animate>
+						<h4>Plan A: Join Students First (Bad Plan)</h4>
+						<p style="font-size: 0.85em;">Step 2: Result ⋈ SpecialCourses</p>
+						<div class="table-container">
+							<svg id="bad-step2-svg"></svg>
+							<div>
+								<div class="table-label">Intermediate (10 rows)</div>
+								<table data-id="bad-intermediate" class="intermediate-result">
+									<tr><th>Name</th><th>CID</th></tr>
+									<tr id="bad-i1" class="highlight-red"><td>Alice</td><td>101</td></tr>
+									<tr id="bad-i2" class="highlight-green"><td>Bob</td><td>101</td></tr>
+									<tr id="bad-i3" class="highlight-red"><td>Alice</td><td>201</td></tr>
+									<tr id="bad-i4" class="highlight-cyan"><td>Carol</td><td>201</td></tr>
+									<tr class="dim"><td>Dave</td><td>202</td></tr>
+									<tr class="dim"><td>Eve</td><td>202</td></tr>
+									<tr class="dim"><td>Bob</td><td>203</td></tr>
+									<tr class="dim"><td>Carol</td><td>203</td></tr>
+									<tr class="dim"><td>Dave</td><td>204</td></tr>
+									<tr class="dim"><td>Eve</td><td>205</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label" data-id="spcourses-table">SpecialCourses</div>
+								<table data-id="special-table">
+									<tr><th>ID</th><th>Course</th></tr>
+									<tr id="bad-c1" class="highlight-red"><td>101</td><td>CS101</td></tr>
+									<tr id="bad-c2" class="highlight-cyan"><td>201</td><td>CS102</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 10 × 2 = 20 comparisons</p>
+					</section>
+					<section data-auto-animate>
+						<h4>Plan A: Join Students First (Bad Plan)</h4>
+						<p style="font-size: 0.85em;">Final Result: 4 rows</p>
+						<div class="table-container" style="justify-content: center;">
+							<div>
+								<div class="table-label">Final Result</div>
+								<table data-id="final-bad" class="final-result">
+									<tr><th>Name</th><th>Course</th></tr>
+									<tr class="highlight-red"><td>Alice</td><td>CS101</td></tr>
+									<tr class="highlight-green"><td>Bob</td><td>CS101</td></tr>
+									<tr class="highlight-red"><td>Alice</td><td>CS102</td></tr>
+									<tr class="highlight-cyan"><td>Carol</td><td>CS102</td></tr>
+								</table>
+							</div>
+						</div>
+						<div class="cost-box cost-bad">
+							<strong>Total Cost:</strong>
+							<div class="formula">50 + 20 = <span style="color: #cc0000; font-size: 1.2em;">70 comparisons</span></div>
+						</div>
+				</section>
+			</section>
+
+			<!-- GOOD PLAN -->
+			<section class="join-section" data-auto-animate>
+				<section data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1: SpecialCourses ⋈ Enrollments</p>
+						<div class="table-container">
+							<div>
+								<div class="table-label" data-id="spcourses-table">SpecialCourses</div>
+								<table data-id="special-table">
+									<tr><th>ID</th><th>Course</th></tr>
+									<tr><td>101</td><td>CS101</td></tr>
+									<tr><td>201</td><td>CS102</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label"  data-id="enrollments-table">Enrollments</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr><td>1</td><td>101</td></tr>
+									<tr><td>2</td><td>101</td></tr>
+									<tr><td>1</td><td>201</td></tr>
+									<tr><td>3</td><td>201</td></tr>
+									<tr><td>4</td><td>202</td></tr>
+									<tr><td>5</td><td>202</td></tr>
+									<tr><td>2</td><td>203</td></tr>
+									<tr><td>3</td><td>203</td></tr>
+									<tr><td>4</td><td>204</td></tr>
+									<tr><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 2 × 10 = 20 comparisons</p>
+					</section>
+
+					<section data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1: SpecialCourses ⋈ Enrollments</p>
+						<div class="table-container">
+							<div>
+								<div class="table-label" data-id="spcourses-table">SpecialCourses</div>
+								<table data-id="special-table">
+									<tr><th>ID</th><th>Course</th></tr>
+									<tr class="highlight-red"><td>101</td><td>CS101</td></tr>
+									<tr class="highlight-cyan"><td>201</td><td>CS102</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label"  data-id="enrollments-table">Enrollments</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr class="highlight-red"><td>1</td><td>101</td></tr>
+									<tr class="highlight-green"><td>2</td><td>101</td></tr>
+									<tr class="highlight-red"><td>1</td><td>201</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>201</td></tr>
+									<tr class="dim"><td>4</td><td>202</td></tr>
+									<tr class="dim"><td>5</td><td>202</td></tr>
+									<tr class="dim"><td>2</td><td>203</td></tr>
+									<tr class="dim"><td>3</td><td>203</td></tr>
+									<tr class="dim"><td>4</td><td>204</td></tr>
+									<tr class="dim"><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 2 × 10 = 20 comparisons</p>
+					</section>
+
+
+					<section id="good-step1-animated" data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1: SpecialCourses ⋈ Enrollments</p>
+						<div class="table-container">
+							<svg id="good-step1-svg"></svg>
+							<div>
+								<div class="table-label" data-id="spcourses-table">SpecialCourses</div>
+								<table data-id="special-table">
+									<tr><th>ID</th><th>Course</th></tr>
+									<tr id="good-c1" class="highlight-red"><td>101</td><td>CS101</td></tr>
+									<tr id="good-c2" class="highlight-cyan"><td>201</td><td>CS102</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label"  data-id="enrollments-table">Enrollments</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr id="good-e1" class="highlight-red"><td>1</td><td>101</td></tr>
+									<tr id="good-e2" class="highlight-green"><td>2</td><td>101</td></tr>
+									<tr id="good-e3" class="highlight-red"><td>1</td><td>201</td></tr>
+									<tr id="good-e4" class="highlight-cyan"><td>3</td><td>201</td></tr>
+									<tr class="dim"><td>4</td><td>202</td></tr>
+									<tr class="dim"><td>5</td><td>202</td></tr>
+									<tr class="dim"><td>2</td><td>203</td></tr>
+									<tr class="dim"><td>3</td><td>203</td></tr>
+									<tr class="dim"><td>4</td><td>204</td></tr>
+									<tr class="dim"><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 2 × 10 = 20 comparisons</p>
+					</section>
+					<section data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Step 1 Result: Only 4 intermediate rows!</p>
+						<div class="table-container" style="justify-content: center;">
+							<div>
+								<div class="table-label">Intermediate Result</div>
+								<table data-id="good-intermediate" class="intermediate-result">
+									<tr><th>SID</th><th>Course</th></tr>
+									<tr class="highlight-red"><td>1</td><td>CS101</td></tr>
+									<tr class="highlight-green"><td>2</td><td>CS101</td></tr>
+									<tr class="highlight-red"><td>1</td><td>CS102</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>CS102</td></tr>
+								</table>
+							</div>
+						</div>
+						<div class="cost-box cost-good">
+							<strong>Step 1 Cost:</strong>
+							<div class="formula">2 × 10 = 20 comparisons</div>
+							<div style="color: #00aa00; margin-top: 8px; font-size: 0.9em;">✓ <strong>Early filtering!</strong> Only 4 rows instead of 10</div>
+						</div>
+					</section>
+
+					<section data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Step 2: Result ⋈ Students</p>
+						<div class="table-container">
+							<div>
+								<div class="table-label">Intermediate (4 rows)</div>
+								<table data-id="good-intermediate" class="intermediate-result">
+									<tr><th>SID</th><th>Course</th></tr>
+									<tr class="highlight-red"><td>1</td><td>CS101</td></tr>
+									<tr class="highlight-green"><td>2</td><td>CS101</td></tr>
+									<tr class="highlight-red"><td>1</td><td>CS102</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>CS102</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label" data-id="students-table">Students</div>
+								<table data-id="students-table">
+									<tr><th>ID</th><th>Name</th></tr>
+									<tr class="highlight-red"><td>1</td><td>Alice</td></tr>
+									<tr class="highlight-green"><td>2</td><td>Bob</td></tr>
+									<tr class="highlight-cyan"><td>3</td><td>Carol</td></tr>
+									<tr class="dim"><td>4</td><td>Dave</td></tr>
+									<tr class="dim"><td>5</td><td>Eve</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 4 × 5 = 10 comparisons</p>
+						<p style="color: #00aa00; font-size: 0.8em;">Much smaller intermediate result!</p>
+					</section>
+
+
+					<section id="good-step2-animated" data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Step 2: Result ⋈ Students</p>
+						<div class="table-container">
+							<svg id="good-step2-svg"></svg>
+							<div>
+								<div class="table-label">Intermediate (4 rows)</div>
+								<table data-id="good-intermediate" class="intermediate-result">
+									<tr><th>SID</th><th>Course</th></tr>
+									<tr id="good-int1" class="highlight-red"><td>1</td><td>CS101</td></tr>
+									<tr id="good-int2" class="highlight-green"><td>2</td><td>CS101</td></tr>
+									<tr id="good-int3" class="highlight-red"><td>1</td><td>CS102</td></tr>
+									<tr id="good-int4" class="highlight-cyan"><td>3</td><td>CS102</td></tr>
+								</table>
+							</div>
+							<span class="arrow-text" data-id="join-symb">⋈</span>
+							<div>
+								<div class="table-label" data-id="students-table">Students</div>
+								<table data-id="students-table">
+									<tr><th>ID</th><th>Name</th></tr>
+									<tr id="good-st1" class="highlight-red"><td>1</td><td>Alice</td></tr>
+									<tr id="good-st2" class="highlight-green"><td>2</td><td>Bob</td></tr>
+									<tr id="good-st3" class="highlight-cyan"><td>3</td><td>Carol</td></tr>
+									<tr class="dim"><td>4</td><td>Dave</td></tr>
+									<tr class="dim"><td>5</td><td>Eve</td></tr>
+								</table>
+							</div>
+						</div>
+						<p class="formula" style="font-size: 0.85em;">Cost: 4 × 5 = 10 comparisons</p>
+						<p style="color: #00aa00; font-size: 0.8em;">Much smaller intermediate result!</p>
+					</section>
+					<section data-auto-animate>
+						<h4>Plan B: Join SpecialCourses First (Good Plan)</h4>
+						<p style="font-size: 0.85em;">Final Result: 4 rows</p>
+						<div class="table-container" style="justify-content: center;">
+							<div>
+								<div class="table-label">Final Result</div>
+								<table data-id="final-good" class="final-result">
+									<tr><th>Name</th><th>Course</th></tr>
+									<tr class="highlight-red"><td>Alice</td><td>CS101</td></tr>
+									<tr class="highlight-green"><td>Bob</td><td>CS101</td></tr>
+									<tr class="highlight-red"><td>Alice</td><td>CS102</td></tr>
+									<tr class="highlight-cyan"><td>Carol</td><td>CS102</td></tr>
+								</table>
+							</div>
+						</div>
+						<div class="cost-box cost-good">
+							<strong>Total Cost:</strong>
+							<div class="formula">20 + 10 = <span style="color: #00aa00; font-size: 1.2em;">30 comparisons</span></div>
+						</div>
+				</section>
+			</section>
+
+			<!-- COMPARISON -->
+			<section class="join-section" data-auto-animate>
+				<h3>Why Join Ordering Matters</h3>
+				<div class="comparison-container">
+					<div class="plan-box plan-bad">
+						<h4 style="margin-top: 0; font-size: 1em;">❌ Plan A: Bad Order</h4>
+						<div class="step-item">
+								<strong>Step 1:</strong> Students ⋈ Enrollments<br>
+								Cost: 5 × 10 = 50<br>
+								Result: 10 rows
+							</div>
+							<div class="step-item">
+								<strong>Step 2:</strong> Result ⋈ SpecialCourses<br>
+								Cost: 10 × 2 = 20<br>
+								Result: 4 rows
+							</div>
+							<div class="cost-box cost-bad" style="margin-top: 10px;">
+								<strong>Total: 70 comparisons</strong>
+							</div>
+						</div>
+						<div class="plan-box plan-good">
+							<h4 style="margin-top: 0; font-size: 1em;">✓ Plan B: Good Order</h4>
+							<div class="step-item">
+								<strong>Step 1:</strong> SpecialCourses ⋈ Enrollments<br>
+								Cost: 2 × 10 = 20<br>
+								Result: 4 rows <span style="color: #00aa00;">← Early filter!</span>
+							</div>
+							<div class="step-item">
+								<strong>Step 2:</strong> Result ⋈ Students<br>
+								Cost: 4 × 5 = 10<br>
+								Result: 4 rows
+							</div>
+							<div class="cost-box cost-good" style="margin-top: 10px;">
+								<strong>Total: 30 comparisons</strong>
+							</div>
+						</div>
+				</div>
+			</section>
+
+			<section class="join-section">
+				<h3>Why Join Ordering Matters</h3>
+				<div style="text-align: left; max-width: 700px; margin: 20px auto; font-size: 0.85em;">
+					<p style="font-size: 1.1em; color: #667eea;">
+						<strong>Plan B is 2.3× faster</strong>
+					</p>
+					<ul style="font-size: 0.95em;">
+						<li><strong>Join with selective tables first</strong> to filter early</li>
+						<li><strong>Smaller intermediate results</strong> = fewer comparisons in subsequent joins</li>
+						<li>For large tables, the difference can be <strong>orders of magnitude</strong></li>
+					</ul>
+				</div>
+				<div class="note" style="margin-top: 20px; font-size: 0.75em;">
+					<p style="margin: 0;">
+						<strong>The Challenge:</strong> How can the query optimizer choose the best join order
+						<strong>before execution?</strong>
+					</p>
+					<p style="margin-top: 10px; color: #667eea;">
+						→ We need <strong>cardinality estimation</strong> to predict intermediate result sizes!
+					</p>
+				</div>
+			</section>
+
+			<!-- Slide 1: Query Optimization Problem -->
+			<section>
+				<h3>The Query Optimization Problem</h3>
+				<ul>
+					<li class="fragment">Query optimizers need to estimate <strong>cardinality</strong></li>
+					<li class="fragment">Cardinality = size of query result</li>
+					<li class="fragment">Poor estimates → Poor query plans → Slow queries</li>
+					<li class="fragment">Critical for joins and selections</li>
+				</ul>
+				<div class="fragment">
+					<p><strong>Example:</strong> Wrong estimate leads to wrong join order</p>
+					<p style="color: red;">10x slower q uery execution!</p>
+				</div>
+			</section>
+
+			<!-- Slide 2: Independence Assumption -->
+			<section>
+				<h3>The Independence Assumption</h3>
+				<p>Traditional estimators assume columns are <strong>independent</strong></p>
+				<div class="fragment">
+					<p><strong>Reality:</strong> Data is often correlated!</p>
+				</div>
+				<p class="fragment">This assumption fails → Massive estimation errors</p>
 			</section>
 
 			<section>
-				<!-- Distinct header pinned to the very top of this slide -->
-				<header>
-					<h4>Content Outline</h4>
-				</header>
-				<!-- Content container pushed down so it doesn't overlap the header -->
-				<div style="padding-top:72px;">
+				<iframe src="demos/correlation-demo.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			<!-- Slide 3: Traditional Approaches -->
+			<section>
+				<h3>Traditional Approaches & Their Limitations</h3>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+					<div>
+						<h4>Histograms</h4>
+						<ul>
+							<li>✅ Work well for single columns</li>
+							<li>❌ Multivariate = exponential space</li>
+							<li>❌ Still assume independence</li>
+						</ul>
+					</div>
+					<div>
+						<h4>Machine Learning</h4>
+						<ul>
+							<li>✅ Multivariate distributions</li>
+							<li>❌ Training overhead</li>
+							<li>❌ Join estimation challenging</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+
+			<!-- Slide 4: Enter Sketches -->
+			<section>
+				<h3>Enter: Sketches</h3>
+				<p class="fragment"><strong>Sketch:</strong> Compact probabilistic data structure</p>
+				<ul>
+					<li class="fragment">Sub-linear space usage</li>
+					<li class="fragment">Fast updates and queries</li>
+					<li class="fragment">Theoretical accuracy guarantees</li>
+					<li class="fragment">Can handle joins naturally!</li>
+				</ul>
+				<p class="fragment" style="margin-top: 40px;">
+					<strong>But...</strong> they're query-specific 😕
+				</p>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SECTION 2: SKETCH FUNDAMENTALS -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Section 2: Sketch Fundamentals</h2>
+			</section>
+ 
+			<!-- Slide 5: Tug-of-War (AGMS) -->
+			<section>
+				<h3>The Tug-of-War Metaphor</h3>
+				<p>AGMS Sketch: Elements compete in a "tug-of-war"</p>
+				<img src="images/3_sketches/tugofwar.png" alt="Tug-of-War Sketch" style="max-width: 70%;">
+				<p style="font-size: 0.8em;">Each element assigned to +1 or -1 team</p>
+			</section>
+
+			<section>
+				<iframe src="demos/tugofwar.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			<!-- Slide 6: Pairwise Independent Hashing -->
+			<section>
+				<h3>Pairwise Independent Hashing</h3>
+				<p>Hash function: $\xi: \mathbb{R} \rightarrow \{\pm 1\}$</p>
+				<div class="fragment">
+					<p><strong>Key Property:</strong></p>
+					<p>$\mathbb{E}[\xi(i)\xi(j)] = \begin{cases} 0 & \text{if } i \neq j \\ 1 & \text{if } i = j
+						\end{cases}$</p>
+				</div>
+			</section>
+			<section>
+				<iframe src="demos/pairwise-hash.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			<!-- Slide 7: Point Selection with AGMS -->
+			<section>
+				<h3>Point Selection Estimation</h3>
+				<p>To estimate frequency of value $j$:</p>
+				<p class="fragment">$f_j \approx s \cdot \xi(j)$</p>
+				<p class="fragment">where $s = \sum_{i \in X} \xi(i)$ is the sketch</p>
+				<div class="fragment">
+					<p><strong>Unbiased!</strong> $\mathbb{E}[s \cdot \xi(j)] = f_j$</p>
+					<p>Variance: $\text{Var}[s \cdot \xi(j)] = F_2(X) - f_j^2$</p>
+				</div>
+			</section>
+			
+			<!-- Slide 20: Bias and Variance -->
+			<section>
+				<h3>AGMS Variance for frequency $f_j$</h3>
+				<iframe src="demos/variance-demo.html" class="r-stretch demo-iframe"></iframe>
+				<p class="fragment">High-frequency items → Lower variance</p>
+			</section>
+
+			<!-- Slide 8: Fast-AGMS -->
+			<section>
+				<h3>Fast-AGMS: The Speed-Up</h3>
+				<p>Use width-$w$ array instead of single counter</p>
+				<img src="images/3_sketches/fast-agms.png" alt="Fast-AGMS Sketch" style="max-width: 70%;">
+			</section>
+			<section>
+				<iframe src="demos/fastagms.html" class="r-stretch demo-iframe"></iframe>
+				<p style="font-size: 0.8em;">Each element goes to ONE counter → 1/w update time!</p>
+			</section>
+
+			<!-- Slide 9: Join Estimation -->
+			<section>
+				<h3>Join Cardinality Estimation</h3>
+				<p>For join $X \bowtie Y$:</p>
+				<p class="fragment">$|X \bowtie Y| \approx S_X \cdot S_Y$</p>
+				<p class="fragment">Dot product of sketch vectors!</p>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SECTION 3: SKETCH VARIATIONS -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Section 3: Sketch Variations</h2>
+			</section>
+
+			<!-- Slide 11: Count-Min -->
+			<section>
+				<h3>Count-Min Sketch</h3>
+				<p>Simplified: Always increment (no $\xi$ hash)</p>
+				<iframe src="demos/countmin.html" class="r-stretch demo-iframe"></iframe>
+				<p class="fragment" style="font-size: 0.8em;">
+					<strong>Trade-off:</strong> Biased (overestimates), but simpler & faster
+				</p>
+			</section>
+
+			<!-- Slide 12: Bound Sketch -->
+			<section>
+				<h3>Bound Sketch: Tighter Bounds</h3>
+				<p>Track <strong>maximum frequency</strong> per bucket</p>
+				<iframe src="demos/boundsketch.html" class="r-stretch demo-iframe"></iframe>
+				<p class="fragment">
+					$\max_i f_i \leq \sum_i f_i$ → Tighter than Count-Min!
+				</p>
+			</section>
+
+			<!-- Slide 13: Multiway Joins -->
+			<section style="font-size: 0.7em;">
+				<h3>$T_1 \bowtie T_2 \bowtie T_3$</p>
+				<img src="images/3_sketches/multi-way.png", alt="Sketch Construction for Multiway Joins" style="max-width: 50%;">
+			</section>
+			<section>
+				<iframe src="demos/multiway-join.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			<!-- Slide 13b: FFT Approach -->
+			<section style="font-size: 0.8em;">
+				<h3>Efficient Multiway Joins: FFT</h3>
+				<p>Avoiding Tensors with <strong>Circular Convolution</strong></p>
+				<ul>
+					<li class="fragment">Tensor size grows exponentially ($N^{\text{cols}}$)</li>
+					<li class="fragment">Convolution theorem: $A * B = \mathcal{F}^{-1}(\mathcal{F}(A) \cdot \mathcal{F}(B))$
+					</li>
+					<li class="fragment">Compute in $O(N \log N)$ using Fast Fourier Transform!</li>
+				</ul>
+			</section>
+			<section>
+				<iframe src="demos/fft-convolution.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			<!-- Slide 10: Dyadic Intervals -->
+			<section>
+				<h3>Range Queries: Dyadic Intervals</h3>
+				<p>How to handle range predicates?</p>
+				<p class="fragment">Decompose range into dyadic intervals!</p>
+				<img src="images/3_sketches/dyadic_intervals.jpg" alt="Dyadic Intervals on a Number Line" style="max-width: 70%;"> 
+				<p class="fragment" style="font-size: 0.8em;">
+					Any range decomposes into ≤ $2(\log_2(b-a) - 1)$ intervals
+				</p>
+			</section>
+			<section>
+				<iframe src="demos/dyadic-intervals.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			
+			<!-- Slide 21: Sketch Properties Comparison -->
+			<section>
+				<h3>Sketch Properties Summary</h3>
+				<table style="font-size: 0.6em; margin: auto;">
+					<thead>
+						<tr>
+							<th>Sketch</th>
+							<th>Linear?</th>
+							<th>Unbiased?</th>
+							<th>Space</th>
+							<th>Update Time</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><strong>AGMS</strong></td>
+							<td>✅ Yes</td>
+							<td>✅ Yes</td>
+							<td>O(d)</td>
+							<td>O(d)</td>
+						</tr>
+						<tr class="fragment">
+							<td><strong>Fast-AGMS</strong></td>
+							<td>✅ Yes</td>
+							<td>✅ Yes</td>
+							<td>O(dw)</td>
+							<td>O(d)</td>
+						</tr>
+						<tr class="fragment">
+							<td><strong>Count-Min</strong></td>
+							<td>✅ Yes</td>
+							<td>❌ No (upper bound)</td>
+							<td>O(dw)</td>
+							<td>O(d)</td>
+						</tr>
+						<tr class="fragment">
+							<td><strong>Bound</strong></td>
+							<td>❌ No</td>
+							<td>❌ No (upper bound)</td>
+							<td>O(dw)</td>
+							<td>O(d)</td>
+						</tr>
+					</tbody>
+				</table>
+				<p class="fragment" style="font-size: 0.8em; margin-top: 20px;">
+					d = # independent sketches, w = sketch width
+				</p>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SECTION 4: DISSERTATION CONTRIBUTION -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Section 4: The Dissertation's Contribution</h2>
+			</section>
+
+			<!-- Slide 14: The Problem with Sketches -->
+			<section>
+				<h3>The Problem with Sketches</h3>
+				<div style="text-align: left;">
+					<p class="fragment"><strong>Issue 1:</strong> Selections + Joins</p>
+					<p class="fragment">→ Would need exponential sketch tensors</p>
+					<br>
+					<p class="fragment"><strong>Issue 2:</strong> Query-specific construction</p>
+					<p class="fragment">→ Need to scan entire dataset for each query</p>
+					<br>
+					<p class="fragment"><strong>Issue 3:</strong> Many queries = many sketches</p>
+					<p class="fragment">→ Storage explosion for diverse workloads</p>
+					<br>
+				</div>
+			</section>
+
+			<!-- Slide 15: Approximate Sketches via ML -->
+			<section>
+				<h3>Solution: Approximate Sketches</h3>
+				<p class="fragment"><strong>Idea:</strong> Use ML models to generate sketches on-demand</p>
+				<div class="fragment" style="margin-top: 40px;">
+					<div style="display: flex; justify-content: space-around;">
+						<div style="flex: 1; border: 2px solid #667eea; padding: 20px; border-radius: 10px;">
+							<strong>Offline</strong><br>
+							Train model on data<br>
+							Learn joint distribution
+						</div>
+						<div style="font-size: 2em; padding: 20px;">→</div>
+						<div style="flex: 1; border: 2px solid #764ba2; padding: 20px; border-radius: 10px;">
+							<strong>Online</strong><br>
+							Query arrives<br>
+							Generate sketch instantly
+						</div>
+					</div>
+				</div>
+				<p class="fragment" style="margin-top: 40px;">
+					<strong>No data scan required!</strong> ✨
+				</p>
+			</section>
+
+			<!-- Slide 16: Two Approaches -->
+			<section>
+				<h3>Two Modeling Approaches</h3>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+					<div class="fragment">
+						<h4 style="color: #667eea;">Neural Networks</h4>
+						<ul style="font-size: 0.9em;">
+							<li>Transformers for attention</li>
+							<li>Hardware accelerated</li>
+							<li>High capacity</li>
+							<li>Gradient descent training</li>
+						</ul>
+					</div>
+					<div class="fragment">
+						<h4 style="color: #764ba2;">Sum-Product Networks</h4>
+						<ul style="font-size: 0.9em;">
+							<li>Probabilistic graphical model</li>
+							<li>Tractable inference</li>
+							<li>Fast training</li>
+							<li>Interpretable structure</li>
+						</ul>
+					</div>
+				</div>
+				<p class="fragment" style="margin-top: 40px;">
+					Both approaches: Learn distribution → Generate sketches
+				</p>
+			</section>
+			<section>
+				<h2 class="section-header">Novel Approximate Sketching Methods</h2>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SUBSECTION: THE PROBLEM -->
+			<!-- ============================================ -->
+			<section>
+				<h3>The Limitation of Traditional Sketches</h3>
+				<ul>
+					<li class="fragment">Sketches must be built for <strong>specific selections</strong></li>
+					<li class="fragment">Selection = table rows satisfying filter conditions</li>
+					<li class="fragment">Problem: Filters are specified at <strong>query time</strong></li>
+				</ul>
+				<div class="fragment" style="margin-top: 30px;">
+					<p><strong>Example Query:</strong></p>
+					<pre><code class="sql">SELECT COUNT(*)
+FROM orders o JOIN customers c ON o.customer_id = c.id
+WHERE o.year = 2024 AND c.region = 'West'</code></pre>
+					<p style="margin-top: 15px; color: #cc0000;">
+						Need sketches for σ<sub>year=2024</sub>(orders) and σ<sub>region='West'</sub>(customers)
+					</p>
+				</div>
+			</section>
+
+			<section>
+				<section data-auto-animate>
+					<h3>Three Approaches to the Problem</h3>
+					<div class="comparison-grid">
+						<div class="comparison-box traditional">
+							<h4>1. Pre-compute All Sketches</h4>
+							<ul style="font-size: 0.8em;">
+								<li>Build sketches for every possible selection</li>
+								<li><strong>Issue:</strong> Exponential combinations</li>
+								<li>10 attributes × 100 values each = 100<sup>10</sup> possibilities</li>
+								<li style="color: red;">Infeasible!</li>
+							</ul>
+						</div>
+						<div class="comparison-box traditional">
+							<h4>2. Build at Query Time</h4>
+							<ul style="font-size: 0.8em;">
+								<li>Filter data, then construct sketch</li>
+								<li><strong>Issue:</strong> Requires full table scan</li>
+								<li>COMPASS (GPU-accelerated): still hundreds of ms</li>
+								<li style="color: red;">High overhead!</li>
+							</ul>
+						</div>
+					</div>
+				</section>
+				<section data-auto-animate>
+					<h3>Three Approaches to the Problem</h3>
+					<div class="comparison-box approximate" style="margin-top: 20px;">
+						<h4>3. Approximate Sketches ✓</h4>
+						<ul style="font-size: 0.9em;">
+							<li>Train a model on the table (offline)</li>
+							<li>At query time: model predicts the sketch</li>
+							<li><strong>Benefit:</strong> Fast inference (~5-10 ms)</li>
+							<li style="color: green;">Practical for query optimization!</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+
+			<section>
+				<h3>Approximation Pipeline</h3>
+				<div class="diagram" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+					<!-- <object type="image/svg+xml" data="images/relerror_dist.svg"></object> -->
+					 <img src="images/approximate_sketching_pipeline.png" alt="Sketching Pipeline Comparison" style="width: 100%;">
+				</div>
+				<p>
+					The exact sketching pipeline (top) is impractical.
+				</p>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SUBSECTION: APPROXIMATE SKETCHES (TRANSFORMERS) -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Approximate Sketches (SIGMOD 2024)</h2>
+				<p style="margin-top: 30px;">Using Transformers to Approximate Count-Min Sketches</p>
+			</section>
+
+			<section style="font-size: 0.8em;">
+				<section data-auto-animate>
+					<h3>Probabilities into Sketches</h3>
+					<div class="key-insight">
+						<p>A Count-Min sketch can be expressed as:</p>
+						<div class="formula-box">
+							sketch(σ<sub>φ</sub>(T)) = <strong>p</strong> × |σ<sub>φ</sub>(T)|
+						</div>
+						<p style="margin-top: 15px;">Where:</p>
+						<ul>
+							<li><strong>p</strong> ∈ ℝ<sup>w</sup> = probability mass distribution over hash bins</li>
+							<li>|σ<sub>φ</sub>(T)| = cardinality of the selection</li>
+							<li>φ = filter predicates (e.g., age > 30 AND city = 'SF')</li>
+						</ul>
+					</div>
+					<p class="fragment" style="margin-top: 20px;">
+						<strong>Idea:</strong> Train a model to estimate <strong>p</strong> for ANY predicate φ
+					</p>
+				</section>
+
+				<section data-auto-animate>
+					<h3>Probabilities into Sketches</h3>
+					<p>For a hash function h : ℝ → {1, ..., w}:</p>
+					<div class="formula-box">
+						p<sub>i</sub> = P(h(X) = i | φ)
+					</div>
+					<p style="margin-top: 15px;">The i-th counter in the sketch:</p>
+					<div class="formula-box">
+						sketch[i] = Σ<sub>x ∈ σ<sub>φ</sub>(T)</sub> 𝟙<sub>h(x)=i</sub>
+						<br><br>
+						= |σ<sub>φ</sub>(T)| × P(h(X) = i | φ)
+					</div>
+					<p class="fragment" style="margin-top: 20px; color: #0066cc;">
+						Therefore: <strong>sketch = p × |σ<sub>φ</sub>(T)|</strong>
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<h3>Transformer Architecture</h3>
+
+					<div class="query-box">
+						<div class="label">Example Query</div>
+						<pre>SELECT COUNT(*) FROM customers c JOIN orders o ON c.customer_id = o.customer_id
+WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF'</span></pre>
+					</div>
+
+					<div class="flow-diagram">
+						<!-- Input Table -->
+						<table class="flow-table">
+							<thead>
+								<tr>
+									<th colspan="2">Input Embeddings</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>age</td>
+									<td class="input-cell">h(35) = 7</td>
+								</tr>
+								<tr>
+									<td>city</td>
+									<td class="input-cell">h('SF') = 12</td>
+								</tr>
+								<tr>
+									<td>customer_id</td>
+									<td class="masked-cell">[MASK]</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<div class="arrow-large">→</div>
+
+						<div class="bert-box">
+							BERT
+						</div>
+
+						<div class="arrow-large">→</div>
+
+						<!-- Output -->
+						<div class="output-box">
+							<div class="output-title">
+								P(h(customer_id) | conditions)
+							</div>
+							<div class="output-values">
+								[0.12, 0.08, 0.15, 0.10, ...]
+							</div>
+							<div class="output-formula">
+								<strong>Sketch:</strong> p × |σ(customers)|
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section>
+					<h3>Why Bidirectional Transformers?</h3>
+					<div class="comparison-grid">
+						<div class="comparison-box traditional">
+							<h4>Unidirectional (NeuroCard)</h4>
+							<ul style="font-size: 0.75em;">
+								<li>Predicts P(X<sub>i</sub> | X<sub>1</sub>, ..., X<sub>i-1</sub>)</li>
+								<li>Fixed column ordering</li>
+								<li>Cannot condition on "future" columns</li>
+								<li><strong>Limitation:</strong> Sketch column must come after all filter columns</li>
+							</ul>
+						</div>
+						<div class="comparison-box approximate">
+							<h4>Bidirectional (BERT)</h4>
+							<ul style="font-size: 0.75em;">
+								<li>Predicts P(X<sub>i</sub> | all other X<sub>j</sub>)</li>
+								<li>No column ordering constraint</li>
+								<li>Uses MASK tokens for prediction</li>
+								<li><strong>Advantage:</strong> Filters on ANY attributes work!</li>
+							</ul>
+						</div>
+					</div>
+					<p class="fragment" style="margin-top: 20px; color: #0066cc;">
+						Essential for approximating sketches with arbitrary filter conditions
+					</p>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<h3>Training Data: Raw Table</h3>
+					<p style="margin-bottom: 20px;">Start with actual database table rows</p>
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>customer_id</th>
+								<th>age<br><span style="font-size: 0.75em; font-weight: normal; color: #ddd;">(point
+										pred)</span></th>
+								<th>city<br><span style="font-size: 0.75em; font-weight: normal; color: #ddd;">(point
+										pred)</span></th>
+								<th>year<br><span style="font-size: 0.75em; font-weight: normal; color: #ddd;">(range
+										pred)</span></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="background: #e3f2fd;">1001</td>
+								<td style="background: #e3f2fd;">35</td>
+								<td style="background: #e3f2fd;">'SF'</td>
+								<td style="background: #e3f2fd;">2022</td>
+							</tr>
+							<tr>
+								<td style="background: #e3f2fd;">1002</td>
+								<td style="background: #e3f2fd;">42</td>
+								<td style="background: #e3f2fd;">'NY'</td>
+								<td style="background: #e3f2fd;">2019</td>
+							</tr>
+							<tr>
+								<td style="background: #e3f2fd;">1003</td>
+								<td style="background: #e3f2fd;">28</td>
+								<td style="background: #e3f2fd;">'LA'</td>
+								<td style="background: #e3f2fd;">2021</td>
+							</tr>
+							<tr>
+								<td style="background: #e3f2fd;">1004</td>
+								<td style="background: #e3f2fd;">55</td>
+								<td style="background: #e3f2fd;">'SF'</td>
+								<td style="background: #e3f2fd;">2023</td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="fragment" style="margin-top: 20px; font-size: 0.9em; color: #666;">
+						<strong>Goal:</strong> Transform this data to train BERT to predict sketches for any filter
+						condition
+					</p>
+				</section>
+
+				<section style="font-size: 0.8em;">
+					<h3>Training Pipeline</h3>
+					<div class="compact-training">
+						<table>
+							<thead>
+								<tr>
+									<th>Stage</th>
+									<th>Point Predicate (e.g., city)</th>
+									<th>Range Predicate (e.g., year)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr style="background: #f9f9f9;">
+									<td style="background: #f0f0f0; font-weight: bold; min-width: 140px;">1. Raw Value</td>
+									<td style="background: #e3f2fd; font-family: 'Courier New', monospace; padding: 12px;">
+										'SF'</td>
+									<td style="background: #e3f2fd; font-family: 'Courier New', monospace; padding: 12px;">
+										2022</td>
+								</tr>
+								<tr>
+									<td style="background: #f0f0f0; font-weight: bold;">2. Dyadic Annotation</td>
+									<td style="padding: 12px; text-align: center; color: #999;">—</td>
+									<td
+										style="background: #fff3e0; font-family: 'Courier New', monospace; font-size: 0.8em; padding: 12px;">
+										[2022,2023)<sub>2⁰</sub>, [2022,2024)<sub>2¹</sub>, ...</td>
+								</tr>
+								<tr style="background: #f9f9f9;">
+									<td style="background: #f0f0f0; font-weight: bold;">3. Hash</td>
+									<td style="background: #e8f5e9; font-family: 'Courier New', monospace; padding: 12px;">
+										h('SF') = 12</td>
+									<td
+										style="background: #e8f5e9; font-family: 'Courier New', monospace; font-size: 0.85em; padding: 12px;">
+										h<sub>0</sub> = 45, h<sub>1</sub> = 28, ...</td>
+								</tr>
+								<tr>
+									<td style="background: #f0f0f0; font-weight: bold;">4. Embedding</td>
+									<td colspan="2" style="padding: 12px; font-size: 0.9em;">Map each hash to learnable
+										vector in ℝ<sup>d</sup></td>
+								</tr>
+								<tr style="background: #f9f9f9;">
+									<td style="background: #f0f0f0; font-weight: bold;">5. Training</td>
+									<td colspan="2" style="padding: 12px; font-size: 0.9em;">BERT masked language modeling:
+										[h₁, h₂, [MASK], h₄] → predict h₃</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="fragment"
+						style="margin-top: 20px; padding: 15px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 4px; font-size: 0.9em;">
+						<strong>Note:</strong> Range predicates require dyadic interval annotation before hashing.
+						Point predicates hash directly.
+					</div>
+				</section>
+			</section>
+			
+			<section>
+				<section>
+					<h3>Join Cardinality Estimation Process</h3>
+					<p>For query: SELECT * FROM A JOIN B ON A.x = B.y WHERE ...</p>
+					<ol>
+						<li class="fragment">
+							<strong>Approximate Sketches:</strong>
+							<ul>
+								<li>Model for A: infer sketch(σ<sub>φ</sub>(A).x)</li>
+								<li>Model for B: infer sketch(σ<sub>ψ</sub>(B).y)</li>
+							</ul>
+						</li>
+						<li class="fragment">
+							<strong>Estimate Join:</strong>
+							<ul>
+								<li>|A ⋈ B| ≈ sketch(A) · sketch(B)</li>
+								<li>Take median of d independent estimates</li>
+							</ul>
+						</li>
+					</ol>
+				</section>
+				<section style="font-size: 0.7em;">
+					
+					<!-- <h3>Join Cardinality Estimation - Visual Pipeline</h3> -->
+
+				<div class="query-box">
+					<div class="label">Join Query</div>
+					<pre>SELECT COUNT(*) FROM customers c JOIN orders o ON <span class="join-highlight">c.customer_id = o.customer_id</span>
+WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2023</span></pre>
+				</div>
+
+				<div class="relation-pipeline">
+					<!-- Customers Row -->
+					<div class="pipeline-row">
+						<div class="relation-label">customers</div>
+
+						<div class="flow-box-3 input">
+							<div class="box-title">Filters</div>
+							<div class="box-content">
+								age = 35<br>
+								city = 'SF'
+							</div>
+						</div>
+
+						<span class="arrow-h">→</span>
+
+						<div class="flow-box-3 model">
+							BERT<sub>c</sub>
+							<div class="box-content">[7, 12, [MASK]]</div>
+						</div>
+
+						<span class="arrow-h">→</span>
+
+						<div class="flow-box-3 sketch">
+							<div class="box-title">S<sub>c</sub></div>
+							<div class="sketch-visual">
+								<div class="sketch-bar" style="height: 60%;"></div>
+								<div class="sketch-bar" style="height: 35%;"></div>
+								<div class="sketch-bar" style="height: 50%;"></div>
+								<div class="sketch-bar" style="height: 40%;"></div>
+								<div class="sketch-bar" style="height: 55%;"></div>
+								<div class="sketch-bar" style="height: 45%;"></div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Orders Row -->
+					<div class="pipeline-row">
+						<div class="relation-label">orders</div>
+
+						<div class="flow-box-3 input">
+							<div class="box-title">Filters</div>
+							<div class="box-content">
+								year = 2023
+							</div>
+						</div>
+
+						<span class="arrow-h">→</span>
+
+						<div class="flow-box-3 model">
+							BERT<sub>o</sub>
+							<div class="box-content">[45, [MASK]]</div>
+						</div>
+
+						<span class="arrow-h">→</span>
+
+						<div class="flow-box-3 sketch">
+							<div class="box-title">S<sub>o</sub></div>
+							<div class="sketch-visual">
+								<div class="sketch-bar" style="height: 45%;"></div>
+								<div class="sketch-bar" style="height: 65%;"></div>
+								<div class="sketch-bar" style="height: 40%;"></div>
+								<div class="sketch-bar" style="height: 50%;"></div>
+								<div class="sketch-bar" style="height: 55%;"></div>
+								<div class="sketch-bar" style="height: 48%;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Join Result -->
+				<div style="display: flex; justify-content: center; margin-top: 30px;">
+					<div class="flow-box-3 join" style="min-width: 250px;">
+						<div class="box-title">Join Cardinality Estimate</div>
+						<div class="box-content" style="text-align: center; font-size: 1em; margin-top: 10px;">
+							|customers ⋈ orders| ≈ S<sub>c</sub> · S<sub>o</sub>
+						</div>
+						<div style="margin-top: 10px; font-size: 0.75em; color: #666; text-align: center;">
+							Dot product of sketch vectors
+						</div>
+					</div>
+				</div>
+
+				</section>
+			</section>
+			
+			<section>
+				<section>
+					<h3>Experimental Setup</h3>
+					<p><strong>Datasets:</strong></p>
+					<ul style="font-size: 0.85em;">
+						<li><strong>IMDb</strong> — 6 tables, 20 columns, up to 36M rows</li>
+							<ul>
+								<li><strong>JOB-light:</strong> 70 queries</li>
+								<li><strong>JOB-light-ranges:</strong> 1000 queries</li>
+							</ul>
+						</li>
+					</ul>
+					<div class="fragment" style="margin-top: 20px;">
+						<p><strong>Baselines:</strong></p>
+						<ul style="font-size: 0.85em;">
+							<li>Exact Fast-AGMS and Count-Min Sketches</li>
+							<li>NeuroCard (Full Outer Join Transformer model)</li>
+						</ul>
+					</div>
+				</section>
+				<section>
+					<h3>Metrics</h3>
 					<ul>
-						<li>AGMS (Tug-of-War) Sketch</li>
-						<li>Fast-AGMS Sketch</li>
-						<li>Count-Min Sketch</li>
-						<li>Bound Sketch</li>
-						<li>Sketched SPNs (ML Approach)</li>
+						<li>Q-error: multiplicative error between estimated and true cardinality</li>
+						<li>P-error: multiplicative error between plan cost of estimated and best plan</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Q-error by Sketch Width</h3>
+					<div class="diagram" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+						<!-- <object type="image/svg+xml" data="images/relerror_dist.svg"></object> -->
+						<img src="images/transformers_sketch_qerror_by_width.png" alt="Q-error boxen-plots" style="width: 100%;">
+					</div>
+				</section>
+				<section>
+					<h3>Estimation Time</h3>
+					<div class="diagram" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+						<!-- <object type="image/svg+xml" data="images/relerror_dist.svg"></object> -->
+						<img src="images/est_time_transformers_vs_exact.png" alt="Sketching Results Comparison" style="width: 100%;">
+					</div>
+					<p>
+						Approx. faster than exact (pushdown) sketches!
+					</p>
+				</section>
+				<section>
+					<h3>Q-error & P-error</h3>
+					<div class="diagram" style="display: flex; justify-content: center; align-items: center; height: 100%">
+						<!-- <object type="image/svg+xml" data="images/relerror_dist.svg"></object> -->
+						<img src="images/transformers_qerror_perror.png" alt="Sketching Results Comparison" style="max-width: 100%;">
+					</div>
+				</section>
+				<section>
+					<h3>Runtime</h3>
+					<div class="diagram" style="display: flex; justify-content: center; align-items: center; height: 100%">
+						<!-- <object type="image/svg+xml" data="images/relerror_dist.svg"></object> -->
+						<img src="images/transformers_execution_time.png" alt="Sketching Results Comparison" style="max-width: 100%;">
+					</div>
+				</section>
+			</section>
+
+			<section style="font-size: 0.8em;">
+				<h3>Limitations of Transformer Approach</h3>
+				<ul>
+					<li class="fragment">
+						<strong>Scalability Issue:</strong> Model size grows linearly with sketch width
+						<ul>
+							<li>Need w × d × n embeddings (one per hash bin per attribute)</li>
+							<li>GPU memory constraints limit practical width to ~4,096</li>
+						</ul>
+					</li>
+					<li class="fragment">
+						<strong>Training Cost:</strong> Requires GPU acceleration
+						<ul>
+							<li>148 min/epoch on JOB-light (NVIDIA Tesla K80)</li>
+							<li>Becomes prohibitive for larger sketches</li>
+						</ul>
+					</li>
+					<li class="fragment" style="color: #cc0000;">
+						<strong>Problem:</strong> Larger sketches → better accuracy, but can't scale!
+					</li>
+				</ul>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SUBSECTION: SKETCHED SUM-PRODUCT NETWORKS -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Sketched Sum-Product Networks (2025)</h2>
+				<p style="margin-top: 30px;">Scaling Beyond Transformer Limitations</p>
+			</section>
+
+			<section>
+				<section data-auto-animate>
+					<h3>What are Sum-Product Networks?</h3>
+					<p><strong>Trees made of:</strong></p>
+					<ul>
+						<li class="fragment"><strong>Sum nodes:</strong> Mixture of distributions (weighted average)
+						</li>
+						<li class="fragment"><strong>Product nodes:</strong> Factorization of independent distributions
+						</li>
+						<li class="fragment"><strong>Leaves:</strong> Simple univariate distributions</li>
+						<li class="fragment"><strong>Root:</strong> Represents full joint distribution</li>
+					</ul>
+				</section>
+				<section data-auto-animate>
+					<h3>What are Sum-Product Networks?</h3>
+					<div>
+						<img src="images/5_spns/SPNs.png" alt="Sum-Product Network Training and Inference" style="max-width: 90%;">
+					</div>
+					<p>Training left, inference right</p>
+				</section>
+				<section>
+					<h3>Training</h3>
+					<div style="display: flex; width: 100%;">
+						<div style="max-width: 40%; font-size: 14px; margin-right: 0.3in;">
+							<img src="images/learn_spn.png" style="max-width: 100%; max-height: 100%;">
+						</div>
+						<ul>
+							<li>One random variable <br> → terminate (leaf node)</li>
+							<li>Independent variables <br> → factorize (product node)</li>
+							<li>Otherwise <br> → cluster (sum node)</li>
+						</ul>
+					</div>
+				</section>
+				<section>
+					<h3>Inference</h3>
+					<div style="display: flex; width: 100%;">
+						<div style="max-width: 60%; font-size: 14px; margin-right: 0.3in;">
+							<img src="images/infer_spn.png" style="max-width: 100%; max-height: 100%;">
+						</div>
+						<p>Query for<br>$P(Z \mid X=x_3)$</p>
+					</div>
+				</section>
+			</section>
+
+			<section>
+				<h3>SPNs for Multivariate Data</h3>
+				<p>Decompose complex joint distributions as linear combinations:</p>
+				<div class="formula-box fragment">
+					P(X<sub>1</sub>, ..., X<sub>n</sub>) = Σ<sub>i</sub> w<sub>i</sub> × ∏<sub>j</sub>
+					P<sub>ij</sub>(X<sub>j</sub>)
+				</div>
+				<div class="fragment" style="margin-top: 20px;">
+					<p><strong>Advantages for Relational Data:</strong></p>
+					<ul>
+						<li>Can handle mixed data types:</li>
+						<ul>
+							<li>both discrete & continuous</li>
+						</ul>
+						<li>Less than exponential storage</li>
+						<li><strong>No GPU required!</strong> Can train on CPU</li>
 					</ul>
 				</div>
 			</section>
 
 			<section>
-				<h3>What is a Sketch?</h3>
-				<ul>
-					<li>Probabilistic data structure</li>
-					<li>Approximates properties (cardinality, frequency)</li>
-					<li>Sub-linear space usage (compression)</li>
-					<li>Trade-off: Accuracy vs. Space vs. Speed</li>
-				</ul>
+				<section data-auto-animate>
+					<h3>Sketches from SPNs</h3>
+					<div class="key-insight">
+						<p>Instead of storing probability distributions in leaf nodes...</p>
+						<p style="margin-top: 15px; font-size: 1.2em; color: #0066cc;">
+							<strong>Store sketches in leaf nodes!</strong>
+						</p>
+					</div>
+					<div class="fragment" style="margin-top: 20px;">
+						<ul>
+							<li>Each leaf represents a partition of the data</li>
+							<li>Leaf stores the sketch of that partition</li>
+							<li>Sketches combine via sum/product operations</li>
+							<li>Result: Approximate sketch of any selection</li>
+						</ul>
+					</div>
+				</section>
+				<section data-auto-animate>
+					<h3>Sketches from SPNs</h3>
+					<div style="max-width: 100%; font-size: 14px; margin-right: 0.3in;">
+						<img src="images/5_spns/sketched_spns.png" alt="Sketched Sum-Product Networks" style="max-width: 60%; max-height: 60%;">
+					</div>
+				</section>
 			</section>
 
 			<section>
-				<h4>AGMS (Tug-of-War) Sketch</h4>
-				<p>Estimates second frequency moment ($F_2$) and join sizes.</p>
-				<iframe src="demos/tugofwar.html" width="100%" height="500" style="border: none; background: white;"></iframe>
-			</section>
-
-			<section>
-				<h3>Fast-AGMS Sketch</h3>
-				<p>Updates only 1 counter per row. Query = Median of estimates.</p>
-				<iframe src="demos/fastagms.html" width="100%" height="500" style="border: none; background: white;"></iframe>
-			</section>
-
-			<section>
-				<h3>Count-Min Sketch</h3>
-				<p>Hash to grid, increment counters. Query = Minimum of estimates.</p>
-				<iframe src="demos/countmin.html" width="100%" height="500" style="border: none; background: white;"></iframe>
-			</section>
-
-			<section>
-				<h3>Bound Sketch</h3>
-				<p>Tracks Max Frequency. Query = Max Frequency (Safe Upper Bound).</p>
-				<iframe src="demos/boundsketch.html" width="100%" height="500"
-					style="border: none; background: white;"></iframe>
-			</section>
-
-			<section>
-				<h3>The Problem</h3>
-				<p>Sketches are great, but...</p>
-				<p class="fragment">Constructing them on-the-fly for arbitrary query predicates is
-					<strong>expensive</strong>.
+				<h3>Error Bound for SPN Approximations</h3>
+				<div class="key-insight">
+					<p><strong>Conjecture:</strong> Approximation error is bounded by independence assumption</p>
+					<div class="formula-box">
+						||sketch(σ<sub>φ</sub>(T)) - sketcĥ(σ<sub>φ</sub>(T))||₁
+						<br>≤ ||sketch(σ<sub>φ</sub>(T)) - sketch(T)×∏P(φᵣ)||₁
+					</div>
+					<p style="margin-top: 15px; font-size: 0.85em;">
+						Worst-case: Single product node (full independence assumption)
+					</p>
+				</div>
+				<p class="fragment" style="margin-top: 20px;">
+					Tighter independence/clustering thresholds → Closer to exact sketches
 				</p>
-				<p class="fragment">Requires scanning the entire dataset!</p>
 			</section>
 
 			<section>
-				<h3>Enter: Sketched SPNs</h3>
-				<p><strong>Generative Models for Approximating Sketches</strong></p>
-				<ul>
-					<li>Use Sum-Product Networks (SPNs) to learn data distribution.</li>
-					<li>Sketch the <em>model components</em> (leaves), not the data directly.</li>
-					<li>Generate approximate sketches for <em>any</em> query instantly.</li>
+				<h3>Upward-Biased Estimation</h3>
+				<p><strong>Observation:</strong> Overestimation is safer than underestimation</p>
+				<ul style="font-size: 0.85em;">
+					<li>Underestimation → risky query plans → catastrophic slowdown</li>
+					<li>Overestimation → cautious plans → marginally suboptimal</li>
 				</ul>
+				<div class="fragment" style="margin-top: 20px;">
+					<p><strong>Two Techniques for Upward Bias:</strong></p>
+					<ol>
+						<li><strong>Fast-AGMS Max:</strong> Take maximum instead of median
+							<ul>
+								<li>Multiple estimates → return max instead of median</li>
+							</ul>
+						</li>
+						<li><strong>Min-Product Node:</strong> Use min selectivity instead of product
+							<ul>
+								<li>P(φ) × sketch → min{P(φᵢ)} × sketch (upper bound)</li>
+							</ul>
+						</li>
+					</ol>
+				</div>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SUBSECTION: EXPERIMENTAL RESULTS -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Experimental Results</h2>
 			</section>
 
 			<section>
-				<h3>How it Works</h3>
-				<div style="display: flex; align-items: center; justify-content: center;">
-					<div style="flex: 1; border: 1px solid #ccc; padding: 10px; margin: 5px;">
-						<strong>Offline</strong><br>Train SPN on Data
-					</div>
-					<div style="font-size: 2em; margin: 0 10px;">&rarr;</div>
-					<div style="flex: 1; border: 1px solid #ccc; padding: 10px; margin: 5px;">
-						<strong>Online</strong><br>Query &rarr; SPN Inference
-					</div>
-					<div style="font-size: 2em; margin: 0 10px;">&rarr;</div>
-					<div style="flex: 1; border: 1px solid #ccc; padding: 10px; margin: 5px;">
-						<strong>Result</strong><br>Approximate Sketch
-					</div>
+				<h3>Experimental Setup</h3>
+				<p><strong>Datasets:</strong></p>
+				<ul style="font-size: 0.85em;">
+					<li><strong>JOB-light:</strong> 70 queries (696 subqueries) on 6 IMDb tables
+						<ul>
+							<li>Transitive joins, star schema, up to 5 tables</li>
+						</ul>
+					</li>
+					<li><strong>Stats-CEB:</strong> 146 queries (2603 subqueries) on 8 Stack Exchange tables
+						<ul>
+							<li>Non-transitive joins, more skewed/correlated data</li>
+						</ul>
+					</li>
+				</ul>
+				<div class="fragment" style="margin-top: 20px;">
+					<p><strong>Baselines:</strong></p>
+					<ul style="font-size: 0.85em;">
+						<li>Exact Fast-AGMS and Bound Sketch (computed at query time)</li>
+						<li>DeepDB, BayesCard, FactorJoin, FLAT (learned estimators)</li>
+					</ul>
 				</div>
 			</section>
 
 			<section>
-				<h3>Results</h3>
-				<ul>
-					<li><strong>Speed:</strong> Drastically faster than scanning data.</li>
-					<li><strong>Accuracy:</strong> Competitive with exact sketches.</li>
-					<li><strong>Impact:</strong> Better query optimization decisions in a fraction of the time.</li>
-				</ul>
+				<h3>Sketch Approximation Error</h3>
+				<img src="images/5_spns/l1_upper_bound.png" alt="Sketch Approximation Error Upper Bound" style="max-width: 90%;">
+				<p class="fragment" style="margin-top: 20px;">
+					<strong>Key Finding:</strong> 10% clustering threshold balances accuracy vs. model size
+				</p>
+			</section>
+			
+			<section>
+				<h3>Approximation Efficiency</h3>
+				<table style="font-size: 0.7em;">
+					<tr>
+						<th>Metric</th>
+						<th>Exact Sketches</th>
+						<th>Approximate Sketches</th>
+					</tr>
+					<tr>
+						<td>Sketch Construction Time</td>
+						<td>737s (JOB-light)<br>155s (Stats-CEB)</td>
+						<td>4.5s (JOB-light)<br>17.3s (Stats-CEB)</td>
+					</tr>
+					<tr>
+						<td>Space Required</td>
+						<td>473 MB (JOB-light)<br>3.1 GB (Stats-CEB)</td>
+						<td>1.2 GB model<br>676 MB model</td>
+					</tr>
+					<tr>
+						<td>Query Execution Time</td>
+						<td>2.88 hrs (JOB-light)<br>9.16 hrs (Stats-CEB)</td>
+						<td>2.88 hrs (0!)<br>9.31 hrs (+0.15)</td>
+					</tr>
+				</table>
+				<p class="fragment" style="margin-top: 15px; color: green;">
+					<strong>Within 3% of exact sketches!</strong> But much faster to compute.
+				</p>
 			</section>
 
 			<section>
-				<h3>Conclusion</h3>
-				<ul>
-					<li>Sketches solve the scale problem.</li>
-					<li>Sketched SPNs solve the <em>construction cost</em> problem.</li>
-					<li>Enables robust, scalable query optimization.</li>
-				</ul>
+				<h3>Training Time Comparison</h3>
+				<table style="font-size: 0.7em;">
+					<tr>
+						<th>Method</th>
+						<th>Model</th>
+						<th>JOB-light</th>
+						<th>Stats-CEB</th>
+					</tr>
+					<tr>
+						<td>Approximate Sketches</td>
+						<td>BERT</td>
+						<td>148 min/epoch*</td>
+						<td>N/A</td>
+					</tr>
+					<tr>
+						<td>Sketched SPNs</td>
+						<td>SPN</td>
+						<td>21 min</td>
+						<td>2 min</td>
+					</tr>
+					<tr>
+						<td>DeepDB</td>
+						<td>SPN</td>
+						<td>30 min</td>
+						<td>55 min</td>
+					</tr>
+					<tr>
+						<td>BayesCard</td>
+						<td>Bayes Net</td>
+						<td>6 min</td>
+						<td>2 min</td>
+					</tr>
+					<tr>
+						<td>FactorJoin</td>
+						<td>Bayes Net</td>
+						<td>4 min</td>
+						<td>1 min</td>
+					</tr>
+				</table>
+				<p style="font-size: 0.7em; margin-top: 10px;">*GPU required; others CPU-only</p>
+				<p class="fragment" style="margin-top: 15px; color: green;">
+					Sketched SPNs competitive with other per-relation methods
+				</p>
 			</section>
 
+			<section>
+				<h3>Model Complexity Trade-off</h3>
+				<object type="image/svg+xml" data="images/estimation_heatmaps.svg" style="max-width: 90%;"></object>
+				<!-- <img src="images/estimation_heatmaps.svg" > -->
+			</section>
+
+			<section>
+				<h3>Query Execution Time</h3>
+				<!-- <div class="diagram-placeholder">
+					<p><strong>Figure: Total Query Execution Time</strong></p>
+					<p>Includes both cardinality estimation time + actual query execution</p>
+				</div> -->
+				<object type="image/svg+xml" data="images/query_execution_times.svg" style="max-width: 95%;"></object>
+				<p class="fragment" style="margin-top: 15px; color: green; font-weight: bold;">
+					Exact F-AGMS would be the fastest, if not for construction time!
+				</p>
+			</section>
+
+			<section>
+				<h3>Model Comparison on JOB-light</h3>
+				<div class="comparison-grid">
+					<div class="comparison-box traditional">
+						<h4>BERT</h4>
+						<ul style="font-size: 0.75em;">
+							<li>Limited by GPU memory</li>
+							<li>Model size: 167 MB</li>
+							<li>Training: 148 min/epoch</li>
+							<li>Query Execution: 3.05 hrs</li>
+						</ul>
+					</div>
+					<div class="comparison-box approximate">
+						<h4>SPNs</h4>
+						<ul style="font-size: 0.75em;">
+							<li>No GPU required</li>
+							<li>Model size: 40 MB</li>
+							<li>Training: 18 min total</li>
+							<li>Query Execution: 2.93 hrs</li>
+						</ul>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SUBSECTION: CONTRIBUTIONS SUMMARY -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Contributions Summary</h2>
+			</section>
+
+			<section>
+				<h3>Novel Contributions</h3>
+				<div style="text-align: left; margin-top: 30px;">
+					<h4 style="color: #667eea;">1. Approximate Sketches (SIGMOD 2024)</h4>
+					<ul style="font-size: 0.85em;">
+						<li>First application of transformers to sketch approximation</li>
+						<li>Enables sketches for arbitrary filter conditions</li>
+						<li>Bidirectional architecture handles any column ordering</li>
+					</ul>
+					<h4 style="color: #667eea; margin-top: 25px;">2. Sketched Sum-Product Networks (2025)</h4>
+					<ul style="font-size: 0.85em;">
+						<li>Scalability: larger sketches than transformers (no GPU needed)</li>
+						<li>Upward-biased estimators: Fast-AGMS Max + Min-Product nodes</li>
+						<li>Error bounds: worst-case = independence assumption</li>
+					</ul>
+				</div>
+			</section>
+
+			<section>
+				<h3>Technical Innovations</h3>
+				<ol>
+					<li class="fragment">
+						<strong>Sketch Factorization:</strong>
+						<div class="formula-box">sketch = probability × cardinality</div>
+						Enables learning-based approximation
+					</li>
+					<li class="fragment">
+						<strong>SPN + Sketches:</strong>
+						Store sketches in leaf nodes, combine compositionally
+					</li>
+					<li class="fragment">
+						<strong>Upward Bias Techniques:</strong>
+						Max aggregation + min-product nodes for safer estimates
+					</li>
+				</ol>
+			</section>
+
+			<section>
+				<h3>Impact on Query Optimization</h3>
+				<div class="key-insight">
+					<p style="font-size: 1.2em; margin-bottom: 20px;">
+						<strong>Makes sketches practical</strong>
+					</p>
+					<ul style="text-align: left;">
+						<li>No need to pre-compute sketches for all selections</li>
+						<li>No expensive query-time sketch construction</li>
+						<li>Fast inference (~5-10 ms) suitable for optimization</li>
+						<li>Scales to large databases (per-relation models)</li>
+					</ul>
+				</div>
+			</section>
+
+			<section>
+				<h3>Publications</h3>
+				<div style="text-align: left; margin-top: 30px;">
+					<p style="font-size: 0.8em; margin-bottom: 30px;">
+						<strong>Brian Tsan</strong>, Asoke Datta, Yesdaulet Izenov, Florin Rusu<br>
+						<em>"Approximate Sketches"</em><br>
+						<strong>SIGMOD 2024</strong> (ACM Conference on Management of Data)<br>
+						<a href="https://doi.org/10.1145/3639321"
+							style="font-size: 0.75em;">https://doi.org/10.1145/3639321</a>
+					</p>
+					<p style="font-size: 0.8em;">
+						<strong>Brian Tsan</strong>, Abylay Amanbayev, Asoke Datta, Florin Rusu<br>
+						<em>"Sketched Sum-Product Networks for Joins"</em><br>
+						<strong>Under Submission 2025</strong><br>
+						Open source: <a href="https://github.com/Btsan/Sketched-SPNs"
+							style="font-size: 0.75em;">github.com/Btsan/Sketched-SPNs</a>
+					</p>
+				</div>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- CLOSING -->
+			<!-- ============================================ -->
+
+			<!-- Slide 22: Bringing It Together -->
+			<section>
+				<h3>Bringing It Together</h3>
+				<div style="text-align: left; font-size: 0.9em;">
+					<p class="fragment"><strong>1. Problem:</strong> Cardinality estimation is critical</p>
+					<p class="fragment"><strong>2. Challenge:</strong> Joins are hard</p>
+					<p class="fragment"><strong>3. Sketches:</strong> Fast, accurate, but limited</p>
+					<p class="fragment"><strong>4. Our Solution:</strong> Learn distribution → Generate sketches
+					</p>
+					<p class="fragment"><strong>5. Results:</strong> Fast generation, high accuracy</p>
+				</div>
+				<div class="fragment"
+					style="margin-top: 40px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;">
+					<p><strong>Enables sketches for query optimization</strong></p>
+					<p>without per-query construction!</p>
+				</div>
+			</section>
+
+			<!-- Slide 23: Questions -->
+			<section>
+				<h2>Questions?</h2>
+				<br><br>
+				<p><strong>Brian Tsan</strong></p>
+				<p>btsan@ucmerced.edu</p>
+				<br>
+				<p style="font-size: 0.8em;">
+					Advisor: Professor Florin Rusu<br>
+					UC Merced
+				</p>
+				<br>
+				<p style="font-size: 0.7em; color: #666;">
+					Code & demos available at: github.com/btsan
+				</p>
+			</section>
 
 		</div>
 	</div>
@@ -198,49 +2406,96 @@
 	<script src="plugin/markdown/markdown.js"></script>
 	<script src="plugin/highlight/highlight.js"></script>
 	<script src="plugin/math/math.js"></script>
-	//custom animations
-	< </script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				// backgroundTransition: 'none',
-				hash: true,
 
-				// add slide number
-				slideNumber: "c/t",
-				pdfSeparateFragments: false,
+	<script>
+		Reveal.initialize({
+			hash: true,
+			slideNumber: "c/t",
+			pdfSeparateFragments: false,
+			transition: 'slide',
+			transitionSpeed: 'default',
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
+		});
+
+		// Join ordering animation handlers
+		const badStep1Connections = [
+			{ from: '#bad-s1.east', to: '#bad-e1.west', color: '#ff6666', delay: 0 },
+			{ from: '#bad-s1.east', to: '#bad-e3.west', color: '#ff6666', delay: 0.1 },
+			{ from: '#bad-s2.east', to: '#bad-e2.west', color: '#88bb44', delay: 0.2 },
+			{ from: '#bad-s2.east', to: '#bad-e7.west', color: '#88bb44', delay: 0.3 },
+			{ from: '#bad-s3.east', to: '#bad-e4.west', color: '#44aacc', delay: 0.4 },
+			{ from: '#bad-s3.east', to: '#bad-e8.west', color: '#44aacc', delay: 0.5 },
+			{ from: '#bad-s4.east', to: '#bad-e5.west', color: '#ddcc00', delay: 0.6 },
+			{ from: '#bad-s4.east', to: '#bad-e9.west', color: '#ddcc00', delay: 0.7 },
+			{ from: '#bad-s5.east', to: '#bad-e6.west', color: '#ff9944', delay: 0.8 },
+			{ from: '#bad-s5.east', to: '#bad-e10.west', color: '#ff9944', delay: 0.9 },
+		];
+
+		const goodStep1Connections = [
+			{ from: '#good-c1.east', to: '#good-e1.west', color: '#ff6666', delay: 0 },
+			{ from: '#good-c1.east', to: '#good-e2.west', color: '#88bb44', delay: 0.15 },
+			{ from: '#good-c2.east', to: '#good-e3.west', color: '#ff6666', delay: 0.3 },
+			{ from: '#good-c2.east', to: '#good-e4.west', color: '#44aacc', delay: 0.45 },
+		];
+
+		// BAD PLAN STEP 2: Intermediate Result -> SpecialCourses connections
+		// Alice 101 (i1) -> CS101 (c1), Bob 101 (i2) -> CS101 (c1),
+		// Alice 201 (i3) -> CS102 (c2), Carol 201 (i4) -> CS102 (c2)
+		const badStep2Connections = [
+			{ from: '#bad-i1.east', to: '#bad-c1.west', color: '#ff6666', delay: 0 },
+			{ from: '#bad-i2.east', to: '#bad-c1.west', color: '#88bb44', delay: 0.15 },
+			{ from: '#bad-i3.east', to: '#bad-c2.west', color: '#ff6666', delay: 0.3 },
+			{ from: '#bad-i4.east', to: '#bad-c2.west', color: '#44aacc', delay: 0.45 },
+		];
+
+		// GOOD PLAN STEP 2: Intermediate Result -> Students connections
+		// SID 1 (int1, int3) -> Alice (st1), SID 2 (int2) -> Bob (st2), SID 3 (int4) -> Carol (st3)
+		const goodStep2Connections = [
+			{ from: '#good-int1.east', to: '#good-st1.west', color: '#ff6666', delay: 0 },
+			{ from: '#good-int2.east', to: '#good-st2.west', color: '#88bb44', delay: 0.15 },
+			{ from: '#good-int3.east', to: '#good-st1.west', color: '#ff6666', delay: 0.3 },
+			{ from: '#good-int4.east', to: '#good-st3.west', color: '#44aacc', delay: 0.45 },
+		];
+
+		function drawConnections(svgId, connections) {
+			const svg = document.querySelector(svgId);
+			if (!svg) return;
+
+			svg.innerHTML = '';
+
+			connections.forEach(conn => {
+				setTimeout(() => {
+					draw(svgId)
+						.path(conn.from, conn.to)
+						.stroke(conn.color)
+						.width(2)
+						.arrow('->')
+						.animate(true, 0.5, 0)
+						.draw();
+				}, conn.delay * 1000);
 			});
+		}
 
-			// old stuff
-			/* function onMaybeDraw() {
-				const slide = Reveal.getCurrentSlide();
-				if (slide) {
-					console.log(slide.id);
-					if (slide.id === 'join-slide') {
-						drawJoinLines();
-					}
-					else if (slide.id === 'hash-slide') {
-						drawHashLines(slide.id);
-					}
-					else if (slide.id === 'sketch-slide') {
-						drawSketches();
-					}
-					else if (slide.id === 'fast-agms-slide') {
-						drawHashLines2();
-					}
-				}
+		function onSlideChanged() {
+			const slide = Reveal.getCurrentSlide();
+			if (!slide) return;
+
+			if (slide.id === 'bad-step1-animated') {
+				drawConnections('#bad-step1-svg', badStep1Connections);
+			} else if (slide.id === 'good-step1-animated') {
+				drawConnections('#good-step1-svg', goodStep1Connections);
+			} else if (slide.id === 'bad-step2-animated') {
+				drawConnections('#bad-step2-svg', badStep2Connections);
+			} else if (slide.id === 'good-step2-animated') {
+				drawConnections('#good-step2-svg', goodStep2Connections);
 			}
+		}
 
-			Reveal.on('ready',       onMaybeDraw);
-			Reveal.on('slidechanged', onMaybeDraw);
-			Reveal.on('resize',      onMaybeDraw); */
-
-		</script>
+		Reveal.on('ready', onSlideChanged);
+		Reveal.on('slidechanged', onSlideChanged);
+		Reveal.on('resize', onSlideChanged);
+	</script>
 </body>
 
 </html>
