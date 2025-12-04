@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Generative Models for Approximating Cardinality Sketches</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/serif.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+	<!--  -->
+	<style>
+		:root {
+			--r-background-color: white;
+			--palered: rgb(255, 204, 204);
+			--palegreen: rgb(204, 221, 170);
+			--palecyan: rgb(204, 238, 255);
+		}
+
+		.table-container {
+			display: flex;
+			justify-content: space-around;
+			position: relative;
+		}
+
+		table {
+			border-collapse: collapse;
+			border-spacing: 0;
+			/* remove any default spacing */
+			border: 1.5px solid #333;
+			/* <= add this for the outer border */
+			margin: 20px;
+		}
+
+		td,
+		th {
+			overflow: hidden;
+			border: inherit;
+			border-collapse: collapse;
+			padding: 8px 12px;
+			transition: background-color 0.6s ease;
+		}
+
+		svg {
+			position: absolute;
+			top: 0;
+			left: 0;
+			pointer-events: none;
+			width: 100%;
+			height: 100%;
+		}
+
+		.reveal .slides section {
+			overflow: visible !important;
+		}
+	</style>
+
+</head>
+
+<body>
+	<svg style="height: 0; width: 0; position: absolute;">
+		<defs>
+			<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto"
+				markerUnits="strokeWidth">
+				<path d="M0,0 L10,3.5 L0,7 Z" fill="black" />
+			</marker>
+		</defs>
+	</svg>
+	<div class="reveal">
+		<div class="slides">
+
+			<section>
+				<h3>Generative Models for Approximating Cardinality Sketches</h3>
+				<!-- add a horizontal line to separate authors from the title -->
+				<hr>
+				<p>Brian Tsan</p>
+				<p>btsan@ucmerced.edu</p>
+			</section>
+
+			<section>
+				<!-- Distinct header pinned to the very top of this slide -->
+				<header>
+					<h4>Content Outline</h4>
+				</header>
+				<!-- Content container pushed down so it doesn't overlap the header -->
+				<div style="padding-top:72px;">
+					<ul>
+						<li>AGMS (Tug-of-War) Sketch</li>
+						<li>Fast-AGMS Sketch</li>
+						<li>Count-Min Sketch</li>
+						<li>Bound Sketch</li>
+						<li>Sketched SPNs (ML Approach)</li>
+					</ul>
+				</div>
+			</section>
+
+			<section>
+				<h3>What is a Sketch?</h3>
+				<ul>
+					<li>Probabilistic data structure</li>
+					<li>Approximates properties (cardinality, frequency)</li>
+					<li>Sub-linear space usage (compression)</li>
+					<li>Trade-off: Accuracy vs. Space vs. Speed</li>
+				</ul>
+			</section>
+
+			<section>
+				<h4>AGMS (Tug-of-War) Sketch</h4>
+				<p>Estimates second frequency moment ($F_2$) and join sizes.</p>
+				<iframe src="demos/tugofwar.html" width="100%" height="500" style="border: none; background: white;"></iframe>
+			</section>
+
+			<section>
+				<h3>Fast-AGMS Sketch</h3>
+				<p>Updates only 1 counter per row. Query = Median of estimates.</p>
+				<iframe src="demos/fastagms.html" width="100%" height="500" style="border: none; background: white;"></iframe>
+			</section>
+
+			<section>
+				<h3>Count-Min Sketch</h3>
+				<p>Hash to grid, increment counters. Query = Minimum of estimates.</p>
+				<iframe src="demos/countmin.html" width="100%" height="500" style="border: none; background: white;"></iframe>
+			</section>
+
+			<section>
+				<h3>Bound Sketch</h3>
+				<p>Tracks Max Frequency. Query = Max Frequency (Safe Upper Bound).</p>
+				<iframe src="demos/boundsketch.html" width="100%" height="500"
+					style="border: none; background: white;"></iframe>
+			</section>
+
+			<section>
+				<h3>The Problem</h3>
+				<p>Sketches are great, but...</p>
+				<p class="fragment">Constructing them on-the-fly for arbitrary query predicates is
+					<strong>expensive</strong>.
+				</p>
+				<p class="fragment">Requires scanning the entire dataset!</p>
+			</section>
+
+			<section>
+				<h3>Enter: Sketched SPNs</h3>
+				<p><strong>Generative Models for Approximating Sketches</strong></p>
+				<ul>
+					<li>Use Sum-Product Networks (SPNs) to learn data distribution.</li>
+					<li>Sketch the <em>model components</em> (leaves), not the data directly.</li>
+					<li>Generate approximate sketches for <em>any</em> query instantly.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h3>How it Works</h3>
+				<div style="display: flex; align-items: center; justify-content: center;">
+					<div style="flex: 1; border: 1px solid #ccc; padding: 10px; margin: 5px;">
+						<strong>Offline</strong><br>Train SPN on Data
+					</div>
+					<div style="font-size: 2em; margin: 0 10px;">&rarr;</div>
+					<div style="flex: 1; border: 1px solid #ccc; padding: 10px; margin: 5px;">
+						<strong>Online</strong><br>Query &rarr; SPN Inference
+					</div>
+					<div style="font-size: 2em; margin: 0 10px;">&rarr;</div>
+					<div style="flex: 1; border: 1px solid #ccc; padding: 10px; margin: 5px;">
+						<strong>Result</strong><br>Approximate Sketch
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<h3>Results</h3>
+				<ul>
+					<li><strong>Speed:</strong> Drastically faster than scanning data.</li>
+					<li><strong>Accuracy:</strong> Competitive with exact sketches.</li>
+					<li><strong>Impact:</strong> Better query optimization decisions in a fraction of the time.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h3>Conclusion</h3>
+				<ul>
+					<li>Sketches solve the scale problem.</li>
+					<li>Sketched SPNs solve the <em>construction cost</em> problem.</li>
+					<li>Enables robust, scalable query optimization.</li>
+				</ul>
+			</section>
+
+
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script src="plugin/math/math.js"></script>
+	//custom animations
+	< </script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				// backgroundTransition: 'none',
+				hash: true,
+
+				// add slide number
+				slideNumber: "c/t",
+				pdfSeparateFragments: false,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealMath.KaTeX]
+			});
+
+			// old stuff
+			/* function onMaybeDraw() {
+				const slide = Reveal.getCurrentSlide();
+				if (slide) {
+					console.log(slide.id);
+					if (slide.id === 'join-slide') {
+						drawJoinLines();
+					}
+					else if (slide.id === 'hash-slide') {
+						drawHashLines(slide.id);
+					}
+					else if (slide.id === 'sketch-slide') {
+						drawSketches();
+					}
+					else if (slide.id === 'fast-agms-slide') {
+						drawHashLines2();
+					}
+				}
+			}
+
+			Reveal.on('ready',       onMaybeDraw);
+			Reveal.on('slidechanged', onMaybeDraw);
+			Reveal.on('resize',      onMaybeDraw); */
+
+		</script>
+</body>
+
+</html>

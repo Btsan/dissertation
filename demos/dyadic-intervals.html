@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dyadic Interval Decomposition</title>
+    <link rel="stylesheet" href="demo-common.css">
+    <style>
+        .tree-container {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .node {
+            position: absolute;
+            border: 2px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            cursor: default;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .node.active {
+            border-color: var(--color-blue);
+            background-color: #ebf5fb;
+            color: var(--color-blue);
+            font-weight: bold;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+            z-index: 10;
+        }
+
+        .node.covered {
+            /* Leaf nodes covered by range but not necessarily selected as a dyadic interval */
+            background-color: #e8f8f5;
+            border-color: var(--color-green);
+        }
+
+        .node.selected {
+            /* The actual dyadic intervals in the cover */
+            background-color: var(--color-green);
+            color: white;
+            border-color: var(--color-green);
+            z-index: 20;
+            box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3);
+        }
+
+        .connector {
+            position: absolute;
+            background-color: #ddd;
+            transform-origin: top left;
+            z-index: 0;
+            height: 2px;
+        }
+
+        .range-highlight {
+            position: absolute;
+            bottom: 10px;
+            height: 4px;
+            background-color: var(--color-red);
+            transition: all 0.3s;
+            opacity: 0.7;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Dyadic Interval Decomposition</h2>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="range-start">Start (a):</label>
+                <input type="number" id="range-start" value="3" min="0" max="15">
+            </div>
+            <div class="control-group">
+                <label for="range-end">End (b):</label>
+                <input type="number" id="range-end" value="11" min="0" max="15">
+            </div>
+            <div class="control-group">
+                <label for="domain-size">Domain (N):</label>
+                <select id="domain-size" style="padding: 6px; border-radius: 4px;">
+                    <option value="16" selected>16</option>
+                    <option value="32">32</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="visualization-area">
+            <div class="tree-container" id="tree-container">
+                <!-- Tree will be generated here -->
+            </div>
+        </div>
+
+        <div class="feedback-panel">
+            <h4>Minimal Cover:</h4>
+            <div class="stats">
+                <span id="cover-list">Calculating...</span>
+                <span id="cover-count">Count: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/sketch-utils.js"></script>
+    <script>
+        const state = {
+            n: 16,
+            a: 3,
+            b: 11,
+            nodes: [] // Array of {l, r, x, y, width, height, element}
+        };
+
+        const container = document.getElementById('tree-container');
+        const inputA = document.getElementById('range-start');
+        const inputB = document.getElementById('range-end');
+        const selectN = document.getElementById('domain-size');
+        const coverListEl = document.getElementById('cover-list');
+        const coverCountEl = document.getElementById('cover-count');
+
+        function init() {
+            // Event listeners
+            inputA.addEventListener('input', updateRange);
+            inputB.addEventListener('input', updateRange);
+            selectN.addEventListener('change', updateDomain);
+
+            renderTree();
+            updateVisualization();
+        }
+
+        function updateDomain() {
+            state.n = parseInt(selectN.value);
+            inputA.max = state.n - 1;
+            inputB.max = state.n - 1;
+
+            // Clamp values
+            if (parseInt(inputA.value) >= state.n) inputA.value = state.n - 1;
+            if (parseInt(inputB.value) >= state.n) inputB.value = state.n - 1;
+
+            updateRange();
+            renderTree(); // Re-render tree structure
+            updateVisualization();
+        }
+
+        function updateRange() {
+            let a = parseInt(inputA.value);
+            let b = parseInt(inputB.value);
+
+            // Validation
+            if (isNaN(a)) a = 0;
+            if (isNaN(b)) b = 0;
+
+            // Ensure a <= b
+            if (a > b) {
+                // Just visually swap for logic, or clamp? Let's just allow user to fix it, but logic needs a <= b
+                // For visualization, we'll just take min/max
+                const temp = a;
+                a = Math.min(a, b);
+                b = Math.max(temp, b);
+            }
+
+            state.a = a;
+            state.b = b;
+            updateVisualization();
+        }
+
+        function renderTree() {
+            container.innerHTML = '';
+            state.nodes = [];
+
+            const levels = Math.log2(state.n) + 1;
+            const width = container.clientWidth || 800; // Fallback
+            const height = 480;
+            const levelHeight = height / (levels + 1);
+
+            // Generate nodes
+            // We can do a BFS or just iterate levels
+            // Root is [0, n-1]
+
+            const queue = [{ l: 0, r: state.n - 1, depth: 0, x: width / 2 }];
+
+            // We need to store nodes to draw lines
+            // Map key "l,r" to node object
+            const nodeMap = new Map();
+
+            while (queue.length > 0) {
+                const item = queue.shift();
+                const { l, r, depth, x } = item;
+
+                const y = depth * levelHeight + 40;
+                const nodeWidth = Math.max(24, (width / Math.pow(2, depth)) - 10);
+                const nodeHeight = 30;
+
+                const el = document.createElement('div');
+                el.className = 'node';
+                el.style.left = (x - nodeWidth / 2) + 'px';
+                el.style.top = y + 'px';
+                el.style.width = nodeWidth + 'px';
+                el.style.height = nodeHeight + 'px';
+                el.textContent = l === r ? l : `[${l}, ${r}]`;
+
+                // Tooltip
+                el.title = `Interval [${l}, ${r}]`;
+
+                container.appendChild(el);
+
+                const nodeObj = { l, r, depth, x, y, el, children: [] };
+                state.nodes.push(nodeObj);
+                nodeMap.set(`${l},${r}`, nodeObj);
+
+                // Add children
+                if (l < r) {
+                    const mid = l + Math.floor((r - l) / 2);
+                    const offset = width / Math.pow(2, depth + 2);
+
+                    queue.push({ l: l, r: mid, depth: depth + 1, x: x - offset });
+                    queue.push({ l: mid + 1, r: r, depth: depth + 1, x: x + offset });
+                }
+            }
+
+            // Draw connectors
+            // We can iterate nodes and find their children
+            state.nodes.forEach(node => {
+                if (node.l < node.r) {
+                    const mid = node.l + Math.floor((node.r - node.l) / 2);
+                    const leftChild = nodeMap.get(`${node.l},${mid}`);
+                    const rightChild = nodeMap.get(`${mid + 1},${node.r}`);
+
+                    if (leftChild) drawLine(node, leftChild);
+                    if (rightChild) drawLine(node, rightChild);
+                }
+            });
+        }
+
+        function drawLine(parent, child) {
+            const line = document.createElement('div');
+            line.className = 'connector';
+
+            const x1 = parent.x;
+            const y1 = parent.y + 30; // Bottom of parent
+            const x2 = child.x;
+            const y2 = child.y; // Top of child
+
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+            line.style.width = length + 'px';
+            line.style.left = x1 + 'px';
+            line.style.top = y1 + 'px';
+            line.style.transform = `rotate(${angle}deg)`;
+
+            container.appendChild(line);
+        }
+
+        function updateVisualization() {
+            const { a, b, n } = state;
+
+            // Get minimal cover
+            const cover = minimalDyadicCover(a, b, n);
+
+            // Create a set of cover strings for easy lookup
+            const coverSet = new Set(cover.map(interval => `${interval[0]},${interval[1]}`));
+
+            // Update nodes
+            state.nodes.forEach(node => {
+                node.el.className = 'node'; // Reset
+
+                // Check if node is in cover
+                if (coverSet.has(`${node.l},${node.r}`)) {
+                    node.el.classList.add('selected');
+                }
+                // Check if node is fully contained in range (but not selected as minimal)
+                // This happens for descendants of selected nodes
+                else if (node.l >= a && node.r <= b) {
+                    node.el.classList.add('covered');
+                }
+                // Check if node partially overlaps (ancestors)
+                else if (!(node.l > b || node.r < a)) {
+                    node.el.classList.add('active');
+                }
+            });
+
+            // Update feedback
+            const coverStr = cover.map(i => i[0] === i[1] ? `[${i[0]}]` : `[${i[0]}, ${i[1]}]`).join(', ');
+            coverListEl.textContent = coverStr || 'None';
+            coverCountEl.textContent = `Count: ${cover.length}`;
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            renderTree();
+            updateVisualization();
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

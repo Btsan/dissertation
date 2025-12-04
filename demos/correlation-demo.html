@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation vs Independence</title>
+    <link rel="stylesheet" href="demo-common.css">
+    <style>
+        .plot-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border: 2px solid var(--color-dark);
+            background: white;
+            margin: 20px auto;
+            cursor: crosshair;
+        }
+
+        .point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--color-blue);
+            opacity: 0.6;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .selection-box {
+            position: absolute;
+            border: 2px dashed var(--color-red);
+            background-color: rgba(239, 68, 68, 0.1);
+            pointer-events: none;
+            display: none;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .stat-val {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--color-dark);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-gray);
+            text-transform: uppercase;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-size: 12px;
+            color: var(--color-gray);
+        }
+
+        .x-axis {
+            bottom: -20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .y-axis {
+            left: -30px;
+            top: 50%;
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Correlation vs Independence</h2>
+
+        <div class="controls">
+            <button id="btn-indep" class="active" style="background-color: var(--color-blue);">Independence
+                Assumption</button>
+            <button id="btn-corr" style="background-color: var(--color-gray);">Reality (Correlated)</button>
+        </div>
+
+        <div class="plot-container" id="plot">
+            <div class="axis-label x-axis">Zip Code (X)</div>
+            <div class="axis-label y-axis">City (Y)</div>
+            <div class="selection-box" id="selection"></div>
+        </div>
+
+        <div class="feedback-panel">
+            Drag to query a range!
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-box">
+                <div class="stat-val" id="est-count">0</div>
+                <div class="stat-label">Independence Est.<br>(P(X) × P(Y))</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-val" id="true-count">0</div>
+                <div class="stat-label">Actual Count</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            points: [],
+            mode: 'independent', // 'independent' or 'correlated'
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            selX: 0,
+            selY: 0,
+            selW: 0,
+            selH: 0,
+            totalPoints: 200
+        };
+
+        const els = {
+            plot: document.getElementById('plot'),
+            selection: document.getElementById('selection'),
+            estCount: document.getElementById('est-count'),
+            trueCount: document.getElementById('true-count'),
+            btnIndep: document.getElementById('btn-indep'),
+            btnCorr: document.getElementById('btn-corr'),
+            feedback: document.querySelector('.feedback-panel')
+        };
+
+        function initPoints() {
+            // Create DOM elements for points
+            for (let i = 0; i < state.totalPoints; i++) {
+                const p = document.createElement('div');
+                p.className = 'point';
+                els.plot.appendChild(p);
+                state.points.push({ el: p, x: 0, y: 0 });
+            }
+            updateDistribution();
+        }
+
+        function updateDistribution() {
+            state.points.forEach(p => {
+                let x, y;
+                if (state.mode === 'independent') {
+                    // Uniform random
+                    x = Math.random();
+                    y = Math.random();
+                } else {
+                    // Correlated (Diagonal with some noise)
+                    x = Math.random();
+                    // y is close to x
+                    y = x + (Math.random() - 0.5) * 0.2;
+                    // Clamp
+                    y = Math.max(0, Math.min(1, y));
+                }
+
+                p.x = x * 300;
+                p.y = (1 - y) * 300; // Invert Y for plot coordinates
+
+                p.el.style.left = p.x + 'px';
+                p.el.style.top = p.y + 'px';
+            });
+
+            // Re-calculate query if selection exists
+            if (state.selW > 0) updateQuery();
+        }
+
+        function updateQuery() {
+            const x1 = state.selX;
+            const y1 = state.selY;
+            const x2 = x1 + state.selW;
+            const y2 = y1 + state.selH;
+
+            // Normalize to 0-1 range
+            const nx1 = x1 / 300;
+            const nx2 = x2 / 300;
+            // Y is inverted in DOM (0 at top)
+            const ny1 = (300 - y2) / 300;
+            const ny2 = (300 - y1) / 300;
+
+            const width = nx2 - nx1;
+            const height = ny2 - ny1;
+
+            // 1. Actual Count
+            let actual = 0;
+            state.points.forEach(p => {
+                if (p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2) {
+                    actual++;
+                    p.el.style.backgroundColor = 'var(--color-red)';
+                } else {
+                    p.el.style.backgroundColor = 'var(--color-blue)';
+                }
+            });
+
+            // 2. Independence Estimate
+            // P(Range) = P(X in range) * P(Y in range)
+            // Assuming uniform marginals for simplicity in this demo explanation
+            // (Or we could calculate marginals, but simpler is better for "Independence Assumption" demo)
+            // The optimizer assumes uniform spread over the domain.
+            const estProb = width * height;
+            const estimated = Math.round(estProb * state.totalPoints);
+
+            els.trueCount.textContent = actual;
+            els.estCount.textContent = estimated;
+
+            // Feedback
+            const error = Math.abs(estimated - actual);
+            if (state.mode === 'correlated' && error > 20) {
+                els.feedback.innerHTML = `<strong>Huge Error!</strong><br>Optimizer assumes uniform spread, but data is diagonal.`;
+                els.feedback.style.backgroundColor = '#fee2e2';
+            } else if (state.mode === 'independent') {
+                els.feedback.innerHTML = `<strong>Good Estimate!</strong><br>Data matches the independence assumption.`;
+                els.feedback.style.backgroundColor = '#f3f4f6';
+            } else {
+                els.feedback.innerHTML = `Drag to query a range!`;
+                els.feedback.style.backgroundColor = '#f3f4f6';
+            }
+        }
+
+        // Interaction
+        els.plot.addEventListener('mousedown', e => {
+            state.isDragging = true;
+            const rect = els.plot.getBoundingClientRect();
+            state.startX = e.clientX - rect.left;
+            state.startY = e.clientY - rect.top;
+
+            state.selX = state.startX;
+            state.selY = state.startY;
+            state.selW = 0;
+            state.selH = 0;
+
+            els.selection.style.display = 'block';
+            els.selection.style.left = state.selX + 'px';
+            els.selection.style.top = state.selY + 'px';
+            els.selection.style.width = '0px';
+            els.selection.style.height = '0px';
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (!state.isDragging) return;
+            const rect = els.plot.getBoundingClientRect();
+            const currX = Math.max(0, Math.min(300, e.clientX - rect.left));
+            const currY = Math.max(0, Math.min(300, e.clientY - rect.top));
+
+            state.selX = Math.min(state.startX, currX);
+            state.selY = Math.min(state.startY, currY);
+            state.selW = Math.abs(currX - state.startX);
+            state.selH = Math.abs(currY - state.startY);
+
+            els.selection.style.left = state.selX + 'px';
+            els.selection.style.top = state.selY + 'px';
+            els.selection.style.width = state.selW + 'px';
+            els.selection.style.height = state.selH + 'px';
+
+            updateQuery();
+        });
+
+        window.addEventListener('mouseup', () => {
+            state.isDragging = false;
+        });
+
+        // Mode Switching
+        els.btnIndep.onclick = () => {
+            state.mode = 'independent';
+            els.btnIndep.style.backgroundColor = 'var(--color-blue)';
+            els.btnCorr.style.backgroundColor = 'var(--color-gray)';
+            updateDistribution();
+        };
+
+        els.btnCorr.onclick = () => {
+            state.mode = 'correlated';
+            els.btnCorr.style.backgroundColor = 'var(--color-blue)';
+            els.btnIndep.style.backgroundColor = 'var(--color-gray)';
+            updateDistribution();
+        };
+
+        initPoints();
+
+    </script>
+</body>
+
+</html>

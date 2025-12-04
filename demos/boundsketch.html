@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bound Sketch Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        button:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            min-height: 300px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .row-label {
+            width: 60px;
+            font-weight: bold;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .cell.highlight {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #bfdbfe;
+        }
+
+        .particle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+            z-index: 100;
+            transition: all 0.5s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .estimates-panel {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .estimate-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .final-estimate {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #3b82f6;
+        }
+
+        .comparison {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .comparison-item {
+            padding: 10px 20px;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        .safe-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .safe {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .unsafe {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h3>Bound Sketch</h3>
+            <p>Multidimensional Max-Frequency Tracking</p>
+        </div>
+
+        <div class="controls">
+            <button id="add-red">Add Red (+1)</button>
+            <button id="add-green">Add Green (+1)</button>
+            <button id="add-blue">Add Blue (+1)</button>
+            <button id="query-red" style="background-color: #10b981;">Query Red</button>
+            <button id="reset-btn" style="background-color: #6b7280;">Reset</button>
+        </div>
+
+        <div class="grid-container" id="grid">
+            <!-- Rows generated by JS -->
+        </div>
+
+        <div class="estimates-panel" id="estimates-panel" style="display: none;">
+            <h4>Query Analysis</h4>
+            <div id="estimate-details"></div>
+            <div class="final-estimate" id="final-result"></div>
+            <div class="comparison" id="comparison"></div>
+        </div>
+    </div>
+
+    <script src="../kwisehash.js"></script>
+    <script>
+        const CONFIG = {
+            depth: 3,
+            width: 5,
+            colors: {
+                'Red': '#ef4444',
+                'Green': '#22c55e',
+                'Blue': '#3b82f6'
+            }
+        };
+
+        const state = {
+            grid: [], // [row][col]
+            trueCounts: { 'Red': 0, 'Green': 0, 'Blue': 0 },
+            hashes: {
+                bin: new window.KWiseHash.BinHash(CONFIG.depth, CONFIG.width, 2, 123)
+            }
+        };
+
+        // Initialize Grid
+        function initGrid() {
+            const container = document.getElementById('grid');
+            container.innerHTML = '';
+            state.grid = [];
+            state.trueCounts = { 'Red': 0, 'Green': 0, 'Blue': 0 };
+            updateButtons();
+
+            for (let r = 0; r < CONFIG.depth; r++) {
+                state.grid[r] = new Array(CONFIG.width).fill(0);
+
+                const rowEl = document.createElement('div');
+                rowEl.className = 'row';
+
+                const label = document.createElement('div');
+                label.className = 'row-label';
+                label.textContent = `Row ${r}`;
+                rowEl.appendChild(label);
+
+                for (let c = 0; c < CONFIG.width; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${r}-${c}`;
+                    cell.textContent = '0';
+                    rowEl.appendChild(cell);
+                }
+                container.appendChild(rowEl);
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById('add-red').textContent = `Add Red (+1) [Count: ${state.trueCounts['Red']}]`;
+            document.getElementById('add-green').textContent = `Add Green (+1) [Count: ${state.trueCounts['Green']}]`;
+            document.getElementById('add-blue').textContent = `Add Blue (+1) [Count: ${state.trueCounts['Blue']}]`;
+        }
+
+        function spawnParticle(colorName, startX, startY) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.backgroundColor = CONFIG.colors[colorName];
+            p.style.left = startX + 'px';
+            p.style.top = startY + 'px';
+            p.textContent = '+1';
+            document.body.appendChild(p);
+            return p;
+        }
+
+        async function addItem(colorName) {
+            state.trueCounts[colorName]++;
+            updateButtons();
+
+            const currentTrueCount = state.trueCounts[colorName];
+
+            const btn = document.getElementById(`add-${colorName.toLowerCase()}`);
+            const rect = btn.getBoundingClientRect();
+            const startX = rect.left + rect.width / 2;
+            const startY = rect.top + rect.height / 2;
+
+            // Hash the item
+            const itemId = colorName.charCodeAt(0);
+
+            // Create particles for each row
+            const particles = [];
+            for (let r = 0; r < CONFIG.depth; r++) {
+                particles.push(spawnParticle(colorName, startX, startY));
+            }
+
+            // Animate
+            await new Promise(r => setTimeout(r, 50)); // Wait for render
+
+            const animations = particles.map((p, r) => {
+                const col = state.hashes.bin.hash(itemId, r);
+
+                const targetCell = document.getElementById(`cell-${r}-${col}`);
+                const targetRect = targetCell.getBoundingClientRect();
+
+                p.style.left = (targetRect.left + targetRect.width / 2 - 15) + 'px';
+                p.style.top = (targetRect.top + targetRect.height / 2 - 15) + 'px';
+
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        // Update Logic: MAX(current_cell, new_item_count)
+                        // In a real stream, we might not know new_item_count, but Bound Sketch assumes
+                        // we are tracking max degree in partitions.
+                        const oldVal = state.grid[r][col];
+                        const newVal = Math.max(oldVal, currentTrueCount);
+                        state.grid[r][col] = newVal;
+
+                        targetCell.textContent = newVal;
+
+                        // Flash effect
+                        targetCell.style.backgroundColor = '#e0f2fe';
+                        setTimeout(() => targetCell.style.backgroundColor = 'white', 200);
+
+                        p.remove();
+                        resolve();
+                    }, 600);
+                });
+            });
+
+            await Promise.all(animations);
+        }
+
+        function query(colorName) {
+            const itemId = colorName.charCodeAt(0);
+            const panel = document.getElementById('estimates-panel');
+            const details = document.getElementById('estimate-details');
+            const final = document.getElementById('final-result');
+            const comparison = document.getElementById('comparison');
+
+            panel.style.display = 'block';
+            details.innerHTML = '';
+
+            // Clear previous highlights
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('highlight'));
+
+            const estimates = [];
+
+            for (let r = 0; r < CONFIG.depth; r++) {
+                const col = state.hashes.bin.hash(itemId, r);
+                const val = state.grid[r][col];
+                estimates.push(val);
+
+                // Highlight cell
+                document.getElementById(`cell-${r}-${col}`).classList.add('highlight');
+
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'estimate-row';
+                rowDiv.innerHTML = `
+                    <span>Row ${r}: Cell[${col}] = ${val}</span>
+                `;
+                details.appendChild(rowDiv);
+            }
+
+            // Bound Sketch Query: Min of the Maxes
+            const estimate = Math.min(...estimates);
+            const trueCount = state.trueCounts[colorName];
+            const isSafe = estimate >= trueCount;
+
+            final.innerHTML = `Bound Estimate: ${estimate}`;
+
+            comparison.innerHTML = `
+                <div class="comparison-item">
+                    <strong>True Count:</strong> ${trueCount}
+                </div>
+                <div class="comparison-item">
+                    <strong>Error:</strong> +${estimate - trueCount}
+                    <span class="safe-badge ${isSafe ? 'safe' : 'unsafe'}">
+                        ${isSafe ? 'SAFE (Upper Bound)' : 'UNSAFE'}
+                    </span>
+                </div>
+            `;
+        }
+
+        // Event Listeners
+        document.getElementById('add-red').onclick = () => addItem('Red');
+        document.getElementById('add-green').onclick = () => addItem('Green');
+        document.getElementById('add-blue').onclick = () => addItem('Blue');
+
+        document.getElementById('query-red').onclick = () => query('Red');
+
+        document.getElementById('reset-btn').onclick = () => {
+            initGrid();
+            document.getElementById('estimates-panel').style.display = 'none';
+        };
+
+        // Init
+        initGrid();
+    </script>
+</body>
+
+</html>

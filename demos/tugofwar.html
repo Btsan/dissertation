@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tug-of-War Sketch Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h3 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        input[type="number"], select {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 70px;
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:disabled {
+            background-color: #d1d5db !important;
+            cursor: not-allowed;
+        }
+
+        .btn-play {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-play:hover:not(:disabled) {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .visualization {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 20px;
+            height: 200px;
+            position: relative;
+        }
+
+        .vis-container {
+            height: 100%;
+            position: relative;
+        }
+
+        .circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: absolute;
+            transition-property: transform;
+            transition-timing-function: ease-out;
+            z-index: 1;
+        }
+
+        .sketch-box {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #1f2937;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .estimates {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .estimates h4 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #374151;
+            text-align: center;
+        }
+
+        .estimates-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .estimate-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .estimate-box {
+            border-radius: 6px;
+            padding: 12px;
+            border: 2px solid;
+        }
+
+        .estimate-content {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .ellipsis {
+            text-align: center;
+            color: #6b7280;
+            font-size: 18px;
+        }
+
+        .estimate-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            margin: 4px 0;
+        }
+
+        .estimate-line .label {
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .estimate-avg {
+            border-top: 2px solid;
+            padding-top: 4px;
+            margin-top: 4px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .true-value {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h3>Tug-of-War Sketch</h3>
+            <p id="round-info">Round 1 of 100</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Rounds:</label>
+                <input type="number" id="num-rounds" min="3" max="500" value="100">
+            </div>
+
+            <div class="control-group">
+                <label>Speed:</label>
+                <select id="speed">
+                    <option value="1.0">Slow</option>
+                    <option value="0.3" selected>Normal</option>
+                    <option value="0.1">Fast</option>
+                </select>
+            </div>
+
+            <button id="play-btn" class="btn-play">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Play
+            </button>
+            <button id="next-btn" class="btn-secondary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+                Next
+            </button>
+            <button id="reset-btn" class="btn-secondary">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reset
+            </button>
+        </div>
+
+        <div class="visualization">
+            <div class="vis-container" id="vis-container">
+                <div class="sketch-box" id="sketch-box">0</div>
+            </div>
+        </div>
+
+        <div class="estimates">
+            <h4>Estimates</h4>
+            <div class="estimates-grid" id="estimates-grid"></div>
+        </div>
+    </div>
+
+    <!-- K-wise Hash Library -->
+    <script src="../kwisehash.js"></script>
+
+    <script>
+        // Application State
+        const state = {
+            rounds: [],
+            currentRound: 0,
+            isPlaying: false,
+            numRounds: 100,
+            speed: 0.3,
+            timer: null,
+            colors: {
+                red: { bg: '#ffcccc', border: '#ef4444', text: '#991b1b' },
+                green: { bg: '#ccdd99', border: '#22c55e', text: '#15803d' },
+                blue: { bg: '#cceeff', border: '#3b82f6', text: '#1e40af' }
+            },
+            frequencies: { red: 3, green: 2, blue: 1 }
+        };
+
+        // DOM Elements
+        const elements = {
+            roundInfo: document.getElementById('round-info'),
+            numRoundsInput: document.getElementById('num-rounds'),
+            speedSelect: document.getElementById('speed'),
+            playBtn: document.getElementById('play-btn'),
+            nextBtn: document.getElementById('next-btn'),
+            resetBtn: document.getElementById('reset-btn'),
+            visContainer: document.getElementById('vis-container'),
+            sketchBox: document.getElementById('sketch-box'),
+            estimatesGrid: document.getElementById('estimates-grid')
+        };
+
+        // Initialize
+        let signHash = new window.KWiseHash.SignHash(state.numRounds, 4, 42);
+        generateRounds();
+
+        function generateRounds() {
+            state.rounds = [];
+            signHash = new window.KWiseHash.SignHash(state.numRounds, 4, 42);
+
+            for (let r = 0; r < state.numRounds; r++) {
+                const roundData = { red: [], green: [], blue: [], sketch: 0 };
+
+                let sketch = 0;
+                Object.keys(state.frequencies).forEach(person => {
+                    const uniqueId = person.charCodeAt(0);
+                    const hash = signHash.hash(uniqueId, r);
+
+                    for (let i = 0; i < state.frequencies[person]; i++) {
+                        roundData[person].push(hash);
+                        sketch += hash;
+                    }
+                });
+                roundData.sketch = sketch;
+                state.rounds.push(roundData);
+            }
+        }
+
+        function updateUI() {
+            elements.roundInfo.textContent = `Round ${state.currentRound + 1} of ${state.numRounds}`;
+
+            const currentRoundData = state.rounds[state.currentRound];
+            elements.sketchBox.textContent = currentRoundData.sketch >= 0 ? `+${currentRoundData.sketch}` : currentRoundData.sketch;
+
+            renderCircles();
+            renderEstimates();
+            updateButtons();
+        }
+
+        function renderCircles() {
+            const currentRoundData = state.rounds[state.currentRound];
+            const allCircles = [];
+
+            Object.keys(state.frequencies).forEach(person => {
+                for (let i = 0; i < state.frequencies[person]; i++) {
+                    allCircles.push({
+                        color: person,
+                        value: currentRoundData[person][0],
+                        id: `${person}-${i}`
+                    });
+                }
+            });
+
+            // Remove old circles
+            const existingCircles = elements.visContainer.querySelectorAll('.circle');
+            existingCircles.forEach(circle => circle.remove());
+
+            const leftCircles = allCircles.filter(c => c.value === -1);
+            const rightCircles = allCircles.filter(c => c.value === 1);
+
+            // Create circles at center position first
+            allCircles.forEach((circle) => {
+                const circleEl = document.createElement('div');
+                circleEl.className = 'circle';
+                circleEl.style.backgroundColor = state.colors[circle.color].bg;
+                circleEl.style.borderColor = state.colors[circle.color].border;
+                circleEl.style.color = state.colors[circle.color].text;
+                circleEl.textContent = circle.value > 0 ? '+1' : '−1';
+                circleEl.dataset.circleId = circle.id;
+                circleEl.dataset.value = circle.value;
+
+                // Set transition duration to match round speed (80% of round time for smooth completion)
+                circleEl.style.transitionDuration = `${state.speed * 800}ms`;
+
+                // Start at center position (behind the box)
+                circleEl.style.left = '50%';
+                circleEl.style.top = '50%';
+                circleEl.style.transform = 'translate(-50%, -50%)';
+
+                elements.visContainer.appendChild(circleEl);
+            });
+
+            // Animate to final positions after a brief delay
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    const circles = elements.visContainer.querySelectorAll('.circle');
+
+                    circles.forEach((circleEl) => {
+                        const circleId = circleEl.dataset.circleId;
+                        const value = parseInt(circleEl.dataset.value);
+
+                        if (value === -1) {
+                            const leftIndex = leftCircles.findIndex(c => c.id === circleId);
+                            const spacing = 60;
+                            const minDistance = 100;
+                            const offset = -minDistance - (leftCircles.length - 1 - leftIndex) * spacing;
+                            circleEl.style.transform = `translate(calc(-50% + ${offset}px), -50%)`;
+                        } else {
+                            const rightIndex = rightCircles.findIndex(c => c.id === circleId);
+                            const spacing = 60;
+                            const minDistance = 100;
+                            const offset = minDistance + rightIndex * spacing;
+                            circleEl.style.transform = `translate(calc(-50% + ${offset}px), -50%)`;
+                        }
+                    });
+                });
+            });
+        }
+
+        function renderEstimates() {
+            const estimates = calculateEstimates();
+            elements.estimatesGrid.innerHTML = '';
+
+            Object.keys(state.frequencies).forEach(person => {
+                const personEstimates = estimates[person];
+                const totalEstimates = personEstimates.length;
+                const showEllipsis = totalEstimates > 3;
+                const visibleEstimates = showEllipsis
+                    ? personEstimates.slice(-3)
+                    : personEstimates;
+
+                const runningAvg = personEstimates.reduce((sum, e) => sum + e.result, 0) / totalEstimates;
+
+                const cardEl = document.createElement('div');
+                cardEl.className = 'estimate-card';
+
+                const boxEl = document.createElement('div');
+                boxEl.className = 'estimate-box';
+                boxEl.style.backgroundColor = state.colors[person].bg;
+                boxEl.style.borderColor = state.colors[person].border;
+
+                const contentEl = document.createElement('div');
+                contentEl.className = 'estimate-content';
+
+                if (showEllipsis) {
+                    contentEl.innerHTML += '<div class="ellipsis">⋮</div>';
+                }
+
+                visibleEstimates.forEach(est => {
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'estimate-line';
+                    lineEl.innerHTML = `
+                        <span class="label">R${est.roundNum}:</span>
+                        <span>${est.sketch}×${est.hash > 0 ? '+' : ''}${est.hash}=${est.result}</span>
+                    `;
+                    contentEl.appendChild(lineEl);
+                });
+
+                const avgEl = document.createElement('div');
+                avgEl.className = 'estimate-avg';
+                avgEl.style.borderColor = state.colors[person].border;
+                avgEl.textContent = `Avg: ${runningAvg.toFixed(2)}`;
+                contentEl.appendChild(avgEl);
+
+                boxEl.appendChild(contentEl);
+                cardEl.appendChild(boxEl);
+
+                const trueValueEl = document.createElement('div');
+                trueValueEl.className = 'true-value';
+                trueValueEl.textContent = `True: ${state.frequencies[person]}`;
+                cardEl.appendChild(trueValueEl);
+
+                elements.estimatesGrid.appendChild(cardEl);
+            });
+        }
+
+        function calculateEstimates() {
+            const estimates = { red: [], green: [], blue: [] };
+            state.rounds.slice(0, state.currentRound + 1).forEach((round, idx) => {
+                Object.keys(state.frequencies).forEach(person => {
+                    const personHash = round[person][0];
+                    const estimate = round.sketch * personHash;
+                    estimates[person].push({
+                        roundNum: idx + 1,
+                        sketch: round.sketch,
+                        hash: personHash,
+                        result: estimate
+                    });
+                });
+            });
+            return estimates;
+        }
+
+        function updateButtons() {
+            const playIcon = state.isPlaying
+                ? '<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+                : '<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+
+            elements.playBtn.innerHTML = playIcon + (state.isPlaying ? ' Pause' : ' Play');
+            elements.playBtn.disabled = state.currentRound >= state.numRounds - 1 && !state.isPlaying;
+        }
+
+        function animate() {
+            state.timer = setTimeout(() => {
+                if (state.currentRound < state.numRounds - 1) {
+                    state.currentRound++;
+                    updateUI();
+                    if (state.isPlaying) animate();
+                } else {
+                    state.isPlaying = false;
+                    updateUI();
+                }
+            }, state.speed * 1000);
+        }
+
+        // Event Listeners
+        elements.playBtn.addEventListener('click', () => {
+            state.isPlaying = !state.isPlaying;
+            if (state.isPlaying) {
+                animate();
+            } else {
+                clearTimeout(state.timer);
+            }
+            updateUI();
+        });
+
+        elements.nextBtn.addEventListener('click', () => {
+            if (state.currentRound < state.numRounds - 1) {
+                clearTimeout(state.timer);
+                state.isPlaying = false;
+                state.currentRound++;
+                updateUI();
+            }
+        });
+
+        elements.resetBtn.addEventListener('click', () => {
+            clearTimeout(state.timer);
+            state.currentRound = 0;
+            state.isPlaying = false;
+            updateUI();
+        });
+
+        elements.numRoundsInput.addEventListener('change', (e) => {
+            clearTimeout(state.timer);
+            state.numRounds = parseInt(e.target.value) || 100;
+            state.currentRound = 0;
+            state.isPlaying = false;
+            generateRounds();
+            updateUI();
+        });
+
+        elements.speedSelect.addEventListener('change', (e) => {
+            state.speed = parseFloat(e.target.value);
+        });
+
+        // Initial render
+        updateUI();
+    </script>
+</body>
+</html>

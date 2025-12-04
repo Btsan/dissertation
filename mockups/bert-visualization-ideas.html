@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BERT Visualization Ideas</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 40px;
+			background: #f5f5f5;
+		}
+		.variation {
+			background: white;
+			padding: 30px;
+			margin-bottom: 40px;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+		.variation h2 {
+			color: #667eea;
+			border-bottom: 3px solid #667eea;
+			padding-bottom: 10px;
+			margin-top: 0;
+		}
+		.variation h3 {
+			color: #333;
+			margin-top: 25px;
+		}
+
+		/* Variation 1: Linear Flow */
+		.linear-flow {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin: 30px 0;
+			gap: 15px;
+		}
+		.embedding-box {
+			background: #e3f2fd;
+			border: 2px solid #2196f3;
+			padding: 15px;
+			border-radius: 6px;
+			min-width: 120px;
+			text-align: center;
+		}
+		.embedding-box.masked {
+			background: #fff3e0;
+			border: 2px dashed #ff9800;
+		}
+		.bert-model {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			padding: 40px 30px;
+			border-radius: 10px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 1.2em;
+			flex-shrink: 0;
+		}
+		.arrow {
+			font-size: 2em;
+			color: #999;
+			flex-shrink: 0;
+		}
+		.output-box {
+			background: #e8f5e9;
+			border: 2px solid #4caf50;
+			padding: 15px;
+			border-radius: 6px;
+			min-width: 150px;
+			text-align: center;
+		}
+
+		/* Variation 2: Grid View */
+		.grid-container {
+			display: grid;
+			grid-template-columns: 150px 1fr;
+			gap: 2px;
+			margin: 30px 0;
+			border: 2px solid #333;
+		}
+		.grid-header {
+			background: #667eea;
+			color: white;
+			padding: 12px;
+			font-weight: bold;
+			text-align: center;
+		}
+		.grid-label {
+			background: #f0f0f0;
+			padding: 12px;
+			font-weight: bold;
+			border-right: 2px solid #333;
+		}
+		.grid-cell {
+			padding: 12px;
+			background: white;
+		}
+		.grid-cell.input {
+			background: #e3f2fd;
+		}
+		.grid-cell.masked {
+			background: #fff3e0;
+			border: 2px dashed #ff9800;
+			font-style: italic;
+		}
+		.grid-cell.output {
+			background: #e8f5e9;
+			font-family: 'Courier New', monospace;
+			font-size: 0.9em;
+		}
+
+		/* Variation 3: Step-by-step boxes */
+		.step-container {
+			display: flex;
+			flex-direction: column;
+			gap: 30px;
+			margin: 30px 0;
+		}
+		.step-box {
+			border: 2px solid #ddd;
+			border-radius: 8px;
+			padding: 20px;
+			background: white;
+		}
+		.step-title {
+			background: #667eea;
+			color: white;
+			padding: 8px 15px;
+			border-radius: 4px;
+			display: inline-block;
+			font-weight: bold;
+			margin-bottom: 15px;
+		}
+		.token-row {
+			display: flex;
+			gap: 10px;
+			align-items: center;
+			margin: 10px 0;
+		}
+		.token {
+			padding: 10px 15px;
+			border-radius: 4px;
+			border: 2px solid;
+			min-width: 80px;
+			text-align: center;
+			font-size: 0.9em;
+		}
+		.token.attribute {
+			background: #e3f2fd;
+			border-color: #2196f3;
+		}
+		.token.mask {
+			background: #fff3e0;
+			border-color: #ff9800;
+			border-style: dashed;
+			font-weight: bold;
+		}
+		.token.prob {
+			background: #e8f5e9;
+			border-color: #4caf50;
+			font-family: 'Courier New', monospace;
+			font-size: 0.8em;
+		}
+
+		/* Variation 4: Focused on sketch */
+		.sketch-focus {
+			display: flex;
+			gap: 40px;
+			margin: 30px 0;
+			align-items: flex-start;
+		}
+		.input-panel, .output-panel {
+			flex: 1;
+			border: 2px solid #ddd;
+			border-radius: 8px;
+			padding: 20px;
+			background: white;
+		}
+		.panel-title {
+			background: #667eea;
+			color: white;
+			padding: 10px;
+			margin: -20px -20px 15px -20px;
+			border-radius: 6px 6px 0 0;
+			font-weight: bold;
+			text-align: center;
+		}
+		.attribute-line {
+			padding: 8px;
+			margin: 5px 0;
+			border-radius: 4px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.attribute-line.known {
+			background: #e3f2fd;
+		}
+		.attribute-line.query {
+			background: #fff3e0;
+			border-left: 4px solid #ff9800;
+			font-weight: bold;
+		}
+		.attr-name {
+			color: #666;
+			font-size: 0.9em;
+		}
+		.attr-value {
+			font-weight: bold;
+			color: #333;
+		}
+		.probability-viz {
+			margin-top: 15px;
+		}
+		.prob-bar {
+			display: flex;
+			align-items: center;
+			margin: 8px 0;
+			gap: 10px;
+		}
+		.prob-label {
+			min-width: 60px;
+			font-size: 0.9em;
+			font-weight: bold;
+		}
+		.prob-fill {
+			height: 25px;
+			background: #4caf50;
+			border-radius: 3px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			padding-right: 8px;
+			color: white;
+			font-size: 0.8em;
+			font-weight: bold;
+		}
+
+		/* Variation 5: Compact table style */
+		.compact-table {
+			margin: 30px 0;
+			border-collapse: collapse;
+			width: 100%;
+			border: 2px solid #333;
+		}
+		.compact-table th {
+			background: #667eea;
+			color: white;
+			padding: 12px;
+			text-align: left;
+			border: 1px solid #333;
+		}
+		.compact-table td {
+			padding: 12px;
+			border: 1px solid #ddd;
+		}
+		.compact-table tr.input-row td:first-child {
+			background: #f0f0f0;
+			font-weight: bold;
+		}
+		.compact-table tr.input-row td:nth-child(2) {
+			background: #e3f2fd;
+		}
+		.compact-table tr.masked-row td:nth-child(2) {
+			background: #fff3e0;
+			font-style: italic;
+			border: 2px dashed #ff9800;
+		}
+		.compact-table tr.output-row td:first-child {
+			background: #f0f0f0;
+			font-weight: bold;
+		}
+		.compact-table tr.output-row td:nth-child(2) {
+			background: #e8f5e9;
+			font-family: 'Courier New', monospace;
+		}
+	</style>
+</head>
+<body>
+	<h1 style="color: #667eea;">BERT Visualization Ideas</h1>
+	<p style="color: #666; margin-bottom: 40px;">Different approaches to illustrating how BERT transforms embeddings to conditional probability distributions.</p>
+
+	<!-- ============================================ -->
+	<!-- VARIATION 1: Simple Linear Flow -->
+	<!-- ============================================ -->
+	<div class="variation">
+		<h2>Variation 1: Simple Linear Flow</h2>
+		<p><strong>Concept:</strong> Show inputs flowing through BERT to outputs. Emphasizes the transformation from discrete embeddings to probability distributions.</p>
+
+		<h3>Example: Estimating sketch on customer_id</h3>
+		<div class="linear-flow">
+			<div>
+				<div class="embedding-box">
+					<div style="font-size: 0.8em; color: #666;">age</div>
+					<div style="font-weight: bold;">h(35) = 7</div>
+				</div>
+			</div>
+
+			<span class="arrow">→</span>
+
+			<div>
+				<div class="embedding-box">
+					<div style="font-size: 0.8em; color: #666;">city</div>
+					<div style="font-weight: bold;">h('SF') = 12</div>
+				</div>
+			</div>
+
+			<span class="arrow">→</span>
+
+			<div>
+				<div class="embedding-box masked">
+					<div style="font-size: 0.8em; color: #ff9800;">customer_id</div>
+					<div style="font-weight: bold;">[MASK]</div>
+				</div>
+			</div>
+
+			<span class="arrow">→</span>
+
+			<div class="bert-model">
+				BERT
+			</div>
+
+			<span class="arrow">→</span>
+
+			<div class="output-box">
+				<div style="font-size: 0.8em; color: #666; margin-bottom: 8px;">P(h(customer_id) | age=35, city='SF')</div>
+				<div style="font-size: 0.85em; font-family: 'Courier New', monospace;">
+					bin 0: 0.12<br>
+					bin 1: 0.08<br>
+					bin 2: 0.15<br>
+					...
+				</div>
+			</div>
+		</div>
+
+		<p style="color: #666; font-size: 0.9em; margin-top: 20px;">
+			<strong>Pros:</strong> Clear flow, simple to understand<br>
+			<strong>Cons:</strong> Doesn't show that BERT processes all tokens together
+		</p>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- VARIATION 2: Grid/Table View -->
+	<!-- ============================================ -->
+	<div class="variation">
+		<h2>Variation 2: Grid/Table View</h2>
+		<p><strong>Concept:</strong> Show all attributes in a structured table format. Input row shows embeddings, output row shows distributions.</p>
+
+		<div class="grid-container">
+			<div class="grid-header">Stage</div>
+			<div class="grid-header">Attributes (age, city, region, customer_id)</div>
+
+			<div class="grid-label">Input Embeddings</div>
+			<div class="grid-cell">
+				<span style="background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin-right: 10px;">h(35)=7</span>
+				<span style="background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin-right: 10px;">h('SF')=12</span>
+				<span style="background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin-right: 10px;">h('West')=3</span>
+				<span style="background: #fff3e0; padding: 8px 12px; border-radius: 4px; border: 2px dashed #ff9800; font-weight: bold;">[MASK]</span>
+			</div>
+
+			<div class="grid-label">↓ BERT ↓</div>
+			<div class="grid-cell" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); text-align: center; font-style: italic; color: #666;">
+				Bidirectional attention across all tokens
+			</div>
+
+			<div class="grid-label">Output Distributions</div>
+			<div class="grid-cell">
+				<span style="padding: 8px 12px; margin-right: 10px; color: #999;">—</span>
+				<span style="padding: 8px 12px; margin-right: 10px; color: #999;">—</span>
+				<span style="padding: 8px 12px; margin-right: 10px; color: #999;">—</span>
+				<span style="background: #e8f5e9; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 0.85em;">[0.12, 0.08, 0.15, ...]</span>
+			</div>
+		</div>
+
+		<p style="color: #666; font-size: 0.9em; margin-top: 20px;">
+			<strong>Pros:</strong> Shows all attributes clearly, structured format<br>
+			<strong>Cons:</strong> Can get wide with many attributes
+		</p>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- VARIATION 3: Step-by-Step Boxes -->
+	<!-- ============================================ -->
+	<div class="variation">
+		<h2>Variation 3: Step-by-Step with Multiple Scenarios</h2>
+		<p><strong>Concept:</strong> Show multiple examples of masking different attributes to illustrate flexibility.</p>
+
+		<div class="step-container">
+			<div class="step-box">
+				<div class="step-title">Scenario 1: Query on customer_id</div>
+				<div style="margin-top: 15px; color: #666; font-size: 0.9em;">
+					Filter: age=35 AND city='SF' → Estimate sketch(customer_id)
+				</div>
+				<div class="token-row">
+					<div class="token attribute">age: 7</div>
+					<div class="token attribute">city: 12</div>
+					<div class="token mask">[MASK]</div>
+					<div style="margin: 0 20px; font-size: 1.5em; color: #999;">→ BERT →</div>
+					<div class="token prob">[0.12, 0.08, ...]</div>
+				</div>
+			</div>
+
+			<div class="step-box">
+				<div class="step-title">Scenario 2: Query on different attribute</div>
+				<div style="margin-top: 15px; color: #666; font-size: 0.9em;">
+					Filter: age=35 AND customer_id=1001 → Estimate sketch(city)
+				</div>
+				<div class="token-row">
+					<div class="token attribute">age: 7</div>
+					<div class="token mask">[MASK]</div>
+					<div class="token attribute">cust_id: 23</div>
+					<div style="margin: 0 20px; font-size: 1.5em; color: #999;">→ BERT →</div>
+					<div class="token prob">[0.31, 0.19, ...]</div>
+				</div>
+			</div>
+		</div>
+
+		<p style="color: #666; font-size: 0.9em; margin-top: 20px;">
+			<strong>Pros:</strong> Shows flexibility of bidirectional masking<br>
+			<strong>Cons:</strong> Takes more vertical space
+		</p>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- VARIATION 4: Focused Sketch View -->
+	<!-- ============================================ -->
+	<div class="variation">
+		<h2>Variation 4: Side-by-Side Input/Output Panels</h2>
+		<p><strong>Concept:</strong> Clear separation between what goes in (conditions) and what comes out (probability distribution).</p>
+
+		<div class="sketch-focus">
+			<div class="input-panel">
+				<div class="panel-title">INPUT: Filter Conditions</div>
+				<div class="attribute-line known">
+					<span class="attr-name">age:</span>
+					<span class="attr-value">h(35) = 7</span>
+				</div>
+				<div class="attribute-line known">
+					<span class="attr-name">city:</span>
+					<span class="attr-value">h('SF') = 12</span>
+				</div>
+				<div class="attribute-line known">
+					<span class="attr-name">region:</span>
+					<span class="attr-value">h('West') = 3</span>
+				</div>
+				<div class="attribute-line query">
+					<span class="attr-name">customer_id:</span>
+					<span class="attr-value">[MASK]</span>
+				</div>
+
+				<div style="text-align: center; margin: 20px 0; font-size: 1.5em; color: #667eea;">
+					↓ BERT ↓
+				</div>
+			</div>
+
+			<div class="output-panel">
+				<div class="panel-title">OUTPUT: Probability Distribution</div>
+				<div style="margin-bottom: 15px; font-weight: bold; color: #333;">
+					P(h(customer_id) = i | age=35, city='SF', region='West')
+				</div>
+				<div class="probability-viz">
+					<div class="prob-bar">
+						<span class="prob-label">bin 0:</span>
+						<div class="prob-fill" style="width: 120px;">0.12</div>
+					</div>
+					<div class="prob-bar">
+						<span class="prob-label">bin 1:</span>
+						<div class="prob-fill" style="width: 80px;">0.08</div>
+					</div>
+					<div class="prob-bar">
+						<span class="prob-label">bin 2:</span>
+						<div class="prob-fill" style="width: 150px;">0.15</div>
+					</div>
+					<div class="prob-bar">
+						<span class="prob-label">bin 3:</span>
+						<div class="prob-fill" style="width: 100px;">0.10</div>
+					</div>
+					<div style="text-align: center; color: #999; font-size: 0.9em; margin-top: 10px;">
+						... (continues for all w bins)
+					</div>
+				</div>
+				<div style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 4px; font-size: 0.9em;">
+					<strong>Sketch vector:</strong> <span style="font-family: 'Courier New', monospace;">p × |σ(T)|</span>
+				</div>
+			</div>
+		</div>
+
+		<p style="color: #666; font-size: 0.9em; margin-top: 20px;">
+			<strong>Pros:</strong> Clear input/output separation, shows probability bars visually<br>
+			<strong>Cons:</strong> Takes more horizontal space
+		</p>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- VARIATION 5: Compact Table -->
+	<!-- ============================================ -->
+	<div class="variation">
+		<h2>Variation 5: Compact Table Format</h2>
+		<p><strong>Concept:</strong> Minimal, information-dense table showing the transformation.</p>
+
+		<table class="compact-table">
+			<thead>
+				<tr>
+					<th>Attribute</th>
+					<th>Input to BERT</th>
+					<th>Output from BERT</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="input-row">
+					<td>age</td>
+					<td>h(35) = 7</td>
+					<td style="color: #999;">—</td>
+				</tr>
+				<tr class="input-row">
+					<td>city</td>
+					<td>h('SF') = 12</td>
+					<td style="color: #999;">—</td>
+				</tr>
+				<tr class="input-row">
+					<td>region</td>
+					<td>h('West') = 3</td>
+					<td style="color: #999;">—</td>
+				</tr>
+				<tr class="masked-row">
+					<td>customer_id</td>
+					<td><strong>[MASK]</strong></td>
+					<td><strong>P(h(customer_id) | conditions)</strong></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px;">
+			<strong>Result:</strong> Probability distribution over w bins: <code>[0.12, 0.08, 0.15, 0.10, ...]</code>
+		</div>
+
+		<p style="color: #666; font-size: 0.9em; margin-top: 20px;">
+			<strong>Pros:</strong> Compact, fits well in slides, easy to scan<br>
+			<strong>Cons:</strong> Less visual emphasis on the transformation
+		</p>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- SUMMARY -->
+	<!-- ============================================ -->
+	<div class="variation" style="background: #f0f0f0;">
+		<h2>Summary & Recommendations</h2>
+
+		<h3>Best for Different Goals:</h3>
+		<ul>
+			<li><strong>Variation 1 (Linear Flow):</strong> Best for first introduction - simple and clear</li>
+			<li><strong>Variation 2 (Grid):</strong> Good for showing all attributes systematically</li>
+			<li><strong>Variation 3 (Multiple Scenarios):</strong> Best for emphasizing flexibility of bidirectional masking</li>
+			<li><strong>Variation 4 (Side-by-Side):</strong> Best for detailed explanation with visual probability bars</li>
+			<li><strong>Variation 5 (Compact Table):</strong> Best for space-constrained slides or quick reference</li>
+		</ul>
+
+		<h3>Recommended Sequence:</h3>
+		<p>For the defense presentation, consider using:</p>
+		<ol>
+			<li><strong>First slide:</strong> Variation 1 (Linear Flow) - introduce the concept simply</li>
+			<li><strong>Second slide:</strong> Variation 4 (Side-by-Side) - show detailed probability output</li>
+			<li><strong>Optional third slide:</strong> Variation 3 (Multiple Scenarios) - demonstrate flexibility</li>
+		</ol>
+	</div>
+
+</body>
+</html>

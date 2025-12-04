@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Join Ordering Matters - Mockup</title>
+	<script src="../reveal_anim_lib.js"></script>
+	<style>
+		:root {
+			--palered: rgb(255, 204, 204);
+			--palegreen: rgb(204, 221, 170);
+			--palecyan: rgb(204, 238, 255);
+			--paleyellow: rgb(255, 255, 204);
+			--paleorange: rgb(255, 229, 204);
+		}
+
+		body {
+			font-family: Arial, sans-serif;
+			padding: 40px;
+			background: #f5f5f5;
+		}
+
+		.slide {
+			background: white;
+			padding: 40px;
+			margin-bottom: 40px;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+
+		h2 {
+			color: #667eea;
+			border-bottom: 3px solid #667eea;
+			padding-bottom: 10px;
+		}
+
+		.table-container {
+			display: flex;
+			justify-content: space-around;
+			align-items: flex-start;
+			margin: 30px 0;
+			position: relative;
+			min-height: 200px;
+		}
+
+		.svg-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			z-index: 10;
+		}
+
+		table {
+			border-collapse: collapse;
+			border: 2px solid #333;
+			background: white;
+			margin: 10px;
+		}
+
+		th, td {
+			border: 1px solid #333;
+			padding: 12px 16px;
+			text-align: center;
+		}
+
+		th {
+			background: #667eea;
+			color: white;
+			font-weight: bold;
+		}
+
+		.cost-box {
+			background: #f0f8ff;
+			border: 2px solid #2196f3;
+			padding: 20px;
+			border-radius: 8px;
+			margin: 20px 0;
+			font-size: 1.1em;
+		}
+
+		.cost-bad {
+			background: #ffe6e6;
+			border-color: #cc0000;
+		}
+
+		.cost-good {
+			background: #e6ffe6;
+			border-color: #00cc00;
+		}
+
+		.formula {
+			font-family: 'Courier New', monospace;
+			font-size: 1.2em;
+			margin: 10px 0;
+		}
+
+		.highlight-red { background-color: var(--palered); }
+		.highlight-green { background-color: var(--palegreen); }
+		.highlight-cyan { background-color: var(--palecyan); }
+		.highlight-yellow { background-color: var(--paleyellow); }
+		.highlight-orange { background-color: var(--paleorange); }
+
+		.arrow {
+			font-size: 2em;
+			color: #667eea;
+			font-weight: bold;
+			align-self: center;
+		}
+
+		.note {
+			background: #fff3e0;
+			border-left: 4px solid #ff9800;
+			padding: 15px;
+			margin: 20px 0;
+			border-radius: 4px;
+		}
+
+		.comparison-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 30px;
+			margin: 30px 0;
+		}
+
+		.plan-box {
+			border: 3px solid #ddd;
+			border-radius: 10px;
+			padding: 25px;
+			background: white;
+		}
+
+		.plan-box h3 {
+			margin-top: 0;
+			color: #667eea;
+		}
+
+		.plan-bad {
+			border-color: #cc0000;
+			background: #fff5f5;
+		}
+
+		.plan-good {
+			border-color: #00cc00;
+			background: #f5fff5;
+		}
+
+		.step {
+			margin: 15px 0;
+			padding: 10px;
+			background: white;
+			border-radius: 5px;
+			border: 1px solid #ddd;
+		}
+
+		.table-label {
+			font-weight: bold;
+			color: #667eea;
+			margin-bottom: 10px;
+			text-align: center;
+		}
+
+		.intermediate-result {
+			border: 3px dashed #ff9800 !important;
+		}
+
+		.final-result {
+			border: 3px solid #00cc00 !important;
+		}
+	</style>
+</head>
+<body>
+
+	<!-- ============================================ -->
+	<!-- SLIDE 1: Setup - The Scenario -->
+	<!-- ============================================ -->
+	<div class="slide">
+		<h2>Slide 1: The Scenario - Join Ordering Matters</h2>
+		<p><strong>Query:</strong> Find all students enrolled in special seminar courses</p>
+		<pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.9em;">
+SELECT s.name, e.student_id, c.course_name
+FROM Students s
+JOIN Enrollments e ON s.student_id = e.student_id
+JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
+
+		<div class="table-container">
+			<div>
+				<div class="table-label">Students (5 rows)</div>
+				<table>
+					<tr><th>ID</th><th>Name</th></tr>
+					<tr><td>1</td><td>Alice</td></tr>
+					<tr><td>2</td><td>Bob</td></tr>
+					<tr><td>3</td><td>Carol</td></tr>
+					<tr><td>4</td><td>Dave</td></tr>
+					<tr><td>5</td><td>Eve</td></tr>
+				</table>
+			</div>
+
+			<div>
+				<div class="table-label">Enrollments (10 rows)</div>
+				<table>
+					<tr><th>SID</th><th>CID</th></tr>
+					<tr><td>1</td><td>101</td></tr>
+					<tr><td>2</td><td>101</td></tr>
+					<tr><td>1</td><td>201</td></tr>
+					<tr><td>3</td><td>201</td></tr>
+					<tr><td>4</td><td>202</td></tr>
+					<tr><td>5</td><td>202</td></tr>
+					<tr><td>2</td><td>203</td></tr>
+					<tr><td>3</td><td>203</td></tr>
+					<tr><td>4</td><td>204</td></tr>
+					<tr><td>5</td><td>205</td></tr>
+				</table>
+			</div>
+
+			<div>
+				<div class="table-label">SpecialCourses (2 rows)</div>
+				<table>
+					<tr><th>ID</th><th>Course</th></tr>
+					<tr><td>101</td><td>CS101</td></tr>
+					<tr><td>201</td><td>CS102</td></tr>
+				</table>
+			</div>
+		</div>
+
+		<div class="note">
+			<strong>Key observation:</strong> Only 4 out of 10 enrollments are in the special courses (CID 101, 201).
+			The other 6 enrollments are in regular courses (202-205) which will be filtered out eventually.
+		</div>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- SLIDE 2: Bad Plan (Students ⋈ Enrollments first) -->
+	<!-- ============================================ -->
+	<div class="slide">
+		<h2>Slide 2: Plan A - Students ⋈ Enrollments First (Bad Plan)</h2>
+
+		<h3>Step 1: Join Students with Enrollments</h3>
+		<div class="table-container" id="bad-step1-container">
+			<svg class="svg-overlay" id="bad-step1-svg"></svg>
+			<div>
+				<div class="table-label">Students</div>
+				<table>
+					<tr><th>ID</th><th>Name</th></tr>
+					<tr id="bad-s1" class="highlight-red"><td>1</td><td>Alice</td></tr>
+					<tr id="bad-s2" class="highlight-green"><td>2</td><td>Bob</td></tr>
+					<tr id="bad-s3" class="highlight-cyan"><td>3</td><td>Carol</td></tr>
+					<tr id="bad-s4" class="highlight-yellow"><td>4</td><td>Dave</td></tr>
+					<tr id="bad-s5" class="highlight-orange"><td>5</td><td>Eve</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Enrollments</div>
+				<table>
+					<tr><th>SID</th><th>CID</th></tr>
+					<tr id="bad-e1" class="highlight-red"><td>1</td><td>101</td></tr>
+					<tr id="bad-e2" class="highlight-green"><td>2</td><td>101</td></tr>
+					<tr id="bad-e3" class="highlight-red"><td>1</td><td>201</td></tr>
+					<tr id="bad-e4" class="highlight-cyan"><td>3</td><td>201</td></tr>
+					<tr id="bad-e5" class="highlight-yellow"><td>4</td><td>202</td></tr>
+					<tr id="bad-e6" class="highlight-orange"><td>5</td><td>202</td></tr>
+					<tr id="bad-e7" class="highlight-green"><td>2</td><td>203</td></tr>
+					<tr id="bad-e8" class="highlight-cyan"><td>3</td><td>203</td></tr>
+					<tr id="bad-e9" class="highlight-yellow"><td>4</td><td>204</td></tr>
+					<tr id="bad-e10" class="highlight-orange"><td>5</td><td>205</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Intermediate Result</div>
+				<table class="intermediate-result">
+					<tr><th>Name</th><th>SID</th><th>CID</th></tr>
+					<tr id="bad-r1" class="highlight-red"><td>Alice</td><td>1</td><td>101</td></tr>
+					<tr id="bad-r2" class="highlight-green"><td>Bob</td><td>2</td><td>101</td></tr>
+					<tr id="bad-r3" class="highlight-red"><td>Alice</td><td>1</td><td>201</td></tr>
+					<tr id="bad-r4" class="highlight-cyan"><td>Carol</td><td>3</td><td>201</td></tr>
+					<tr id="bad-r5" class="highlight-yellow"><td>Dave</td><td>4</td><td>202</td></tr>
+					<tr id="bad-r6" class="highlight-orange"><td>Eve</td><td>5</td><td>202</td></tr>
+					<tr id="bad-r7" class="highlight-green"><td>Bob</td><td>2</td><td>203</td></tr>
+					<tr id="bad-r8" class="highlight-cyan"><td>Carol</td><td>3</td><td>203</td></tr>
+					<tr id="bad-r9" class="highlight-yellow"><td>Dave</td><td>4</td><td>204</td></tr>
+					<tr id="bad-r10" class="highlight-orange"><td>Eve</td><td>5</td><td>205</td></tr>
+				</table>
+				<div style="text-align: center; margin-top: 10px;"><strong>10 rows produced</strong></div>
+			</div>
+		</div>
+
+		<div class="cost-box">
+			<strong>Cost of Step 1:</strong>
+			<div class="formula">5 students × 10 enrollments = 50 comparisons</div>
+		</div>
+
+		<h3>Step 2: Join Intermediate Result with SpecialCourses</h3>
+		<div class="table-container">
+			<div>
+				<div class="table-label">Intermediate Result (10 rows)</div>
+				<table class="intermediate-result">
+					<tr><th>Name</th><th>CID</th></tr>
+					<tr class="highlight-red"><td>Alice</td><td>101</td></tr>
+					<tr class="highlight-green"><td>Bob</td><td>101</td></tr>
+					<tr class="highlight-red"><td>Alice</td><td>201</td></tr>
+					<tr class="highlight-cyan"><td>Carol</td><td>201</td></tr>
+					<tr style="opacity: 0.3;"><td>Dave</td><td>202</td></tr>
+					<tr style="opacity: 0.3;"><td>Eve</td><td>202</td></tr>
+					<tr style="opacity: 0.3;"><td>Bob</td><td>203</td></tr>
+					<tr style="opacity: 0.3;"><td>Carol</td><td>203</td></tr>
+					<tr style="opacity: 0.3;"><td>Dave</td><td>204</td></tr>
+					<tr style="opacity: 0.3;"><td>Eve</td><td>205</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">SpecialCourses</div>
+				<table>
+					<tr><th>ID</th><th>Course</th></tr>
+					<tr class="highlight-red"><td>101</td><td>CS101</td></tr>
+					<tr class="highlight-cyan"><td>201</td><td>CS102</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Final Result</div>
+				<table class="final-result">
+					<tr><th>Name</th><th>Course</th></tr>
+					<tr class="highlight-red"><td>Alice</td><td>CS101</td></tr>
+					<tr class="highlight-green"><td>Bob</td><td>CS101</td></tr>
+					<tr class="highlight-red"><td>Alice</td><td>CS102</td></tr>
+					<tr class="highlight-cyan"><td>Carol</td><td>CS102</td></tr>
+				</table>
+				<div style="text-align: center; margin-top: 10px;"><strong>4 rows (final)</strong></div>
+			</div>
+		</div>
+
+		<div class="cost-box">
+			<strong>Cost of Step 2:</strong>
+			<div class="formula">10 intermediate rows × 2 special courses = 20 comparisons</div>
+		</div>
+
+		<div class="cost-box cost-bad">
+			<strong>Total Cost of Plan A:</strong>
+			<div class="formula">50 + 20 = <span style="color: #cc0000; font-size: 1.3em;">70 comparisons</span></div>
+		</div>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- SLIDE 3: Good Plan (SpecialCourses ⋈ Enrollments first) -->
+	<!-- ============================================ -->
+	<div class="slide">
+		<h2>Slide 3: Plan B - SpecialCourses ⋈ Enrollments First (Good Plan)</h2>
+
+		<h3>Step 1: Join SpecialCourses with Enrollments</h3>
+		<div class="table-container" id="good-step1-container">
+			<svg class="svg-overlay" id="good-step1-svg"></svg>
+			<div>
+				<div class="table-label">SpecialCourses</div>
+				<table>
+					<tr><th>ID</th><th>Course</th></tr>
+					<tr id="good-c1" class="highlight-red"><td>101</td><td>CS101</td></tr>
+					<tr id="good-c2" class="highlight-cyan"><td>201</td><td>CS102</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Enrollments</div>
+				<table>
+					<tr><th>SID</th><th>CID</th></tr>
+					<tr id="good-e1" class="highlight-red"><td>1</td><td>101</td></tr>
+					<tr id="good-e2" class="highlight-green"><td>2</td><td>101</td></tr>
+					<tr id="good-e3" class="highlight-red"><td>1</td><td>201</td></tr>
+					<tr id="good-e4" class="highlight-cyan"><td>3</td><td>201</td></tr>
+					<tr style="opacity: 0.3;"><td>4</td><td>202</td></tr>
+					<tr style="opacity: 0.3;"><td>5</td><td>202</td></tr>
+					<tr style="opacity: 0.3;"><td>2</td><td>203</td></tr>
+					<tr style="opacity: 0.3;"><td>3</td><td>203</td></tr>
+					<tr style="opacity: 0.3;"><td>4</td><td>204</td></tr>
+					<tr style="opacity: 0.3;"><td>5</td><td>205</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Intermediate Result</div>
+				<table class="intermediate-result">
+					<tr><th>SID</th><th>Course</th></tr>
+					<tr id="good-i1" class="highlight-red"><td>1</td><td>CS101</td></tr>
+					<tr id="good-i2" class="highlight-green"><td>2</td><td>CS101</td></tr>
+					<tr id="good-i3" class="highlight-red"><td>1</td><td>CS102</td></tr>
+					<tr id="good-i4" class="highlight-cyan"><td>3</td><td>CS102</td></tr>
+				</table>
+				<div style="text-align: center; margin-top: 10px;"><strong>Only 4 rows!</strong></div>
+			</div>
+		</div>
+
+		<div class="cost-box">
+			<strong>Cost of Step 1:</strong>
+			<div class="formula">2 special courses × 10 enrollments = 20 comparisons</div>
+			<div style="color: #00aa00; margin-top: 10px;">✓ <strong>Early filtering!</strong> Reduced intermediate result from 10 to 4 rows</div>
+		</div>
+
+		<h3>Step 2: Join Intermediate Result with Students</h3>
+		<div class="table-container">
+			<div>
+				<div class="table-label">Students</div>
+				<table>
+					<tr><th>ID</th><th>Name</th></tr>
+					<tr class="highlight-red"><td>1</td><td>Alice</td></tr>
+					<tr class="highlight-green"><td>2</td><td>Bob</td></tr>
+					<tr class="highlight-cyan"><td>3</td><td>Carol</td></tr>
+					<tr style="opacity: 0.3;"><td>4</td><td>Dave</td></tr>
+					<tr style="opacity: 0.3;"><td>5</td><td>Eve</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Intermediate Result (4 rows)</div>
+				<table class="intermediate-result">
+					<tr><th>SID</th><th>Course</th></tr>
+					<tr class="highlight-red"><td>1</td><td>CS101</td></tr>
+					<tr class="highlight-green"><td>2</td><td>CS101</td></tr>
+					<tr class="highlight-red"><td>1</td><td>CS102</td></tr>
+					<tr class="highlight-cyan"><td>3</td><td>CS102</td></tr>
+				</table>
+			</div>
+
+			<div class="arrow">→</div>
+
+			<div>
+				<div class="table-label">Final Result</div>
+				<table class="final-result">
+					<tr><th>Name</th><th>Course</th></tr>
+					<tr class="highlight-red"><td>Alice</td><td>CS101</td></tr>
+					<tr class="highlight-green"><td>Bob</td><td>CS101</td></tr>
+					<tr class="highlight-red"><td>Alice</td><td>CS102</td></tr>
+					<tr class="highlight-cyan"><td>Carol</td><td>CS102</td></tr>
+				</table>
+				<div style="text-align: center; margin-top: 10px;"><strong>4 rows (final)</strong></div>
+			</div>
+		</div>
+
+		<div class="cost-box">
+			<strong>Cost of Step 2:</strong>
+			<div class="formula">5 students × 4 intermediate rows = 10 comparisons</div>
+			<div style="color: #00aa00; margin-top: 10px;">✓ Much smaller intermediate result means fewer comparisons!</div>
+		</div>
+
+		<div class="cost-box cost-good">
+			<strong>Total Cost of Plan B:</strong>
+			<div class="formula">20 + 10 = <span style="color: #00aa00; font-size: 1.3em;">30 comparisons</span></div>
+		</div>
+	</div>
+
+	<!-- ============================================ -->
+	<!-- SLIDE 4: Comparison -->
+	<!-- ============================================ -->
+	<div class="slide">
+		<h2>Slide 4: Why Join Ordering Matters</h2>
+
+		<div class="comparison-grid">
+			<div class="plan-box plan-bad">
+				<h3>❌ Plan A: Bad Join Order</h3>
+				<div class="step">
+					<strong>Step 1:</strong> Students ⋈ Enrollments<br>
+					Cost: 5 × 10 = 50<br>
+					Result: 10 rows
+				</div>
+				<div class="step">
+					<strong>Step 2:</strong> (Students ⋈ Enrollments) ⋈ SpecialCourses<br>
+					Cost: 10 × 2 = 20<br>
+					Result: 4 rows
+				</div>
+				<div class="cost-box cost-bad" style="margin-top: 15px;">
+					<strong>Total Cost: 70 comparisons</strong>
+				</div>
+			</div>
+
+			<div class="plan-box plan-good">
+				<h3>✓ Plan B: Good Join Order</h3>
+				<div class="step">
+					<strong>Step 1:</strong> SpecialCourses ⋈ Enrollments<br>
+					Cost: 2 × 10 = 20<br>
+					Result: 4 rows <span style="color: #00aa00;">← Early filtering!</span>
+				</div>
+				<div class="step">
+					<strong>Step 2:</strong> Students ⋈ (SpecialCourses ⋈ Enrollments)<br>
+					Cost: 5 × 4 = 10<br>
+					Result: 4 rows
+				</div>
+				<div class="cost-box cost-good" style="margin-top: 15px;">
+					<strong>Total Cost: 30 comparisons</strong>
+				</div>
+			</div>
+		</div>
+
+		<div class="note" style="margin-top: 30px; background: #e3f2fd; border-color: #2196f3;">
+			<strong>Key Insight:</strong> Plan B is <strong>2.3× faster</strong> (70 vs 30 comparisons)
+			<ul style="margin-top: 10px;">
+				<li><strong>Join with selective tables first</strong> to filter early</li>
+				<li><strong>Smaller intermediate results</strong> = fewer comparisons in subsequent joins</li>
+				<li>For large tables, the difference can be <strong>orders of magnitude</strong></li>
+			</ul>
+		</div>
+
+		<div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-top: 20px; border: 2px solid #ff9800;">
+			<strong style="font-size: 1.2em;">The Challenge:</strong>
+			<p style="margin-top: 10px; font-size: 1.05em;">
+				How can the query optimizer choose the best join order <strong>without executing all plans?</strong>
+			</p>
+			<p style="margin-top: 10px; font-size: 1.05em; color: #667eea;">
+				→ We need <strong>cardinality estimation</strong> to predict intermediate result sizes!
+			</p>
+		</div>
+	</div>
+
+	<script>
+		// Animation script for join visualizations
+		document.addEventListener('DOMContentLoaded', function() {
+
+			// Define connection mappings for each visualization
+
+			// BAD PLAN STEP 1: Students -> Enrollments connections
+			// Alice (s1) connects to e1, e3 (both red)
+			// Bob (s2) connects to e2, e7 (green)
+			// Carol (s3) connects to e4, e8 (cyan)
+			// Dave (s4) connects to e5, e9 (yellow)
+			// Eve (s5) connects to e6, e10 (orange)
+			const badStep1Connections = [
+				{ from: '#bad-s1.east', to: '#bad-e1.west', color: '#ff6666', delay: 0 },
+				{ from: '#bad-s1.east', to: '#bad-e3.west', color: '#ff6666', delay: 0.1 },
+				{ from: '#bad-s2.east', to: '#bad-e2.west', color: '#88bb44', delay: 0.2 },
+				{ from: '#bad-s2.east', to: '#bad-e7.west', color: '#88bb44', delay: 0.3 },
+				{ from: '#bad-s3.east', to: '#bad-e4.west', color: '#44aacc', delay: 0.4 },
+				{ from: '#bad-s3.east', to: '#bad-e8.west', color: '#44aacc', delay: 0.5 },
+				{ from: '#bad-s4.east', to: '#bad-e5.west', color: '#ddcc00', delay: 0.6 },
+				{ from: '#bad-s4.east', to: '#bad-e9.west', color: '#ddcc00', delay: 0.7 },
+				{ from: '#bad-s5.east', to: '#bad-e6.west', color: '#ff9944', delay: 0.8 },
+				{ from: '#bad-s5.east', to: '#bad-e10.west', color: '#ff9944', delay: 0.9 },
+			];
+
+			// GOOD PLAN STEP 1: SpecialCourses -> Enrollments connections
+			// CS101 (c1) connects to e1 (red), e2 (green)
+			// CS102 (c2) connects to e3 (red), e4 (cyan)
+			const goodStep1Connections = [
+				{ from: '#good-c1.east', to: '#good-e1.west', color: '#ff6666', delay: 0 },
+				{ from: '#good-c1.east', to: '#good-e2.west', color: '#88bb44', delay: 0.15 },
+				{ from: '#good-c2.east', to: '#good-e3.west', color: '#ff6666', delay: 0.3 },
+				{ from: '#good-c2.east', to: '#good-e4.west', color: '#44aacc', delay: 0.45 },
+			];
+
+			// Function to draw connections
+			function drawConnections(svgId, connections) {
+				const svg = document.querySelector(svgId);
+				if (!svg) return;
+
+				connections.forEach(conn => {
+					setTimeout(() => {
+						draw(svgId)
+							.path(conn.from, conn.to)
+							.stroke(conn.color)
+							.width(2)
+							.arrow('->')
+							.animate(true, 0.5, 0)
+							.draw();
+					}, conn.delay * 1000);
+				});
+			}
+
+			// Trigger animations with a slight delay after page load
+			setTimeout(() => {
+				// Draw bad plan connections
+				drawConnections('#bad-step1-svg', badStep1Connections);
+
+				// Draw good plan connections (with longer initial delay)
+				setTimeout(() => {
+					drawConnections('#good-step1-svg', goodStep1Connections);
+				}, 2000);
+			}, 500);
+
+			// Add button to replay animations
+			const replayButton = document.createElement('button');
+			replayButton.textContent = '↻ Replay Animations';
+			replayButton.style.cssText = `
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				padding: 15px 25px;
+				background: #667eea;
+				color: white;
+				border: none;
+				border-radius: 8px;
+				font-size: 16px;
+				cursor: pointer;
+				box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+				z-index: 1000;
+			`;
+			replayButton.addEventListener('mouseover', () => {
+				replayButton.style.background = '#5568d3';
+			});
+			replayButton.addEventListener('mouseout', () => {
+				replayButton.style.background = '#667eea';
+			});
+			replayButton.addEventListener('click', () => {
+				// Clear all SVG overlays
+				document.querySelectorAll('.svg-overlay').forEach(svg => {
+					svg.innerHTML = '';
+				});
+				// Replay animations
+				setTimeout(() => {
+					drawConnections('#bad-step1-svg', badStep1Connections);
+					setTimeout(() => {
+						drawConnections('#good-step1-svg', goodStep1Connections);
+					}, 2000);
+				}, 100);
+			});
+			document.body.appendChild(replayButton);
+		});
+	</script>
+
+</body>
+</html>

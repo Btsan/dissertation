@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPN Structure Variations</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .variation {
+            background: white;
+            padding: 40px;
+            margin-bottom: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .variation h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        /* SPN Common Styles */
+        .spn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .spn-level {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .spn-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5em;
+            border: 3px solid #333;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .node-sum {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #1565c0;
+        }
+
+        .node-prod {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        .node-leaf {
+            width: auto;
+            height: auto;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+            min-width: 80px;
+            text-align: center;
+            border: 2px solid #4caf50;
+        }
+
+        .spn-label {
+            position: absolute;
+            top: -25px;
+            font-size: 0.6em;
+            color: #666;
+            white-space: nowrap;
+            font-weight: normal;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .edge-weight {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 0.7em;
+            color: #666;
+            position: absolute;
+            z-index: 3;
+        }
+
+        /* Connectors */
+        .connector-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connector-line {
+            stroke: #ccc;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Data Tables for Variation 1 */
+        .mini-table {
+            font-size: 0.6em;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: absolute;
+            top: 10px;
+            left: 70px;
+            /* Position to right of node */
+            z-index: 10;
+        }
+
+        .mini-table td,
+        .mini-table th {
+            border: 1px solid #ddd;
+            padding: 2px 4px;
+            text-align: center;
+        }
+
+        .mini-table th {
+            background: #f0f0f0;
+        }
+
+        .node-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>SPN Structure Variations</h1>
+    <p>Drafts for illustrating the Sum-Product Network model structure and learning process.</p>
+
+    <!-- ============================================ -->
+    <!-- VARIATION 1: Structure with Data Decomposition -->
+    <!-- ============================================ -->
+    <div class="variation">
+        <h2>Variation 1: Structure with Data Decomposition</h2>
+        <p class="description">Mimics the TikZ diagram showing how the data table is split at each node (Sum = Row
+            Partition, Product = Column Partition).</p>
+
+        <div class="spn-container" style="height: 400px;">
+            <!-- SVG Connectors -->
+            <svg class="connector-svg">
+                <!-- Root to Sum/Leaf -->
+                <line x1="50%" y1="60" x2="35%" y2="160" class="connector-line" />
+                <line x1="50%" y1="60" x2="65%" y2="160" class="connector-line" />
+
+                <!-- Sum to Products -->
+                <line x1="35%" y1="160" x2="20%" y2="280" class="connector-line" />
+                <line x1="35%" y1="160" x2="50%" y2="280" class="connector-line" />
+
+                <!-- Products to Leaves -->
+                <line x1="20%" y1="280" x2="15%" y2="380" class="connector-line" />
+                <line x1="20%" y1="280" x2="25%" y2="380" class="connector-line" />
+                <line x1="50%" y1="280" x2="45%" y2="380" class="connector-line" />
+                <line x1="50%" y1="280" x2="55%" y2="380" class="connector-line" />
+            </svg>
+
+            <!-- Level 0: Root -->
+            <div class="spn-level">
+                <div class="node-wrapper">
+                    <div class="spn-node node-sum">+</div>
+                    <div class="spn-label">Root</div>
+                    <!-- Data Table -->
+                    <table class="mini-table">
+                        <tr>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>a</td>
+                            <td>T</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>a</td>
+                            <td>F</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>b</td>
+                            <td>T</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Level 1: Sum Children -->
+            <div class="spn-level" style="gap: 200px;">
+                <div class="node-wrapper">
+                    <div class="spn-node node-sum">+</div>
+                    <div class="spn-label">Cluster 1</div>
+                    <span class="edge-weight" style="top: -30px; left: 50px;">w=0.6</span>
+                    <table class="mini-table">
+                        <tr>
+                            <th>X</th>
+                            <th>Y</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>a</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>a</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="node-wrapper">
+                    <div class="spn-node node-leaf">P(Z)</div>
+                    <div class="spn-label">Indep. Z</div>
+                    <table class="mini-table">
+                        <tr>
+                            <th>Z</th>
+                        </tr>
+                        <tr>
+                            <td>T</td>
+                        </tr>
+                        <tr>
+                            <td>F</td>
+                        </tr>
+                        <tr>
+                            <td>T</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Level 2: Product Children -->
+            <div class="spn-level" style="gap: 150px; justify-content: flex-start; margin-left: 10%;">
+                <div class="node-wrapper">
+                    <div class="spn-node node-prod">×</div>
+                    <div class="spn-label">Prod 1</div>
+                </div>
+                <div class="node-wrapper">
+                    <div class="spn-node node-prod">×</div>
+                    <div class="spn-label">Prod 2</div>
+                </div>
+            </div>
+
+            <!-- Level 3: Leaves -->
+            <div class="spn-level" style="gap: 30px; justify-content: flex-start; margin-left: 5%;">
+                <div class="spn-node node-leaf">P(X)</div>
+                <div class="spn-node node-leaf">P(Y)</div>
+                <div class="spn-node node-leaf" style="margin-left: 60px;">P(X)</div>
+                <div class="spn-node node-leaf">P(Y)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- VARIATION 2: Abstract Tree with Icons -->
+    <!-- ============================================ -->
+    <div class="variation">
+        <h2>Variation 2: Abstract Tree with Icons</h2>
+        <p class="description">Focuses on the operations (Sum=Mixture, Product=Independence) without raw data tables.
+        </p>
+
+        <div class="spn-container" style="height: 350px;">
+            <!-- SVG Connectors -->
+            <svg class="connector-svg">
+                <line x1="50%" y1="50" x2="30%" y2="150" class="connector-line" />
+                <line x1="50%" y1="50" x2="70%" y2="150" class="connector-line" />
+
+                <line x1="30%" y1="150" x2="15%" y2="280" class="connector-line" />
+                <line x1="30%" y1="150" x2="45%" y2="280" class="connector-line" />
+
+                <line x1="70%" y1="150" x2="55%" y2="280" class="connector-line" />
+                <line x1="70%" y1="150" x2="85%" y2="280" class="connector-line" />
+            </svg>
+
+            <div class="spn-level">
+                <div class="spn-node node-sum" title="Mixture / Weighted Sum">+</div>
+            </div>
+
+            <div class="spn-level" style="gap: 200px;">
+                <div class="node-wrapper">
+                    <div class="spn-node node-prod" title="Independence / Product">×</div>
+                    <span class="edge-weight" style="top: -40px; left: 30px;">w₁</span>
+                </div>
+                <div class="node-wrapper">
+                    <div class="spn-node node-prod" title="Independence / Product">×</div>
+                    <span class="edge-weight" style="top: -40px; right: 30px;">w₂</span>
+                </div>
+            </div>
+
+            <div class="spn-level" style="gap: 40px;">
+                <div class="spn-node node-leaf">Leaf X</div>
+                <div class="spn-node node-leaf">Leaf Y</div>
+                <div class="spn-node node-leaf">Leaf X</div>
+                <div class="spn-node node-leaf">Leaf Y</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- VARIATION 3: Sketched SPN (Leaf Sketches) -->
+    <!-- ============================================ -->
+    <div class="variation">
+        <h2>Variation 3: Sketched SPN (Leaf Sketches)</h2>
+        <p class="description">Explicitly shows that leaves contain Sketches, not just probabilities.</p>
+
+        <div class="spn-container" style="height: 350px;">
+            <!-- SVG Connectors -->
+            <svg class="connector-svg">
+                <line x1="50%" y1="50" x2="50%" y2="150" class="connector-line" />
+
+                <line x1="50%" y1="150" x2="25%" y2="280" class="connector-line" />
+                <line x1="50%" y1="150" x2="75%" y2="280" class="connector-line" />
+            </svg>
+
+            <div class="spn-level">
+                <div class="spn-node node-sum">+</div>
+                <div class="spn-label">Root</div>
+            </div>
+
+            <div class="spn-level">
+                <div class="spn-node node-prod">×</div>
+                <div class="spn-label">Factorization</div>
+            </div>
+
+            <div class="spn-level" style="gap: 100px;">
+                <div class="node-wrapper">
+                    <div class="spn-node node-leaf" style="flex-direction: column; gap: 5px;">
+                        <span>Sketch(A)</span>
+                        <div style="display: flex; gap: 2px; align-items: flex-end; height: 20px;">
+                            <div style="width: 4px; height: 60%; background: #2e7d32;"></div>
+                            <div style="width: 4px; height: 40%; background: #2e7d32;"></div>
+                            <div style="width: 4px; height: 80%; background: #2e7d32;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="node-wrapper">
+                    <div class="spn-node node-leaf" style="flex-direction: column; gap: 5px;">
+                        <span>Sketch(B)</span>
+                        <div style="display: flex; gap: 2px; align-items: flex-end; height: 20px;">
+                            <div style="width: 4px; height: 30%; background: #2e7d32;"></div>
+                            <div style="width: 4px; height: 90%; background: #2e7d32;"></div>
+                            <div style="width: 4px; height: 50%; background: #2e7d32;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

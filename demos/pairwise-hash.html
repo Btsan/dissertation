@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pairwise Independent Hash Visualization</title>
+    <link rel="stylesheet" href="demo-common.css">
+    <script src="../kwisehash.js"></script>
+    <script src="../js/sketch-utils.js"></script>
+    <style>
+        .hash-display {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            font-size: 1.2em;
+        }
+
+        .hash-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 120px;
+            transition: transform 0.2s;
+        }
+
+        .hash-box.update {
+            transform: scale(1.05);
+            background-color: #f0f8ff;
+        }
+
+        .value-display {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .val-pos {
+            color: var(--color-green);
+        }
+
+        .val-neg {
+            color: var(--color-red);
+        }
+
+        .result-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--color-blue);
+        }
+
+        .convergence-bar {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .convergence-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--color-dark);
+            left: 50%;
+            transition: left 0.3s ease;
+        }
+
+        .target-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(0, 0, 0, 0.2);
+            left: 50%;
+            /* Default target 0 */
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Pairwise Independent Hash Visualization</h2>
+        <p>Demonstrating that $\mathbb{E}[\xi(i)\xi(j)] = 0$ for $i \neq j$ and $1$ for $i = j$.</p>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>i = <input type="number" id="input-i" value="5"></label>
+                <label>j = <input type="number" id="input-j" value="8"></label>
+            </div>
+            <div class="control-group">
+                <button id="btn-seed">Generate New Seed</button>
+                <button id="btn-run-100">Run 100 Trials</button>
+                <button id="btn-reset" style="background-color: var(--color-gray)">Reset Stats</button>
+            </div>
+        </div>
+
+        <div class="visualization-area">
+            <div class="hash-display">
+                <div class="hash-box" id="box-i">
+                    <div>$\xi(i)$</div>
+                    <div class="value-display" id="val-i">?</div>
+                </div>
+                <div class="hash-box" id="box-j">
+                    <div>$\xi(j)$</div>
+                    <div class="value-display" id="val-j">?</div>
+                </div>
+                <div class="hash-box" id="box-prod">
+                    <div>Product $\xi(i)\xi(j)$</div>
+                    <div class="value-display" id="val-prod">?</div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <h3>Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div>Trials</div>
+                        <div class="stat-value" id="stat-trials">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>Sum of Products</div>
+                        <div class="stat-value" id="stat-sum">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div>Average (Expectation)</div>
+                        <div class="stat-value" id="stat-avg">0.000</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <div>Convergence Indicator (Target: <span id="target-val">0</span>)</div>
+                    <div class="convergence-bar">
+                        <div class="target-line" id="target-line"></div>
+                        <div class="convergence-indicator" id="indicator"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #666;">
+                        <span>-1.0</span>
+                        <span>0.0</span>
+                        <span>+1.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feedback-panel">
+            <h4>Observation</h4>
+            <p id="observation-text">Start by generating a seed or running trials.</p>
+        </div>
+    </div>
+
+    <!-- MathJax for rendering math -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    
+    <script>
+        // State
+        let trials = 0;
+        let sum = 0;
+        let currentSeed = 0;
+
+        // Elements
+        const inputI = document.getElementById('input-i');
+        const inputJ = document.getElementById('input-j');
+        const btnSeed = document.getElementById('btn-seed');
+        const btnRun100 = document.getElementById('btn-run-100');
+        const btnReset = document.getElementById('btn-reset');
+
+        const valI = document.getElementById('val-i');
+        const valJ = document.getElementById('val-j');
+        const valProd = document.getElementById('val-prod');
+
+        const statTrials = document.getElementById('stat-trials');
+        const statSum = document.getElementById('stat-sum');
+        const statAvg = document.getElementById('stat-avg');
+
+        const indicator = document.getElementById('indicator');
+        const targetLine = document.getElementById('target-line');
+        const targetVal = document.getElementById('target-val');
+        const obsText = document.getElementById('observation-text');
+
+        // Helper to format value
+        function formatVal(v) {
+            const el = document.createElement('span');
+            el.textContent = v > 0 ? "+1" : "-1";
+            el.className = v > 0 ? "val-pos" : "val-neg";
+            return el;
+        }
+
+        function updateDisplay(xi, xj, prod) {
+            valI.innerHTML = ''; valI.appendChild(formatVal(xi));
+            valJ.innerHTML = ''; valJ.appendChild(formatVal(xj));
+            valProd.innerHTML = ''; valProd.appendChild(formatVal(prod));
+
+            // Animate boxes
+            document.querySelectorAll('.hash-box').forEach(b => {
+                b.classList.remove('update');
+                void b.offsetWidth; // trigger reflow
+                b.classList.add('update');
+            });
+        }
+
+        function updateStats() {
+            statTrials.textContent = trials;
+            statSum.textContent = sum;
+            const avg = trials > 0 ? sum / trials : 0;
+            statAvg.textContent = avg.toFixed(3);
+
+            // Update convergence bar (-1 to 1 maps to 0% to 100%)
+            // 0 maps to 50%
+            const percent = ((avg + 1) / 2) * 100;
+            indicator.style.left = `${Math.max(0, Math.min(100, percent))}%`;
+
+            // Update target
+            const i = parseInt(inputI.value);
+            const j = parseInt(inputJ.value);
+            const target = (i === j) ? 1 : 0;
+            targetVal.textContent = target;
+
+            const targetPercent = ((target + 1) / 2) * 100;
+            targetLine.style.left = `${targetPercent}%`;
+
+            // Update observation text
+            if (trials > 10) {
+                if (Math.abs(avg - target) < 0.1) {
+                    obsText.textContent = `Converging nicely to ${target}! The empirical average is close to the expectation.`;
+                    obsText.style.color = "var(--color-green)";
+                } else {
+                    obsText.textContent = `Running... Average is ${avg.toFixed(3)}.`;
+                    obsText.style.color = "var(--color-dark)";
+                }
+            } else {
+                obsText.textContent = "Keep running trials to see convergence.";
+                obsText.style.color = "var(--color-dark)";
+            }
+        }
+
+        function runTrial() {
+            const i = parseInt(inputI.value);
+            const j = parseInt(inputJ.value);
+
+            // Generate a random seed
+            currentSeed = Math.floor(Math.random() * 2147483647);
+
+            // Use KWiseHash.SignHash
+            // depth=1, k=2 (pairwise), seed=currentSeed
+            const signHash = new KWiseHash.SignHash(1, 2, currentSeed);
+
+            const xi = signHash.hash(i, 0);
+            const xj = signHash.hash(j, 0);
+            const prod = xi * xj;
+
+            sum += prod;
+            trials++;
+
+            updateDisplay(xi, xj, prod);
+            updateStats();
+        }
+
+        function reset() {
+            trials = 0;
+            sum = 0;
+            updateStats();
+            valI.textContent = "?";
+            valJ.textContent = "?";
+            valProd.textContent = "?";
+            obsText.textContent = "Stats reset.";
+        }
+
+        // Event Listeners
+        btnSeed.addEventListener('click', runTrial);
+
+        btnRun100.addEventListener('click', () => {
+            for (let k = 0; k < 100; k++) {
+                runTrial();
+            }
+        });
+
+        btnReset.addEventListener('click', reset);
+
+        [inputI, inputJ].forEach(inp => {
+            inp.addEventListener('change', reset);
+        });
+
+        // Initial state
+        updateStats();
+
+    </script>
+</body>
+
+</html>

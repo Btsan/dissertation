@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FFT/Count-Convolution Join Visualization</title>
+    <link rel="stylesheet" href="demo-common.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+
+        .header h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+        }
+
+        .header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        /* Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+        }
+
+        /* Tables Column */
+        .tables-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-right: 1px solid #e5e7eb;
+            padding-right: 15px;
+        }
+
+        .table-box {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .table-title {
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #374151;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .freq-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            margin: 2px 0;
+        }
+
+        /* Visualization Area */
+        .viz-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .sketches-row {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            /* Allow wrapping for large widths */
+        }
+
+        .sketch-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sketch-label {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #4b5563;
+        }
+
+        .sketch-box {
+            display: flex;
+            gap: 2px;
+            padding: 5px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            max-width: 100%;
+            overflow-x: auto;
+            /* Scroll if too wide */
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d1d5db;
+            background: white;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        /* Animation Stages */
+        .process-area {
+            width: 100%;
+            border-top: 1px dashed #e5e7eb;
+            padding-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            min-height: 200px;
+        }
+
+        .stage {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stage.active {
+            opacity: 1;
+        }
+
+        .stage-label {
+            font-weight: bold;
+            font-size: 0.9em;
+            width: 100px;
+            text-align: right;
+            color: #6b7280;
+        }
+
+        .operator {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #9ca3af;
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 0.9em;
+        }
+
+        #btn-stream {
+            background-color: #2563eb;
+        }
+
+        #btn-stream.streaming {
+            background-color: #4b5563;
+        }
+
+        #btn-estimate {
+            background-color: #059669;
+            /* Green */
+        }
+
+        #btn-reset {
+            background-color: #dc2626;
+        }
+
+        .result-display {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #059669;
+            margin-top: 10px;
+        }
+
+        .freq-domain .cell {
+            border-radius: 50%;
+            background-color: #e0e7ff;
+            color: #3730a3;
+            border-color: #818cf8;
+            font-size: 0.7em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Count-Convolution Sketch</h2>
+            <p>Join $T_1(x) \bowtie T_2(x, y) \bowtie T_3(y)$ using $H(x,y) = (h_1(x) + h_2(y))\bmod{w}$</p>
+        </div>
+
+        <div class="main-layout">
+            <!-- Left: Tables -->
+            <div class="tables-col">
+                <div class="table-box">
+                    <div class="table-title">T1 (x)</div>
+                    <div id="freq-t1"></div>
+                </div>
+                <div class="table-box">
+                    <div class="table-title">T2 (x, y)</div>
+                    <div id="freq-t2"></div>
+                </div>
+                <div class="table-box">
+                    <div class="table-title">T3 (y)</div>
+                    <div id="freq-t3"></div>
+                </div>
+            </div>
+
+            <!-- Right: Visualization -->
+            <div class="viz-area">
+                <!-- Sketches -->
+                <div class="sketches-row">
+                    <div class="sketch-group">
+                        <div class="sketch-label">S1 (h1)</div>
+                        <div class="sketch-box" id="sketch-s1"></div>
+                    </div>
+                    <div class="sketch-group">
+                        <div class="sketch-label">S2 (H)</div>
+                        <div class="sketch-box" id="sketch-s2"></div>
+                    </div>
+                    <div class="sketch-group">
+                        <div class="sketch-label">S3 (h2)</div>
+                        <div class="sketch-box" id="sketch-s3"></div>
+                    </div>
+                </div>
+
+                <!-- Animation Process -->
+                <div class="process-area">
+                    <!-- Step 1: FFT -->
+                    <div class="stage" id="stage-fft">
+                        <div class="stage-label">1. FFT</div>
+                        <div class="sketch-group">
+                            <div class="sketch-label">FFT(S1)</div>
+                            <div class="sketch-box freq-domain" id="fft-s1"></div>
+                        </div>
+                        <div class="operator">·</div>
+                        <div class="sketch-group">
+                            <div class="sketch-label">FFT(S2)</div>
+                            <div class="sketch-box freq-domain" id="fft-s2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Multiply -->
+                    <div class="stage" id="stage-mult">
+                        <div class="stage-label">2. Multiply</div>
+                        <div class="sketch-box freq-domain" id="fft-mult"></div>
+                    </div>
+
+                    <!-- Step 3: iFFT (Convolution) -->
+                    <div class="stage" id="stage-ifft">
+                        <div class="stage-label">3. iFFT</div>
+                        <div class="sketch-box" id="conv-res"></div>
+                    </div>
+
+                    <!-- Step 4: Dot Product -->
+                    <div class="stage" id="stage-dot">
+                        <div class="stage-label">4. Dot with S2</div>
+                        <div class="result-display">Estimate: <span id="est-val">0</span></div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <label for="width-select">Width:</label>
+                    <select id="width-select" onchange="updateWidth()">
+                        <option value="4">4</option>
+                        <option value="8" selected>8</option>
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                    </select>
+                    <button id="btn-stream" onclick="toggleStream()">Start Stream</button>
+                    <button id="btn-estimate" onclick="runEstimation()">Run Estimation (FFT)</button>
+                    <button id="btn-reset" onclick="reset()">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MathJax for rendering math -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../kwisehash.js"></script>
+    <script src="../js/fft.js"></script>
+    <script>
+        let WIDTH = 8;
+        const DOMAIN_X = ['A', 'B', 'C'];
+        const DOMAIN_Y = ['1', '2', '3'];
+
+        // Helper to map domain strings to integers for hashing
+        const STR_TO_INT = {
+            'A': 1, 'B': 2, 'C': 3,
+            '1': 4, '2': 5, '3': 6
+        };
+
+        // State
+        const state = {
+            t1: {}, t2: {}, t3: {},
+            s1: [],
+            s2: [],
+            s3: [],
+            // Hashers
+            hasherH1: null, hasherXi1: null,
+            hasherH2: null, hasherXi2: null,
+            // Cache for display
+            h1_vals: {}, xi1_vals: {},
+            h2_vals: {}, xi2_vals: {},
+            isStreaming: false,
+            interval: null
+        };
+
+        function init() {
+            resetState();
+            randomizeHashes();
+            render();
+        }
+
+        function updateWidth() {
+            const select = document.getElementById('width-select');
+            WIDTH = parseInt(select.value);
+            reset();
+        }
+
+        function resetState() {
+            DOMAIN_X.forEach(x => state.t1[x] = 0);
+            DOMAIN_Y.forEach(y => state.t3[y] = 0);
+            DOMAIN_X.forEach(x => {
+                DOMAIN_Y.forEach(y => state.t2[`${x},${y}`] = 0);
+            });
+            state.s1 = new Array(WIDTH).fill(0);
+            state.s2 = new Array(WIDTH).fill(0);
+            state.s3 = new Array(WIDTH).fill(0);
+        }
+
+        function randomizeHashes() {
+            const seed = Math.floor(Math.random() * 100000);
+
+            // Initialize KWiseHash objects
+            state.hasherH1 = new KWiseHash.BinHash(1, WIDTH, 2, seed);
+            state.hasherH2 = new KWiseHash.BinHash(1, WIDTH, 2, seed + 1);
+            state.hasherXi1 = new KWiseHash.SignHash(1, 4, seed + 2);
+            state.hasherXi2 = new KWiseHash.SignHash(1, 4, seed + 3);
+
+            // Pre-compute values for display and quick access
+            DOMAIN_X.forEach(x => {
+                const val = STR_TO_INT[x];
+                state.h1_vals[x] = state.hasherH1.hash(val);
+                state.xi1_vals[x] = state.hasherXi1.hash(val);
+            });
+            DOMAIN_Y.forEach(y => {
+                const val = STR_TO_INT[y];
+                state.h2_vals[y] = state.hasherH2.hash(val);
+                state.xi2_vals[y] = state.hasherXi2.hash(val);
+            });
+        }
+
+        function insertT1(x) {
+            state.t1[x]++;
+            const idx = state.h1_vals[x];
+            state.s1[idx] += state.xi1_vals[x];
+            render();
+        }
+
+        function insertT3(y) {
+            state.t3[y]++;
+            const idx = state.h2_vals[y];
+            state.s3[idx] += state.xi2_vals[y];
+            render();
+        }
+
+        function insertT2(x, y) {
+            state.t2[`${x},${y}`]++;
+            // Count-Convolution Hash: h(x,y) = (h1(x) + h2(y)) % w
+            const idx = (state.h1_vals[x] + state.h2_vals[y]) % WIDTH;
+            // Sign: xi(x,y) = xi1(x) * xi2(y)
+            const sign = state.xi1_vals[x] * state.xi2_vals[y];
+            state.s2[idx] += sign;
+            render();
+        }
+
+        function toggleStream() {
+            const btn = document.getElementById('btn-stream');
+            if (state.isStreaming) {
+                clearInterval(state.interval);
+                state.isStreaming = false;
+                btn.textContent = "Start Stream";
+                btn.classList.remove('streaming');
+            } else {
+                state.isStreaming = true;
+                btn.textContent = "Stop Stream";
+                btn.classList.add('streaming');
+                state.interval = setInterval(() => {
+                    const r = Math.random();
+                    if (r < 0.33) insertT1(DOMAIN_X[Math.floor(Math.random() * 3)]);
+                    else if (r < 0.66) insertT2(DOMAIN_X[Math.floor(Math.random() * 3)], DOMAIN_Y[Math.floor(Math.random() * 3)]);
+                    else insertT3(DOMAIN_Y[Math.floor(Math.random() * 3)]);
+                }, 100);
+            }
+        }
+
+        function calculateTrueJoinSize() {
+            let total = 0;
+            DOMAIN_X.forEach(x => {
+                DOMAIN_Y.forEach(y => {
+                    // T1(x) * T2(x,y) * T3(y)
+                    const c1 = state.t1[x] || 0;
+                    const c2 = state.t2[`${x},${y}`] || 0;
+                    const c3 = state.t3[y] || 0;
+                    total += c1 * c2 * c3;
+                });
+            });
+            return total;
+        }
+
+        function runEstimation() {
+            // 1. FFT of S1 and S2
+            document.getElementById('stage-fft').classList.add('active');
+
+            // Use FFT library
+            const F1 = FFT.fft(state.s1);
+            const F2 = FFT.fft(state.s2);
+
+            // Visualize magnitudes for simplicity
+            renderVector('fft-s1', F1.map(c => Math.round(Math.sqrt(c.re ** 2 + c.im ** 2))), true);
+            renderVector('fft-s2', F2.map(c => Math.round(Math.sqrt(c.re ** 2 + c.im ** 2))), true);
+
+            setTimeout(() => {
+                // 2. Multiply (Cross-Correlation in Freq Domain)
+                // F_corr = Conj(F1) * F2
+                document.getElementById('stage-mult').classList.add('active');
+
+                const F_corr = F1.map((c1, i) => c1.conjugate().mul(F2[i]));
+
+                // Visual
+                renderVector('fft-mult', F_corr.map(c => Math.round(Math.sqrt(c.re ** 2 + c.im ** 2))), true);
+
+                setTimeout(() => {
+                    // 3. iFFT (Cross-Correlation Result)
+                    document.getElementById('stage-ifft').classList.add('active');
+
+                    const S_corr_complex = FFT.ifft(F_corr);
+                    const S_corr = S_corr_complex.map(c => Math.round(c.re)); // Take real part
+
+                    renderVector('conv-res', S_corr);
+
+                    setTimeout(() => {
+                        // 4. Dot Product with S3
+                        document.getElementById('stage-dot').classList.add('active');
+                        document.querySelector('#stage-dot .stage-label').textContent = "4. Dot with S3";
+
+                        let est = 0;
+                        for (let i = 0; i < WIDTH; i++) {
+                            est += S_corr[i] * state.s3[i];
+                        }
+
+                        const trueSize = calculateTrueJoinSize();
+                        document.getElementById('est-val').innerHTML = `${est} <span style="color: #6b7280; font-size: 0.8em;">(True: ${trueSize})</span>`;
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        function reset() {
+            if (state.isStreaming) toggleStream();
+            resetState();
+            randomizeHashes();
+
+            // Reset Animation
+            document.querySelectorAll('.stage').forEach(el => el.classList.remove('active'));
+            document.getElementById('est-val').textContent = '0';
+            document.querySelector('#stage-dot .stage-label').textContent = "4. Dot with S2"; // Reset label
+
+            render();
+        }
+
+        function render() {
+            // Frequencies
+            document.getElementById('freq-t1').innerHTML = Object.entries(state.t1).map(([k, v]) =>
+                `<div class="freq-item"><span>${k}</span><span>${v}</span></div>`).join('');
+            document.getElementById('freq-t2').innerHTML = Object.entries(state.t2).map(([k, v]) =>
+                `<div class="freq-item"><span>${k}</span><span>${v}</span></div>`).join('');
+            document.getElementById('freq-t3').innerHTML = Object.entries(state.t3).map(([k, v]) =>
+                `<div class="freq-item"><span>${k}</span><span>${v}</span></div>`).join('');
+
+            // Sketches
+            renderVector('sketch-s1', state.s1);
+            renderVector('sketch-s2', state.s2);
+            renderVector('sketch-s3', state.s3);
+        }
+
+        function renderVector(id, data, isFreq = false) {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+
+            const createCell = (val, isEllipsis = false) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (isEllipsis) {
+                    cell.textContent = '...';
+                    cell.style.border = 'none';
+                    cell.style.background = 'transparent';
+                } else {
+                    cell.textContent = val;
+                    if (val !== 0) {
+                        cell.style.backgroundColor = val > 0 ? '#dbeafe' : '#fee2e2';
+                    }
+                }
+                return cell;
+            };
+
+            if (data.length <= 5) {
+                data.forEach(val => el.appendChild(createCell(val)));
+            } else {
+                // First 2
+                el.appendChild(createCell(data[0]));
+                el.appendChild(createCell(data[1]));
+
+                // Ellipsis
+                el.appendChild(createCell(null, true));
+
+                // Last 2
+                el.appendChild(createCell(data[data.length - 2]));
+                el.appendChild(createCell(data[data.length - 1]));
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

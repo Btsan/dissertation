@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>K-wise Hash Unit Tests</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    h1 {
+      color: #4ec9b0;
+      border-bottom: 2px solid #4ec9b0;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #569cd6;
+      margin-top: 30px;
+    }
+    .test-section {
+      background: #2d2d2d;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+      border-left: 4px solid #4ec9b0;
+    }
+    .pass {
+      color: #4ec9b0;
+      font-weight: bold;
+    }
+    .fail {
+      color: #f48771;
+      font-weight: bold;
+    }
+    .result-line {
+      padding: 5px 0;
+      border-bottom: 1px solid #3e3e3e;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #3e3e3e;
+    }
+    th {
+      background: #3e3e3e;
+      color: #4ec9b0;
+    }
+    button {
+      background: #0e639c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #1177bb;
+    }
+    .summary {
+      background: #252526;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>K-wise Independent Hash Function Tests</h1>
+  <p>Testing polynomial hash functions modulo Mersenne prime (2^61 - 1)</p>
+
+  <div class="test-section">
+    <h2>Test Controls</h2>
+    <button onclick="runAllTests()">Run All Tests</button>
+    <button onclick="runSeedTest()">Test Seed Generator</button>
+    <button onclick="runPairwiseTest()">Test Pairwise Independence</button>
+    <button onclick="runDistributionTest()">Test Distribution</button>
+    <button onclick="runCorrelationTest()">Test Cross-Correlation</button>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    // K-wise Hash Implementation
+    const MERSENNE_PRIME = (1n << 61n) - 1n;
+
+    class SeededRandom {
+      constructor(seed) {
+        this.state = BigInt(seed);
+      }
+      
+      // Splitmix64 algorithm - fast and high quality
+      next() {
+        this.state = (this.state + 0x9e3779b97f4a7c15n) & 0xFFFFFFFFFFFFFFFFn;
+        let z = this.state;
+        z = ((z ^ (z >> 30n)) * 0xbf58476d1ce4e5b9n) & 0xFFFFFFFFFFFFFFFFn;
+        z = ((z ^ (z >> 27n)) * 0x94d049bb133111ebn) & 0xFFFFFFFFFFFFFFFFn;
+        return (z ^ (z >> 31n)) & 0xFFFFFFFFFFFFFFFFn;
+      }
+      
+      // Rejection sampling for uniform distribution without modulo bias
+      nextBigInt(min, max) {
+        const range = max - min;
+        if (range <= 0n) {
+          throw new Error('Invalid range: max must be greater than min');
+        }
+        
+        // For small ranges relative to 2^64, simple modulo is fine
+        // For large ranges, we still use modulo but the bias is negligible
+        const mask = (1n << 64n) - 1n;
+        let val = this.next();
+        
+        // Simple rejection sampling for better uniformity
+        const threshold = (mask - range + 1n) % range;
+        while (val < threshold) {
+          val = this.next();
+        }
+        
+        return min + (val % range);
+      }
+    }
+
+    function fastMersenneMod(x) {
+      let tmp1 = (x & MERSENNE_PRIME) + (x >> 61n);
+      let tmp2 = tmp1 - MERSENNE_PRIME;
+      return tmp2 < 0n ? tmp1 : tmp2;
+    }
+
+    function polyHash(x, coeffs) {
+      x = BigInt(x);
+      let result = coeffs[0];
+      
+      for (let i = 1; i < coeffs.length; i++) {
+        result = fastMersenneMod(result * x + coeffs[i]);
+      }
+      
+      return result;
+    }
+
+    class SignHash {
+      constructor(depth, k = 4, seed = 42) {
+        this.depth = depth;
+        this.k = k;
+        this.seeds = [];
+        
+        const rng = new SeededRandom(seed);
+        
+        for (let d = 0; d < depth; d++) {
+          const coeffs = [];
+          for (let i = 0; i < k - 1; i++) {
+            coeffs.push(rng.nextBigInt(1n, MERSENNE_PRIME));
+          }
+          coeffs.push(rng.nextBigInt(0n, MERSENNE_PRIME));
+          this.seeds.push(coeffs);
+        }
+      }
+      
+      hash(input, hashIdx = 0) {
+        const h = polyHash(input, this.seeds[hashIdx]);
+        return (h & 1n) ? 1 : -1;
+      }
+    }
+
+    // Test Functions
+    function runSeedTest() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="test-section"><h2>Seed Generator Test</h2><p>Testing SeededRandom uniformity...</p></div>';
+      
+      const n = 10000;
+      const min = 0n;
+      const max = MERSENNE_PRIME;
+      const expectedMean = Number(max / 2n);
+      
+      // Test nextBigInt(0, MERSENNE_PRIME)
+      const rng1 = new SeededRandom(42);
+      let sum1 = 0n;
+      let values1 = [];
+      for (let i = 0; i < n; i++) {
+        const val = rng1.nextBigInt(min, max);
+        sum1 += val;
+        if (i < 10) values1.push(val);
+      }
+      const mean1 = Number(sum1 / BigInt(n));
+      const meanRatio1 = mean1 / expectedMean;
+      
+      // Test nextBigInt(1, MERSENNE_PRIME)
+      const rng2 = new SeededRandom(43);
+      let sum2 = 0n;
+      let values2 = [];
+      const min2 = 1n;
+      const expectedMean2 = Number((max + min2) / 2n);
+      for (let i = 0; i < n; i++) {
+        const val = rng2.nextBigInt(min2, max);
+        sum2 += val;
+        if (i < 10) values2.push(val);
+      }
+      const mean2 = Number(sum2 / BigInt(n));
+      const meanRatio2 = mean2 / expectedMean2;
+      
+      let html = '<table>';
+      html += '<tr><th>Parameter</th><th>Value</th></tr>';
+      html += `<tr><td>Range</td><td>[0, 2^61-1] = [0, ${MERSENNE_PRIME}]</td></tr>`;
+      html += `<tr><td>Expected Mean</td><td>${expectedMean.toExponential(4)}</td></tr>`;
+      html += `<tr><td>Sample Size</td><td>${n}</td></tr>`;
+      html += '</table>';
+      
+      html += '<h3>Test 1: nextBigInt(0, MERSENNE_PRIME)</h3>';
+      html += '<table>';
+      html += '<tr><th>Metric</th><th>Value</th><th>Status</th></tr>';
+      html += `<tr><td>Actual Mean</td><td>${mean1.toExponential(4)}</td><td></td></tr>`;
+      html += `<tr><td>Mean Ratio (actual/expected)</td><td>${meanRatio1.toFixed(4)}</td><td class="${Math.abs(meanRatio1 - 1.0) < 0.05 ? 'pass' : 'fail'}">${Math.abs(meanRatio1 - 1.0) < 0.05 ? '✓ PASS' : '✗ FAIL'}</td></tr>`;
+      html += `<tr><td>First 10 samples</td><td colspan="2">${values1.slice(0, 5).map(v => v.toString().substring(0, 10) + '...').join(', ')}</td></tr>`;
+      html += '</table>';
+      
+      html += '<h3>Test 2: nextBigInt(1, MERSENNE_PRIME)</h3>';
+      html += '<table>';
+      html += '<tr><th>Metric</th><th>Value</th><th>Status</th></tr>';
+      html += `<tr><td>Expected Mean</td><td>${expectedMean2.toExponential(4)}</td><td></td></tr>`;
+      html += `<tr><td>Actual Mean</td><td>${mean2.toExponential(4)}</td><td></td></tr>`;
+      html += `<tr><td>Mean Ratio (actual/expected)</td><td>${meanRatio2.toFixed(4)}</td><td class="${Math.abs(meanRatio2 - 1.0) < 0.05 ? 'pass' : 'fail'}">${Math.abs(meanRatio2 - 1.0) < 0.05 ? '✓ PASS' : '✗ FAIL'}</td></tr>`;
+      html += `<tr><td>First 10 samples</td><td colspan="2">${values2.slice(0, 5).map(v => v.toString().substring(0, 10) + '...').join(', ')}</td></tr>`;
+      html += '</table>';
+      
+      const allPassed = Math.abs(meanRatio1 - 1.0) < 0.05 && Math.abs(meanRatio2 - 1.0) < 0.05;
+      html += `<div class="summary ${allPassed ? 'pass' : 'fail'}">Overall: ${allPassed ? '✓ ALL TESTS PASSED' : '✗ SOME TESTS FAILED'}</div>`;
+      html += '<p><strong>Expected:</strong> Mean should be close to midpoint of range (ratio ≈ 1.0)</p>';
+      
+      resultsDiv.innerHTML += '<div class="test-section">' + html + '</div>';
+    }
+
+    function runPairwiseTest() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="test-section"><h2>Pairwise Independence Test</h2><p>Testing that E[ξ(x)] ≈ 0 for large samples...</p></div>';
+      
+      const n = 10000;
+      const depth = 10;
+      const signHash = new SignHash(depth, 4, 42);
+      
+      let html = '<table><tr><th>Hash Function</th><th>Sum (1 to ' + n + ')</th><th>Mean</th><th>Status</th></tr>';
+      
+      let allPassed = true;
+      for (let hashIdx = 0; hashIdx < depth; hashIdx++) {
+        let sum = 0;
+        for (let i = 1; i <= n; i++) {
+          sum += signHash.hash(i, hashIdx);
+        }
+        
+        const mean = sum / n;
+        const passed = Math.abs(mean) < 0.05;
+        allPassed = allPassed && passed;
+        
+        html += `<tr>
+          <td>Hash ${hashIdx}</td>
+          <td>${sum}</td>
+          <td>${mean.toFixed(6)}</td>
+          <td class="${passed ? 'pass' : 'fail'}">${passed ? '✓ PASS' : '✗ FAIL'}</td>
+        </tr>`;
+      }
+      
+      html += '</table>';
+      html += `<div class="summary ${allPassed ? 'pass' : 'fail'}">Overall: ${allPassed ? '✓ ALL TESTS PASSED' : '✗ SOME TESTS FAILED'}</div>`;
+      html += '<p><strong>Expected:</strong> Mean should be very close to 0 (indicating unbiased ±1 distribution)</p>';
+      
+      resultsDiv.innerHTML += '<div class="test-section">' + html + '</div>';
+    }
+
+    function runDistributionTest() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="test-section"><h2>Distribution Test</h2><p>Testing ±1 balance...</p></div>';
+      
+      const n = 10000;
+      const depth = 5;
+      const signHash = new SignHash(depth, 4, 42);
+      
+      let html = '<table><tr><th>Hash Function</th><th>+1 Count</th><th>-1 Count</th><th>Balance</th><th>Status</th></tr>';
+      
+      let allPassed = true;
+      for (let hashIdx = 0; hashIdx < depth; hashIdx++) {
+        let posCount = 0;
+        let negCount = 0;
+        
+        for (let i = 1; i <= n; i++) {
+          const h = signHash.hash(i, hashIdx);
+          if (h === 1) posCount++;
+          else negCount++;
+        }
+        
+        const balance = Math.abs(posCount - negCount) / n;
+        const passed = balance < 0.05;
+        allPassed = allPassed && passed;
+        
+        html += `<tr>
+          <td>Hash ${hashIdx}</td>
+          <td>${posCount}</td>
+          <td>${negCount}</td>
+          <td>${balance.toFixed(4)}</td>
+          <td class="${passed ? 'pass' : 'fail'}">${passed ? '✓ PASS' : '✗ FAIL'}</td>
+        </tr>`;
+      }
+      
+      html += '</table>';
+      html += `<div class="summary ${allPassed ? 'pass' : 'fail'}">Overall: ${allPassed ? '✓ ALL TESTS PASSED' : '✗ SOME TESTS FAILED'}</div>`;
+      html += '<p><strong>Expected:</strong> Roughly equal counts of +1 and -1</p>';
+      
+      resultsDiv.innerHTML += '<div class="test-section">' + html + '</div>';
+    }
+
+    function runCorrelationTest() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="test-section"><h2>Cross-Correlation Test</h2><p>Testing E[ξ_i(x) · ξ_j(x)] ≈ 0 for i ≠ j...</p></div>';
+      
+      const n = 5000;
+      const depth = 5;
+      const signHash = new SignHash(depth, 4, 42);
+      
+      let html = '<table><tr><th>Hash Pair</th><th>Correlation Sum</th><th>Mean</th><th>Status</th></tr>';
+      
+      let allPassed = true;
+      for (let i = 0; i < depth; i++) {
+        for (let j = i + 1; j < depth; j++) {
+          let sum = 0;
+          
+          for (let x = 1; x <= n; x++) {
+            const hi = signHash.hash(x, i);
+            const hj = signHash.hash(x, j);
+            sum += hi * hj;
+          }
+          
+          const mean = sum / n;
+          const passed = Math.abs(mean) < 0.1;
+          allPassed = allPassed && passed;
+          
+          html += `<tr>
+            <td>Hash ${i} × Hash ${j}</td>
+            <td>${sum}</td>
+            <td>${mean.toFixed(6)}</td>
+            <td class="${passed ? 'pass' : 'fail'}">${passed ? '✓ PASS' : '✗ FAIL'}</td>
+          </tr>`;
+        }
+      }
+      
+      html += '</table>';
+      html += `<div class="summary ${allPassed ? 'pass' : 'fail'}">Overall: ${allPassed ? '✓ ALL TESTS PASSED' : '✗ SOME TESTS FAILED'}</div>`;
+      html += '<p><strong>Expected:</strong> Mean correlation should be close to 0 (indicating independence)</p>';
+      
+      resultsDiv.innerHTML += '<div class="test-section">' + html + '</div>';
+    }
+
+    function runAllTests() {
+      document.getElementById('results').innerHTML = '';
+      runSeedTest();
+      setTimeout(() => runPairwiseTest(), 100);
+      setTimeout(() => runDistributionTest(), 200);
+      setTimeout(() => runCorrelationTest(), 300);
+    }
+
+    // Auto-run on load
+    window.onload = () => {
+      runAllTests();
+    };
+  </script>
+</body>
+</html>

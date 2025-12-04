@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiway Join Visualization</title>
+    <link rel="stylesheet" href="demo-common.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+
+        .header h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+        }
+
+        .header p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        /* Controls Section */
+        .controls-section {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #btn-stream {
+            background-color: #2563eb;
+            /* Blue */
+        }
+
+        #btn-stream:hover {
+            background-color: #1d4ed8;
+        }
+
+        #btn-stream.streaming {
+            background-color: #4b5563;
+            /* Gray */
+        }
+
+        #btn-reset {
+            background-color: #dc2626;
+            /* Red */
+        }
+
+        #btn-reset:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+
+        /* Frequencies Column */
+        .freq-col {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border-right: 1px solid #e5e7eb;
+            padding-right: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .freq-box {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 10px;
+        }
+
+        .freq-title {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #374151;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 2px;
+        }
+
+        .freq-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            margin: 3px 0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .freq-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        /* Sketch Visualization */
+        .sketch-viz {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .sketch-layout {
+            display: grid;
+            grid-template-columns: auto auto;
+            grid-template-rows: auto auto;
+            gap: 10px;
+            align-items: center;
+            justify-items: center;
+        }
+
+        /* S1: Vertical Vector (Left) */
+        .sketch-s1 {
+            grid-column: 1;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* S2: Matrix (Center) */
+        .sketch-s2 {
+            grid-column: 2;
+            grid-row: 2;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+        }
+
+        /* S3: Horizontal Vector (Top) */
+        .sketch-s3 {
+            grid-column: 2;
+            grid-row: 1;
+            display: flex;
+            gap: 2px;
+        }
+
+        .sketch-label {
+            font-weight: bold;
+            color: #6b7280;
+            font-size: 0.8em;
+            margin: 5px;
+            text-align: center;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .results-panel {
+            width: 100%;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .metric {
+            font-size: 1.1em;
+            margin: 5px 0;
+            color: #166534;
+        }
+
+        .metric span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Multiway Join Estimation</h2>
+            <p>Join: <strong>T1(x) ⋈ T2(x, y) ⋈ T3(y)</strong> using Fast-AGMS Sketches</p>
+            <p style="font-size: 0.8em; margin-top: 5px;">Domain: x ∈ {A, B, C}, y ∈ {1, 2, 3}</p>
+        </div>
+
+        <div class="controls-section">
+            <div class="btn-group">
+                <button id="btn-stream" onclick="toggleStream()">Start Stream</button>
+                <button id="btn-reset" onclick="reset()">Reset & Randomize</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <!-- Frequencies Column -->
+            <div class="freq-col">
+                <div class="freq-box">
+                    <div class="freq-title">T1 Frequencies (x)</div>
+                    <div id="freq-t1"></div>
+                </div>
+                <div class="freq-box">
+                    <div class="freq-title">T2 Frequencies (x, y)</div>
+                    <div id="freq-t2"></div>
+                </div>
+                <div class="freq-box">
+                    <div class="freq-title">T3 Frequencies (y)</div>
+                    <div id="freq-t3"></div>
+                </div>
+            </div>
+
+            <!-- Sketch Visualization -->
+            <div class="sketch-viz">
+                <div class="sketch-layout">
+                    <!-- S3 (Top) -->
+                    <div style="grid-column: 2; grid-row: 1; text-align: center;">
+                        <div class="sketch-label">S3[j] (Vector)</div>
+                        <div id="sketch-s3" class="sketch-s3"></div>
+                    </div>
+
+                    <!-- S1 (Left) -->
+                    <div style="grid-column: 1; grid-row: 2; display: flex; align-items: center;">
+                        <div style="text-align: right; margin-right: 10px;">
+                            <div class="sketch-label">S1[i]</div>
+                            <div class="sketch-label">(Vector)</div>
+                        </div>
+                        <div id="sketch-s1" class="sketch-s1"></div>
+                    </div>
+
+                    <!-- S2 (Center) -->
+                    <div id="sketch-s2" class="sketch-s2"></div>
+
+                    <!-- S2 Label -->
+                    <div style="grid-column: 2; grid-row: 3; margin-top: 5px;">
+                        <div class="sketch-label">S2[i, j] (Matrix)</div>
+                    </div>
+                </div>
+
+                <div class="results-panel">
+                    <div class="metric">Estimated Join Size: <span id="est-join">0</span></div>
+                    <div class="metric">Actual Join Size: <span id="act-join">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../kwisehash.js"></script>
+    <script src="../js/sketch-utils.js"></script>
+    <script>
+        const WIDTH = 5;
+        const DOMAIN_X = ['A', 'B', 'C'];
+        const DOMAIN_Y = ['1', '2', '3'];
+
+        // Dynamic hash functions
+        let h1 = {};
+        let xi1 = {};
+        let h2 = {};
+        let xi2 = {};
+
+        const state = {
+            t1: {},
+            t2: {},
+            t3: {},
+            s1: new Array(WIDTH).fill(0),
+            s2: Array.from({ length: WIDTH }, () => new Array(WIDTH).fill(0)),
+            s3: new Array(WIDTH).fill(0),
+            isStreaming: false,
+            streamInterval: null
+        };
+
+        function initState() {
+            state.t1 = {};
+            state.t2 = {};
+            state.t3 = {};
+
+            DOMAIN_X.forEach(x => state.t1[x] = 0);
+            DOMAIN_Y.forEach(y => state.t3[y] = 0);
+
+            DOMAIN_X.forEach(x => {
+                DOMAIN_Y.forEach(y => {
+                    state.t2[`${x},${y}`] = 0;
+                });
+            });
+
+            state.s1.fill(0);
+            state.s2.forEach(row => row.fill(0));
+            state.s3.fill(0);
+        }
+
+        function init() {
+            initState();
+            randomizeHashes();
+            render();
+        }
+
+        function randomizeHashes() {
+            // Randomize h1 (x -> index) and xi1 (x -> sign)
+            DOMAIN_X.forEach(x => {
+                h1[x] = Math.floor(Math.random() * WIDTH);
+                xi1[x] = Math.random() < 0.5 ? 1 : -1;
+            });
+
+            // Randomize h2 (y -> index) and xi2 (y -> sign)
+            DOMAIN_Y.forEach(y => {
+                h2[y] = Math.floor(Math.random() * WIDTH);
+                xi2[y] = Math.random() < 0.5 ? 1 : -1;
+            });
+
+            console.log("Hashes Randomized");
+        }
+
+        function insertT1(x) {
+            state.t1[x]++;
+            const idx = h1[x];
+            const sign = xi1[x];
+            state.s1[idx] += sign;
+            render();
+        }
+
+        function insertT2(x, y) {
+            state.t2[`${x},${y}`]++;
+            const idx = h1[x];
+            const idy = h2[y];
+            const sign = xi1[x] * xi2[y];
+            state.s2[idx][idy] += sign;
+            render();
+        }
+
+        function insertT3(y) {
+            state.t3[y]++;
+            const idy = h2[y];
+            const sign = xi2[y];
+            state.s3[idy] += sign;
+            render();
+        }
+
+        function toggleStream() {
+            const btn = document.getElementById('btn-stream');
+            if (state.isStreaming) {
+                clearInterval(state.streamInterval);
+                state.isStreaming = false;
+                btn.textContent = "Start Stream";
+                btn.classList.remove('streaming');
+            } else {
+                state.isStreaming = true;
+                btn.textContent = "Stop Stream";
+                btn.classList.add('streaming');
+
+                state.streamInterval = setInterval(() => {
+                    // Randomly pick an action
+                    const r = Math.random();
+                    if (r < 0.33) {
+                        // Insert into T1
+                        const x = DOMAIN_X[Math.floor(Math.random() * DOMAIN_X.length)];
+                        insertT1(x);
+                    } else if (r < 0.66) {
+                        // Insert into T2
+                        const x = DOMAIN_X[Math.floor(Math.random() * DOMAIN_X.length)];
+                        const y = DOMAIN_Y[Math.floor(Math.random() * DOMAIN_Y.length)];
+                        insertT2(x, y);
+                    } else {
+                        // Insert into T3
+                        const y = DOMAIN_Y[Math.floor(Math.random() * DOMAIN_Y.length)];
+                        insertT3(y);
+                    }
+                }, 100); // 10 updates per second
+            }
+        }
+
+        function reset() {
+            if (state.isStreaming) toggleStream(); // Stop stream if running
+            randomizeHashes();
+            initState();
+            render();
+        }
+
+        function calculateEstimate() {
+            let sum = 0;
+            for (let i = 0; i < WIDTH; i++) {
+                for (let j = 0; j < WIDTH; j++) {
+                    sum += state.s1[i] * state.s2[i][j] * state.s3[j];
+                }
+            }
+            return sum;
+        }
+
+        function calculateActual() {
+            let sum = 0;
+            // Join: sum over x, y of T1(x) * T2(x,y) * T3(y)
+            DOMAIN_X.forEach(x => {
+                DOMAIN_Y.forEach(y => {
+                    const c1 = state.t1[x];
+                    const c2 = state.t2[`${x},${y}`];
+                    const c3 = state.t3[y];
+                    sum += c1 * c2 * c3;
+                });
+            });
+            return sum;
+        }
+
+        function render() {
+            renderFrequencies();
+            renderSketches();
+
+            document.getElementById('est-join').textContent = calculateEstimate();
+            document.getElementById('act-join').textContent = calculateActual();
+        }
+
+        function renderFrequencies() {
+            // T1
+            const ft1 = document.getElementById('freq-t1');
+            ft1.innerHTML = Object.entries(state.t1).map(([k, v]) =>
+                `<div class="freq-item"><span>${k}</span><span>${v}</span></div>`
+            ).join('');
+
+            // T2
+            const ft2 = document.getElementById('freq-t2');
+            ft2.innerHTML = Object.entries(state.t2).map(([k, v]) =>
+                `<div class="freq-item"><span>(${k})</span><span>${v}</span></div>`
+            ).join('');
+
+            // T3
+            const ft3 = document.getElementById('freq-t3');
+            ft3.innerHTML = Object.entries(state.t3).map(([k, v]) =>
+                `<div class="freq-item"><span>${k}</span><span>${v}</span></div>`
+            ).join('');
+        }
+
+        function renderSketches() {
+            // S1
+            const s1 = document.getElementById('sketch-s1');
+            s1.innerHTML = '';
+            state.s1.forEach(val => {
+                const el = document.createElement('div');
+                el.className = 'cell';
+                el.textContent = val;
+                el.style.backgroundColor = val !== 0 ? (val > 0 ? '#dbeafe' : '#fee2e2') : 'white';
+                s1.appendChild(el);
+            });
+
+            // S3
+            const s3 = document.getElementById('sketch-s3');
+            s3.innerHTML = '';
+            state.s3.forEach(val => {
+                const el = document.createElement('div');
+                el.className = 'cell';
+                el.textContent = val;
+                el.style.backgroundColor = val !== 0 ? (val > 0 ? '#dbeafe' : '#fee2e2') : 'white';
+                s3.appendChild(el);
+            });
+
+            // S2
+            const s2 = document.getElementById('sketch-s2');
+            s2.innerHTML = '';
+            state.s2.forEach(row => {
+                row.forEach(val => {
+                    const el = document.createElement('div');
+                    el.className = 'cell';
+                    el.textContent = val;
+                    el.style.backgroundColor = val !== 0 ? (val > 0 ? '#dbeafe' : '#fee2e2') : 'white';
+                    s2.appendChild(el);
+                });
+            });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

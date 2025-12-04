@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BERT Flow Diagram</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			padding: 40px;
+			background: #f5f5f5;
+		}
+		.container {
+			background: white;
+			padding: 40px;
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+		h1 {
+			color: #667eea;
+			margin-top: 0;
+		}
+
+		/* SQL Query Box */
+		.query-box {
+			background: #f8f9fa;
+			border-left: 4px solid #667eea;
+			padding: 20px;
+			margin: 30px 0;
+			border-radius: 4px;
+		}
+		.query-box .label {
+			color: #667eea;
+			font-weight: bold;
+			margin-bottom: 10px;
+			font-size: 0.9em;
+			text-transform: uppercase;
+		}
+		.query-box pre {
+			margin: 0;
+			font-family: 'Courier New', monospace;
+			font-size: 0.95em;
+			color: #333;
+		}
+		.query-box .filter-highlight {
+			background: #fff3e0;
+			padding: 2px 4px;
+			border-radius: 2px;
+		}
+
+		/* Flow Diagram */
+		.flow-diagram {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 30px;
+			margin: 40px 0;
+		}
+
+		/* Tables */
+		.flow-table {
+			border-collapse: collapse;
+			border: 2px solid #333;
+			background: white;
+		}
+		.flow-table th {
+			background: #667eea;
+			color: white;
+			padding: 12px 20px;
+			text-align: left;
+			border: 1px solid #333;
+			font-size: 0.9em;
+		}
+		.flow-table td {
+			padding: 12px 20px;
+			border: 1px solid #ddd;
+			font-size: 0.95em;
+		}
+		.flow-table td:first-child {
+			background: #f0f0f0;
+			font-weight: bold;
+			min-width: 120px;
+		}
+		.flow-table .input-cell {
+			background: #e3f2fd;
+			font-family: 'Courier New', monospace;
+			min-width: 150px;
+		}
+		.flow-table .masked-cell {
+			background: #fff3e0;
+			border: 2px dashed #ff9800;
+			font-weight: bold;
+			font-style: italic;
+			color: #ff9800;
+		}
+		.flow-table .output-cell {
+			background: #e8f5e9;
+			font-family: 'Courier New', monospace;
+			min-width: 200px;
+			font-size: 0.85em;
+		}
+		.flow-table .output-cell.empty {
+			background: #fafafa;
+			color: #ccc;
+			text-align: center;
+		}
+
+		/* BERT Box */
+		.bert-box {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			padding: 40px 30px;
+			border-radius: 10px;
+			text-align: center;
+			font-weight: bold;
+			font-size: 1.3em;
+			box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+			min-width: 150px;
+		}
+		.bert-box .subtitle {
+			font-size: 0.5em;
+			font-weight: normal;
+			margin-top: 8px;
+			opacity: 0.9;
+		}
+
+		/* Arrows */
+		.arrow {
+			font-size: 3em;
+			color: #667eea;
+			font-weight: bold;
+		}
+
+		/* Explanation */
+		.explanation {
+			background: #f0f0f0;
+			padding: 20px;
+			border-radius: 8px;
+			margin-top: 30px;
+		}
+		.explanation h3 {
+			margin-top: 0;
+			color: #667eea;
+		}
+		.explanation ul {
+			margin: 10px 0;
+			padding-left: 25px;
+		}
+		.explanation li {
+			margin: 8px 0;
+		}
+
+		/* Legend */
+		.legend {
+			display: flex;
+			gap: 25px;
+			margin: 30px 0;
+			flex-wrap: wrap;
+		}
+		.legend-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.legend-box {
+			width: 30px;
+			height: 20px;
+			border-radius: 3px;
+			border: 2px solid;
+		}
+		.legend-box.known {
+			background: #e3f2fd;
+			border-color: #2196f3;
+		}
+		.legend-box.masked {
+			background: #fff3e0;
+			border-color: #ff9800;
+			border-style: dashed;
+		}
+		.legend-box.output {
+			background: #e8f5e9;
+			border-color: #4caf50;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>BERT Flow Diagram for Approximate Sketches</h1>
+
+		<!-- SQL Query -->
+		<div class="query-box">
+			<div class="label">Example Query</div>
+			<pre>SELECT COUNT(*)
+FROM customers c JOIN orders o ON c.customer_id = o.customer_id
+WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND c.region = 'West'</span></pre>
+			<div style="margin-top: 12px; color: #666; font-size: 0.9em;">
+				<strong>Task:</strong> Estimate sketch of <code>customer_id</code> for the filtered selection
+			</div>
+		</div>
+
+		<!-- Legend -->
+		<div class="legend">
+			<div class="legend-item">
+				<div class="legend-box known"></div>
+				<span>Known Filter Value</span>
+			</div>
+			<div class="legend-item">
+				<div class="legend-box masked"></div>
+				<span>Join Attribute (Masked)</span>
+			</div>
+			<div class="legend-item">
+				<div class="legend-box output"></div>
+				<span>Probability Distribution</span>
+			</div>
+		</div>
+
+		<!-- Flow Diagram -->
+		<div class="flow-diagram">
+			<!-- Input Table -->
+			<table class="flow-table">
+				<thead>
+					<tr>
+						<th>Attribute</th>
+						<th>Input Embedding</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>age</td>
+						<td class="input-cell">h(35) = 7</td>
+					</tr>
+					<tr>
+						<td>city</td>
+						<td class="input-cell">h('SF') = 12</td>
+					</tr>
+					<tr>
+						<td>region</td>
+						<td class="input-cell">h('West') = 3</td>
+					</tr>
+					<tr>
+						<td>customer_id</td>
+						<td class="masked-cell">[MASK]</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- Arrow -->
+			<div class="arrow">→</div>
+
+			<!-- BERT Model -->
+			<div class="bert-box">
+				BERT
+				<div class="subtitle">Bidirectional Transformer</div>
+			</div>
+
+			<!-- Arrow -->
+			<div class="arrow">→</div>
+
+			<!-- Output Table -->
+			<table class="flow-table">
+				<thead>
+					<tr>
+						<th>Attribute</th>
+						<th>Output Distribution</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>age</td>
+						<td class="output-cell empty">—</td>
+					</tr>
+					<tr>
+						<td>city</td>
+						<td class="output-cell empty">—</td>
+					</tr>
+					<tr>
+						<td>region</td>
+						<td class="output-cell empty">—</td>
+					</tr>
+					<tr>
+						<td>customer_id</td>
+						<td class="output-cell">P(h(·) | age, city, region)<br>[0.12, 0.08, 0.15, 0.10, ...]</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Explanation -->
+		<div class="explanation">
+			<h3>How it Works</h3>
+			<ul>
+				<li><strong>Input:</strong> Each attribute value is hashed to a bin ID (e.g., h(35) = 7). The join attribute is masked.</li>
+				<li><strong>BERT Processing:</strong> The transformer uses bidirectional attention to condition on all known attributes.</li>
+				<li><strong>Output:</strong> A probability distribution over hash bins for the masked attribute: P(h(customer_id) = i | age=35, city='SF', region='West')</li>
+				<li><strong>Sketch Construction:</strong> Multiply the probability vector by the selection cardinality: <strong>sketch = p × |σ(T)|</strong></li>
+			</ul>
+		</div>
+
+		<div style="margin-top: 30px; padding: 20px; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px;">
+			<strong>Key Advantage:</strong> BERT can mask <em>any</em> attribute, allowing sketches to be approximated for arbitrary filter conditions at query time.
+		</div>
+	</div>
+
+	<!-- ========================================== -->
+	<!-- ALTERNATIVE COMPACT VERSION FOR SLIDES -->
+	<!-- ========================================== -->
+	<div class="container" style="margin-top: 60px;">
+		<h1>Alternative: More Compact Version for Slides</h1>
+		<p style="color: #666;">Same concept, but more space-efficient for presentation slides</p>
+
+		<div class="query-box">
+			<div class="label">Query</div>
+			<pre>SELECT COUNT(*) FROM customers c JOIN orders o ON c.customer_id = o.customer_id
+WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF'</span></pre>
+		</div>
+
+		<div class="flow-diagram" style="gap: 20px;">
+			<!-- Compact Input Table -->
+			<table class="flow-table" style="font-size: 0.85em;">
+				<thead>
+					<tr>
+						<th colspan="2">Input Embeddings</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>age</td>
+						<td class="input-cell">h(35) = 7</td>
+					</tr>
+					<tr>
+						<td>city</td>
+						<td class="input-cell">h('SF') = 12</td>
+					</tr>
+					<tr>
+						<td>customer_id</td>
+						<td class="masked-cell">[MASK]</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="arrow" style="font-size: 2.5em;">→</div>
+
+			<div class="bert-box" style="padding: 30px 25px; font-size: 1.1em;">
+				BERT
+			</div>
+
+			<div class="arrow" style="font-size: 2.5em;">→</div>
+
+			<!-- Compact Output -->
+			<div style="background: #e8f5e9; border: 2px solid #4caf50; padding: 20px; border-radius: 8px; min-width: 250px;">
+				<div style="font-weight: bold; margin-bottom: 10px; color: #333;">
+					P(h(customer_id) | conditions)
+				</div>
+				<div style="font-family: 'Courier New', monospace; font-size: 0.85em; color: #333;">
+					[0.12, 0.08, 0.15, 0.10, ...]
+				</div>
+				<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #4caf50; font-size: 0.85em; color: #333;">
+					<strong>Sketch:</strong> p × |σ(customers)|
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
