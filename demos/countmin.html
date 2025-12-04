@@ -185,9 +185,7 @@
         const state = {
             grid: [], // [row][col]
             trueCounts: { 'Red': 0, 'Green': 0, 'Blue': 0 },
-            hashes: {
-                bin: new window.KWiseHash.BinHash(CONFIG.depth, CONFIG.width, 2, 123)
-            }
+            precomputedHashes: {} // Store precomputed hash positions for each color
         };
 
         // Initialize Grid
@@ -196,6 +194,21 @@
             container.innerHTML = '';
             state.grid = [];
             state.trueCounts = { 'Red': 0, 'Green': 0, 'Blue': 0 };
+
+            // Generate a new random seed each time we reset
+            const seed = Math.floor(Math.random() * 2147483647);
+            const binHash = new window.KWiseHash.BinHash(CONFIG.depth, CONFIG.width, 2, seed);
+
+            // Precompute hash positions for each color
+            state.precomputedHashes = {};
+            ['Red', 'Green', 'Blue'].forEach(colorName => {
+                const itemId = colorName.charCodeAt(0);
+                state.precomputedHashes[colorName] = [];
+                for (let r = 0; r < CONFIG.depth; r++) {
+                    state.precomputedHashes[colorName][r] = binHash.hash(itemId, r);
+                }
+            });
+
             updateButtons();
 
             for (let r = 0; r < CONFIG.depth; r++) {
@@ -246,9 +259,6 @@
             const startX = rect.left + rect.width / 2;
             const startY = rect.top + rect.height / 2;
 
-            // Hash the item
-            const itemId = colorName.charCodeAt(0);
-
             // Create particles for each row
             const particles = [];
             for (let r = 0; r < CONFIG.depth; r++) {
@@ -259,7 +269,7 @@
             await new Promise(r => setTimeout(r, 50)); // Wait for render
 
             const animations = particles.map((p, r) => {
-                const col = state.hashes.bin.hash(itemId, r);
+                const col = state.precomputedHashes[colorName][r];
 
                 const targetCell = document.getElementById(`cell-${r}-${col}`);
                 const targetRect = targetCell.getBoundingClientRect();
@@ -287,7 +297,6 @@
         }
 
         function query(colorName) {
-            const itemId = colorName.charCodeAt(0);
             const panel = document.getElementById('estimates-panel');
             const details = document.getElementById('estimate-details');
             const final = document.getElementById('final-result');
@@ -301,7 +310,7 @@
             const estimates = [];
 
             for (let r = 0; r < CONFIG.depth; r++) {
-                const col = state.hashes.bin.hash(itemId, r);
+                const col = state.precomputedHashes[colorName][r];
                 const val = state.grid[r][col];
                 estimates.push(val);
 
