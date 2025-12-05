@@ -707,158 +707,160 @@
 			<!-- ============================================ -->
 			<!-- SECTION 1: RECAP SINCE CANDIDACY -->
 			<!-- ============================================ -->
-			<section>
-				<h2 class="section-header">Section 1: Recap</h2>
-			</section>
+			 <section>
+				<section>
+					<h2 class="section-header">Section 1: Recap</h2>
+				</section>
 
-			<section>
-				<h3>Curriculum Vita</h3>
-			<div class="cv-timeline">
-				<div class="cv-row">
-					<div class="cv-card milestone small">
-						<div class="year">2018</div>
-						<span class="badge education">Degree</span>
-						<div class="title">B.Sc. CSE</div>
-						<div class="venue">UC Merced</div>
-					</div>
+				<section>
+					<h3>Curriculum Vita</h3>
+				<div class="cv-timeline">
+					<div class="cv-row">
+						<div class="cv-card milestone small">
+							<div class="year">2018</div>
+							<span class="badge education">Degree</span>
+							<div class="title">B.Sc. CSE</div>
+							<div class="venue">UC Merced</div>
+						</div>
 
-					<div class="cv-card milestone small">
-						<div class="year">2019</div>
-						<span class="badge education">Started</span>
-						<div class="title">MS Program</div>
-						<div class="venue">UC Merced</div>
-					</div>
+						<div class="cv-card milestone small">
+							<div class="year">2019</div>
+							<span class="badge education">Started</span>
+							<div class="title">MS Program</div>
+							<div class="venue">UC Merced</div>
+						</div>
 
-					<div class="cv-card small">
-						<div class="year">2021</div>
-						<div class="title">DJEnsemble: On the Selection of a Disjoint Ensemble of Deep Learning Black-Box Spatio-temporal Models</div>
-						<div class="venue">SSDBM'21</div>
-					</div>
-				</div>
-
-				<div class="cv-row">
-					<div class="cv-card medium">
-						<div class="year">2022</div>
-						<div class="title">Detect, retrieve, comprehend: a flexible framework for zero-shot document-level question answering</div>
-						<div class="venue">LLNL Internship</div>
-					</div>
-
-					<div class="cv-card medium">
-						<div class="year">2023</div>
-						<div class="title">Analyzing Query Optimizer Performance in the Presence and Absence of Cardinality Estimates</div>
-						<div class="venue">arXiv</div>
-					</div>
-
-					<div class="cv-card milestone small">
-						<div class="year">Jan 2024</div>
-						<span class="badge education">Milestone</span>
-						<div class="title">PhD Candidacy</div>
-					</div>
-				</div>
-
-				<div class="cv-row">
-					<div class="cv-card large">
-						<div class="year">2024</div>
-						<div class="pub-list">
-							<div>• Approximate Sketches <span class="venue">(SIGMOD'24)✨</span></div>
-							<div>• Sub-optimal Join Order... <span class="venue">(SIGMOD'24)</span></div>
-							<div>• Simpli-Squared... <span class="venue">(SiMoD'24)</span></div>
+						<div class="cv-card small">
+							<div class="year">2021</div>
+							<div class="title">DJEnsemble: On the Selection of a Disjoint Ensemble of Deep Learning Black-Box Spatio-temporal Models</div>
+							<div class="venue">SSDBM'21</div>
 						</div>
 					</div>
 
-					<div class="cv-card large">
-						<div class="year">2025</div>
-						<div class="title">Recent Work</div>
-						<div class="pub-list">
-							<div>• PLANSIEVE <span class="venue">(aiDM'25 workshop)</span></div>
-							<div>• Sketched Sum-Product Networks <span class="venue">(TBA)✨</span></div>
+					<div class="cv-row">
+						<div class="cv-card medium">
+							<div class="year">2022</div>
+							<div class="title">Detect, retrieve, comprehend: a flexible framework for zero-shot document-level question answering</div>
+							<div class="venue">LLNL Internship</div>
+						</div>
+
+						<div class="cv-card medium">
+							<div class="year">2023</div>
+							<div class="title">Analyzing Query Optimizer Performance in the Presence and Absence of Cardinality Estimates</div>
+							<div class="venue">arXiv</div>
+						</div>
+
+						<div class="cv-card milestone small">
+							<div class="year">Jan 2024</div>
+							<span class="badge education">Milestone</span>
+							<div class="title">PhD Candidacy</div>
+						</div>
+					</div>
+
+					<div class="cv-row">
+						<div class="cv-card large">
+							<div class="year">2024</div>
+							<div class="pub-list">
+								<div>• Approximate Sketches <span class="venue">(SIGMOD'24)✨</span></div>
+								<div>• Sub-optimal Join Order... <span class="venue">(SIGMOD'24)</span></div>
+								<div>• Simpli-Squared... <span class="venue">(SiMoD'24)</span></div>
+							</div>
+						</div>
+
+						<div class="cv-card large">
+							<div class="year">2025</div>
+							<div class="title">Recent Work</div>
+							<div class="pub-list">
+								<div>• PLANSIEVE <span class="venue">(aiDM'25 workshop)</span></div>
+								<div>• Sketched Sum-Product Networks <span class="venue">(TBA)✨</span></div>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-			</section>
+				</section>
 
-			<section style="font-size: 0.8em;">
-				<h3>Approximate Sketches (SIGMOD'24)</h3>
+				<section style="font-size: 0.8em;">
+					<h3>Approximate Sketches (SIGMOD'24)</h3>
 
-				<div class="query-box">
-					<div class="label">Example Query</div>
-					<pre>SELECT COUNT(*) FROM customers c JOIN orders o ON c.customer_id = o.customer_id
-WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF'</span></pre>
-				</div>
-
-				<div class="flow-diagram">
-					<!-- Input Table -->
-					<table class="flow-table">
-						<thead>
-							<tr>
-								<th colspan="2">Input Embeddings</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>age</td>
-								<td class="input-cell">h(35) = 7</td>
-							</tr>
-							<tr>
-								<td>city</td>
-								<td class="input-cell">h('SF') = 12</td>
-							</tr>
-							<tr>
-								<td>customer_id</td>
-								<td class="masked-cell">[MASK]</td>
-							</tr>
-						</tbody>
-					</table>
-
-					<div class="arrow-large">→</div>
-
-					<div class="bert-box">
-						BERT
+					<div class="query-box">
+						<div class="label">Example Query</div>
+						<pre>SELECT COUNT(*) FROM customers c JOIN orders o ON c.customer_id = o.customer_id
+	WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF'</span></pre>
 					</div>
 
-					<div class="arrow-large">→</div>
+					<div class="flow-diagram">
+						<!-- Input Table -->
+						<table class="flow-table">
+							<thead>
+								<tr>
+									<th colspan="2">Input Embeddings</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>age</td>
+									<td class="input-cell">h(35) = 7</td>
+								</tr>
+								<tr>
+									<td>city</td>
+									<td class="input-cell">h('SF') = 12</td>
+								</tr>
+								<tr>
+									<td>customer_id</td>
+									<td class="masked-cell">[MASK]</td>
+								</tr>
+							</tbody>
+						</table>
 
-					<!-- Output -->
-					<div class="output-box">
-						<div class="output-title">
-							P(h(customer_id) | conditions)
+						<div class="arrow-large">→</div>
+
+						<div class="bert-box">
+							BERT
 						</div>
-						<div class="output-values">
-							[0.12, 0.08, 0.15, 0.10, ...]
-						</div>
-						<div class="output-formula">
-							<strong>Sketch:</strong> p × |σ(customers)|
-						</div>
-					</div>
-				</div>
-			</section>
-			<section  class="join-section" >
-				<h3>Summary</h3>
-				<div class="comparison-container">
-					<div class="plan-box plan-good">
-						<h4 style="margin-top: 0; font-size: 1em;">✓Pros</h4>
-						<ol>
-							<li>Efficient approximation</li>
-							<li>Accurate sketches</li>
-							<li>Fast queries</li>
-						</ol>
-					</div>
-					<div class="plan-box plan-bad">
-						<h4 style="margin-top: 0; font-size: 1em;">❌Cons</h4>
-						<ol>
-							<li>Long training</li>
-							<li>Large model size</li>
-							<li><strong>GPU-bottlenecked</strong></li>
-						</ol>
-					</div>
-				</div>
-				<div class="fragment">Therefore, I need a new model!</div>
-			</section>
 
-			<section>
-				but first
-				<p class="fragment">the background</p>
+						<div class="arrow-large">→</div>
+
+						<!-- Output -->
+						<div class="output-box">
+							<div class="output-title">
+								P(h(customer_id) | conditions)
+							</div>
+							<div class="output-values">
+								[0.12, 0.08, 0.15, 0.10, ...]
+							</div>
+							<div class="output-formula">
+								<strong>Sketch:</strong> p × |σ(customers)|
+							</div>
+						</div>
+					</div>
+				</section>
+				<section  class="join-section" >
+					<h3>Summary</h3>
+					<div class="comparison-container">
+						<div class="plan-box plan-good">
+							<h4 style="margin-top: 0; font-size: 1em;">✓Pros</h4>
+							<ol>
+								<li>Efficient approximation</li>
+								<li>Accurate sketches</li>
+								<li>Fast queries</li>
+							</ol>
+						</div>
+						<div class="plan-box plan-bad">
+							<h4 style="margin-top: 0; font-size: 1em;">❌Cons</h4>
+							<ol>
+								<li>Long training</li>
+								<li>Large model size</li>
+								<li><strong>GPU-bottlenecked</strong></li>
+							</ol>
+						</div>
+					</div>
+					<div class="fragment">Therefore, I need a new model!</div>
+				</section>
+
+				<section>
+					but first
+					<p class="fragment">the background</p>
+				</section>
 			</section>
 
 			<!-- ============================================ -->
@@ -871,55 +873,57 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF'</span></pre>
 			<!-- ============================================ -->
 			<!-- JOIN ORDERING EXAMPLE -->
 			<!-- ============================================ -->
-			<section class="join-section" data-auto-animate>
-				<h3>Joins</h3>
-				<p>Find all students enrolled in special seminar courses</p>
-					<pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.55em; text-align: left;">
+			 <section>
+				<section class="join-section" data-auto-animate>
+					<h3>Joins</h3>
+					<p>Find all students enrolled in special seminar courses</p>
+						<pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.55em; text-align: left;">
 SELECT s.name, e.student_id, c.course_name
 FROM Students s
 JOIN Enrollments e ON s.student_id = e.student_id
 JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
-			</section>
+				</section>
 
-			<section class="join-section" data-auto-animate>
-				<h3>Joins</h3>
-					<div class="table-container">
-						<div>
-							<div class="table-label" data-id="students-table">Students (5 rows)</div>
-							<table data-id="students-table">
-								<tr><th>ID</th><th>Name</th></tr>
-								<tr><td>1</td><td>Alice</td></tr>
-								<tr><td>2</td><td>Bob</td></tr>
-								<tr><td>3</td><td>Carol</td></tr>
-								<tr><td>4</td><td>Dave</td></tr>
-								<tr><td>5</td><td>Eve</td></tr>
-							</table>
+				<section class="join-section" data-auto-animate>
+					<h3>Joins</h3>
+						<div class="table-container">
+							<div>
+								<div class="table-label" data-id="students-table">Students (5 rows)</div>
+								<table data-id="students-table">
+									<tr><th>ID</th><th>Name</th></tr>
+									<tr><td>1</td><td>Alice</td></tr>
+									<tr><td>2</td><td>Bob</td></tr>
+									<tr><td>3</td><td>Carol</td></tr>
+									<tr><td>4</td><td>Dave</td></tr>
+									<tr><td>5</td><td>Eve</td></tr>
+								</table>
+							</div>
+							<div>
+								<div class="table-label">Enrollments (10 rows)</div>
+								<table data-id="enrollments-table">
+									<tr><th>SID</th><th>CID</th></tr>
+									<tr><td>1</td><td>101</td></tr>
+									<tr><td>2</td><td>101</td></tr>
+									<tr><td>1</td><td>201</td></tr>
+									<tr><td>3</td><td>201</td></tr>
+									<tr><td>4</td><td>202</td></tr>
+									<tr><td>5</td><td>202</td></tr>
+									<tr><td>2</td><td>203</td></tr>
+									<tr><td>3</td><td>203</td></tr>
+									<tr><td>4</td><td>204</td></tr>
+									<tr><td>5</td><td>205</td></tr>
+								</table>
+							</div>
+							<div>
+								<div class="table-label">SpecialCourses (2 rows)</div>
+								<table data-id="special-table">
+									<tr><th>ID</th><th>Course</th></tr>
+									<tr><td>101</td><td>CS101</td></tr>
+									<tr><td>201</td><td>CS102</td></tr>
+								</table>
+							</div>
 						</div>
-						<div>
-							<div class="table-label">Enrollments (10 rows)</div>
-							<table data-id="enrollments-table">
-								<tr><th>SID</th><th>CID</th></tr>
-								<tr><td>1</td><td>101</td></tr>
-								<tr><td>2</td><td>101</td></tr>
-								<tr><td>1</td><td>201</td></tr>
-								<tr><td>3</td><td>201</td></tr>
-								<tr><td>4</td><td>202</td></tr>
-								<tr><td>5</td><td>202</td></tr>
-								<tr><td>2</td><td>203</td></tr>
-								<tr><td>3</td><td>203</td></tr>
-								<tr><td>4</td><td>204</td></tr>
-								<tr><td>5</td><td>205</td></tr>
-							</table>
-						</div>
-						<div>
-							<div class="table-label">SpecialCourses (2 rows)</div>
-							<table data-id="special-table">
-								<tr><th>ID</th><th>Course</th></tr>
-								<tr><td>101</td><td>CS101</td></tr>
-								<tr><td>201</td><td>CS102</td></tr>
-							</table>
-						</div>
-					</div>
+				</section>
 			</section>
 
 			<!-- BAD PLAN -->
@@ -1355,65 +1359,67 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 			</section>
 
 			<!-- COMPARISON -->
-			<section class="join-section" data-auto-animate>
-				<h3>Why Join Ordering Matters</h3>
-				<div class="comparison-container">
-					<div class="plan-box plan-bad">
-						<h4 style="margin-top: 0; font-size: 1em;">❌ Plan A: Bad Order</h4>
-						<div class="step-item">
-								<strong>Step 1:</strong> Students ⋈ Enrollments<br>
-								Cost: 5 × 10 = 50<br>
-								Result: 10 rows
-							</div>
+			 <section>
+				<section class="join-section" data-auto-animate>
+					<h3>Why Join Ordering Matters</h3>
+					<div class="comparison-container">
+						<div class="plan-box plan-bad">
+							<h4 style="margin-top: 0; font-size: 1em;">❌ Plan A: Bad Order</h4>
 							<div class="step-item">
-								<strong>Step 2:</strong> Result ⋈ SpecialCourses<br>
-								Cost: 10 × 2 = 20<br>
-								Result: 4 rows
+									<strong>Step 1:</strong> Students ⋈ Enrollments<br>
+									Cost: 5 × 10 = 50<br>
+									Result: 10 rows
+								</div>
+								<div class="step-item">
+									<strong>Step 2:</strong> Result ⋈ SpecialCourses<br>
+									Cost: 10 × 2 = 20<br>
+									Result: 4 rows
+								</div>
+								<div class="cost-box cost-bad" style="margin-top: 10px;">
+									<strong>Total: 70 comparisons</strong>
+								</div>
 							</div>
-							<div class="cost-box cost-bad" style="margin-top: 10px;">
-								<strong>Total: 70 comparisons</strong>
+							<div class="plan-box plan-good">
+								<h4 style="margin-top: 0; font-size: 1em;">✓ Plan B: Good Order</h4>
+								<div class="step-item">
+									<strong>Step 1:</strong> SpecialCourses ⋈ Enrollments<br>
+									Cost: 2 × 10 = 20<br>
+									Result: 4 rows <span style="color: #00aa00;">← Early filter!</span>
+								</div>
+								<div class="step-item">
+									<strong>Step 2:</strong> Result ⋈ Students<br>
+									Cost: 4 × 5 = 10<br>
+									Result: 4 rows
+								</div>
+								<div class="cost-box cost-good" style="margin-top: 10px;">
+									<strong>Total: 30 comparisons</strong>
+								</div>
 							</div>
-						</div>
-						<div class="plan-box plan-good">
-							<h4 style="margin-top: 0; font-size: 1em;">✓ Plan B: Good Order</h4>
-							<div class="step-item">
-								<strong>Step 1:</strong> SpecialCourses ⋈ Enrollments<br>
-								Cost: 2 × 10 = 20<br>
-								Result: 4 rows <span style="color: #00aa00;">← Early filter!</span>
-							</div>
-							<div class="step-item">
-								<strong>Step 2:</strong> Result ⋈ Students<br>
-								Cost: 4 × 5 = 10<br>
-								Result: 4 rows
-							</div>
-							<div class="cost-box cost-good" style="margin-top: 10px;">
-								<strong>Total: 30 comparisons</strong>
-							</div>
-						</div>
-				</div>
-			</section>
+					</div>
+				</section>
 
-			<section class="join-section">
-				<h3>Why Join Ordering Matters</h3>
-				<div style="text-align: left; max-width: 700px; margin: 20px auto; font-size: 0.85em;">
-					<p style="font-size: 1.1em; color: #667eea;">
-						<strong>Plan B is 2.3× faster</strong>
-					</p>
-					<ul style="font-size: 0.95em;">
-						<li><strong>Join with selective tables first</strong> to filter early</li>
-						<li><strong>Smaller intermediate results</strong> = fewer comparisons in subsequent joins</li>
-						<li>For large tables, the difference can be <strong>orders of magnitude</strong></li>
-					</ul>
-				</div>
-				<div class="note" style="margin-top: 20px; font-size: 0.75em;">
-					<p style="margin: 0;">
-						<strong>The Challenge:</strong> How can the query optimizer choose the best join order
-						<strong>before execution?</strong>
-					</p>
-					<p style="margin-top: 10px; color: #667eea;">
-						→ We need <strong>cardinality estimation</strong> to predict intermediate result sizes!
-					</p>
-				</div>
+				<section class="join-section">
+					<h3>Why Join Ordering Matters</h3>
+					<div style="text-align: left; max-width: 700px; margin: 20px auto; font-size: 0.85em;">
+						<p style="font-size: 1.1em; color: #667eea;">
+							<strong>Plan B is 2.3× faster</strong>
+						</p>
+						<ul style="font-size: 0.95em;">
+							<li><strong>Join with selective tables first</strong> to filter early</li>
+							<li><strong>Smaller intermediate results</strong> = fewer comparisons in subsequent joins</li>
+							<li>For large tables, the difference can be <strong>orders of magnitude</strong></li>
+						</ul>
+					</div>
+					<div class="note" style="margin-top: 20px; font-size: 0.75em;">
+						<p style="margin: 0;">
+							<strong>The Challenge:</strong> How can the query optimizer choose the best join order
+							<strong>before execution?</strong>
+						</p>
+						<p style="margin-top: 10px; color: #667eea;">
+							→ We need <strong>cardinality estimation</strong> to predict intermediate result sizes!
+						</p>
+					</div>
+				</section>
 			</section>
 
 			<!-- Slide 1: Query Optimization Problem -->
@@ -1433,39 +1439,41 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 
 			<!-- Slide 2: Independence Assumption -->
 			<section>
-				<h3>The Independence Assumption</h3>
-				<p>Traditional estimators assume columns are <strong>independent</strong></p>
-				<div class="fragment">
-					<p><strong>Reality:</strong> Data is often correlated!</p>
-				</div>
-				<p class="fragment">This assumption fails → Massive estimation errors</p>
-			</section>
-
-			<section>
-				<iframe src="demos/correlation-demo.html" class="r-stretch demo-iframe"></iframe>
-			</section>
-
-			<!-- Slide 3: Traditional Approaches -->
-			<section>
-				<h3>Traditional Approaches & Their Limitations</h3>
-				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-					<div>
-						<h4>Histograms</h4>
-						<ul>
-							<li>✅ Work well for single columns</li>
-							<li>❌ Multivariate = exponential space</li>
-							<li>❌ Still assume independence</li>
-						</ul>
+				<section>
+					<h3>The Independence Assumption</h3>
+					<p>Traditional estimators assume columns are <strong>independent</strong></p>
+					<div class="fragment">
+						<p><strong>Reality:</strong> Data is often correlated!</p>
 					</div>
-					<div>
-						<h4>Machine Learning</h4>
-						<ul>
-							<li>✅ Multivariate distributions</li>
-							<li>❌ Training overhead</li>
-							<li>❌ Join estimation challenging</li>
-						</ul>
+					<p class="fragment">This assumption fails → Massive estimation errors</p>
+				</section>
+
+				<section>
+					<iframe src="demos/correlation-demo.html" class="r-stretch demo-iframe"></iframe>
+				</section>
+
+				<!-- Slide 3: Traditional Approaches -->
+				<section>
+					<h3>Traditional Approaches & Their Limitations</h3>
+					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+						<div>
+							<h4>Histograms</h4>
+							<ul>
+								<li>✅ Work well for single columns</li>
+								<li>❌ Multivariate = exponential space</li>
+								<li>❌ Still assume independence</li>
+							</ul>
+						</div>
+						<div>
+							<h4>Machine Learning</h4>
+							<ul>
+								<li>✅ Multivariate distributions</li>
+								<li>❌ Training overhead</li>
+								<li>❌ Join estimation challenging</li>
+							</ul>
+						</div>
 					</div>
-				</div>
+				</section>
 			</section>
 
 			<!-- Slide 4: Enter Sketches -->
@@ -1490,30 +1498,32 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<h2 class="section-header">Section 3: Sketch Fundamentals</h2>
 			</section>
  
-			<!-- Slide 5: Tug-of-War (AGMS) -->
 			<section>
-				<h3>The Tug-of-War Metaphor</h3>
-				<p>AGMS Sketch: Elements compete in a "tug-of-war"</p>
-				<img src="images/3_sketches/tugofwar.png" alt="Tug-of-War Sketch" style="max-width: 70%;">
-				<p style="font-size: 0.8em;">Each color assigned to +1 or -1 team</p>
-			</section>
+				<!-- Slide 5: Tug-of-War (AGMS) -->
+				<section>
+					<h3>The Tug-of-War Metaphor</h3>
+					<p>AGMS Sketch: Elements compete in a "tug-of-war"</p>
+					<img src="images/3_sketches/tugofwar.png" alt="Tug-of-War Sketch" style="max-width: 70%;">
+					<p style="font-size: 0.8em;">Each color assigned to +1 or -1 team</p>
+				</section>
 
-			<section>
-				<iframe src="demos/tugofwar.html" class="r-stretch demo-iframe"></iframe>
-			</section>
+				<section>
+					<iframe src="demos/tugofwar.html" class="r-stretch demo-iframe"></iframe>
+				</section>
 
-			<!-- Slide 6: Pairwise Independent Hashing -->
-			<section>
-				<h3>Pairwise Independent Hashing</h3>
-				<p>Hash function: $\xi: \mathbb{R} \rightarrow \{\pm 1\}$</p>
-				<div class="fragment">
-					<p><strong>The reason tug-of-war works:</strong></p>
-					<p>$\mathbb{E}[\xi(i)\xi(j)] = \begin{cases} 0 & \text{if } i \neq j \\ 1 & \text{if } i = j
-						\end{cases}$</p>
-				</div>
-			</section>
-			<section>
-				<iframe src="demos/pairwise-hash.html" class="r-stretch demo-iframe"></iframe>
+				<!-- Slide 6: Pairwise Independent Hashing -->
+				<section>
+					<h3>Pairwise Independent Hashing</h3>
+					<p>Hash function: $\xi: \mathbb{R} \rightarrow \{\pm 1\}$</p>
+					<div class="fragment">
+						<p><strong>The reason tug-of-war works:</strong></p>
+						<p>$\mathbb{E}[\xi(i)\xi(j)] = \begin{cases} 0 & \text{if } i \neq j \\ 1 & \text{if } i = j
+							\end{cases}$</p>
+					</div>
+				</section>
+				<section>
+					<iframe src="demos/pairwise-hash.html" class="r-stretch demo-iframe"></iframe>
+				</section>
 			</section>
 
 			<!-- Slide 7: Point Selection with AGMS -->
@@ -1528,154 +1538,164 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				</div>
 			</section>
 			
-			<!-- Slide 20: Bias and Variance -->
 			<section>
-				<h3>AGMS Variance for frequency $f_j$</h3>
-				<iframe src="demos/variance-demo.html" class="r-stretch demo-iframe"></iframe>
-				<p class="fragment">High-frequency items → Lower variance</p>
+				<!-- Slide 20: Bias and Variance -->
+				<section>
+					<h3>AGMS Variance for frequency $f_j$</h3>
+					<iframe src="demos/variance-demo.html" class="r-stretch demo-iframe"></iframe>
+					<p class="fragment">High-frequency items → Lower variance</p>
+				</section>
+
+				<section>
+					<p>AGMS has high variance...</p>
+					<p class="fragment">so you need to play <em>a lot</em> of tug-of-war!</p>
+				</section>
 			</section>
 
 			<section>
-				<p>AGMS has high variance...</p>
-				<p class="fragment">so you need to play <em>a lot</em> of tug-of-war!</p>
-			</section>
-
-			<!-- Slide 8: Fast-AGMS -->
-			<section>
-				<h3>Fast-AGMS: The Speed-Up</h3>
-				<p>Use width-$w$ array instead of single counter</p>
-				<img src="images/3_sketches/fast-agms.png" alt="Fast-AGMS Sketch" style="max-width: 70%;">
-			</section>
-			<section>
-				<iframe src="demos/fastagms.html" class="r-stretch demo-iframe"></iframe>
-				<p style="font-size: 0.8em;">Each element goes to ONE counter → 1/w update time!</p>
-			</section>
-
-			<!-- Slide 10: Dyadic Intervals -->
-			<section>
-				<h3>Range Queries: Dyadic Intervals</h3>
-				<p>How to handle range predicates?</p>
-				<p class="fragment">Decompose range into dyadic intervals!</p>
-				<img src="images/3_sketches/dyadic_intervals.jpg" alt="Dyadic Intervals on a Number Line" style="max-width: 70%;"> 
-				<p class="fragment" style="font-size: 0.8em;">
-					Any range decomposes into ≤ $2(\log_2(b-a) - 1)$ intervals
-				</p>
-			</section>
-			<section>
-				<iframe src="demos/dyadic-intervals.html" class="r-stretch demo-iframe"></iframe>
-			</section>
-
-			<!-- Slide 9: Join Estimation -->
-			<section>
-				<h3>Join Cardinality Estimation</h3>
-				<p>For join $X \bowtie Y$:</p>
-				<p class="fragment">$|X \bowtie Y| \approx S_X \cdot S_Y$</p>
-				<p class="fragment">Dot product of sketch vectors!</p>
-			</section>
-			
-			<!-- Slide 13: Multiway Joins -->
-			<section style="font-size: 0.7em;">
-				<h3>$T_1 \bowtie T_2 \bowtie T_3$</p>
-				<img src="images/3_sketches/multi-way.png", alt="Sketch Construction for Multiway Joins" style="max-width: 50%;">
-			</section>
-			<section>
-				<iframe src="demos/multiway-join.html" class="r-stretch demo-iframe"></iframe>
+				<!-- Slide 8: Fast-AGMS -->
+				<section>
+					<h3>Fast-AGMS: The Speed-Up</h3>
+					<p>Use width-$w$ array instead of single counter</p>
+					<img src="images/3_sketches/fast-agms.png" alt="Fast-AGMS Sketch" style="max-width: 70%;">
+				</section>
+				<section>
+					<iframe src="demos/fastagms.html" class="r-stretch demo-iframe"></iframe>
+					<p style="font-size: 0.8em;">Each element goes to ONE counter → 1/w update time!</p>
+				</section>
 			</section>
 
 			<section>
-				<p>This generalizes to sktech tensors for more joins</p>
-				<p class="fragment">But tensor size grows exponentially...</p>
+				<!-- Slide 10: Dyadic Intervals -->
+				<section>
+					<h3>Range Queries: Dyadic Intervals</h3>
+					<p>How to handle range predicates?</p>
+					<p class="fragment">Decompose range into dyadic intervals!</p>
+					<img src="images/3_sketches/dyadic_intervals.jpg" alt="Dyadic Intervals on a Number Line" style="max-width: 70%;"> 
+					<p class="fragment" style="font-size: 0.8em;">
+						Any range decomposes into ≤ $2(\log_2(b-a) - 1)$ intervals
+					</p>
+				</section>
+				<section>
+					<iframe src="demos/dyadic-intervals.html" class="r-stretch demo-iframe"></iframe>
+				</section>
 			</section>
 
-			<!-- Slide 13b: FFT Approach -->
-			<section style="font-size: 0.8em;">
-				<h3>Efficient Multiway Joins: FFT</h3>
-				<p>Avoiding Tensors with <strong>Circular Convolution</strong></p>
-				<ul>
-					<li class="fragment">Tensor size grows exponentially ($N^{\text{cols}}$)</li>
-					<li class="fragment">Convolution theorem: $A * B = \mathcal{F}^{-1}(\mathcal{F}(A) \cdot \mathcal{F}(B))$
-					</li>
-					<li class="fragment">Compute in $O(N \log N)$ using Fast Fourier Transform!</li>
-				</ul>
-			</section>
 			<section>
-				<iframe src="demos/fft-convolution.html" class="r-stretch demo-iframe"></iframe>
+				<!-- Slide 9: Join Estimation -->
+				<section>
+					<h3>Join Cardinality Estimation</h3>
+					<p>For join $X \bowtie Y$:</p>
+					<p class="fragment">$|X \bowtie Y| \approx S_X \cdot S_Y$</p>
+					<p class="fragment">Dot product of sketch vectors!</p>
+				</section>
+				
+				<!-- Slide 13: Multiway Joins -->
+				<section style="font-size: 0.7em;">
+					<h3>$T_1 \bowtie T_2 \bowtie T_3$</p>
+					<img src="images/3_sketches/multi-way.png", alt="Sketch Construction for Multiway Joins" style="max-width: 50%;">
+				</section>
+				<section>
+					<iframe src="demos/multiway-join.html" class="r-stretch demo-iframe"></iframe>
+				</section>
+
+				<section>
+					<p>This generalizes to sktech tensors for more joins</p>
+					<p class="fragment">But tensor size grows exponentially...</p>
+				</section>
+
+				<!-- Slide 13b: FFT Approach -->
+				<section style="font-size: 0.8em;">
+					<h3>Efficient Multiway Joins: FFT</h3>
+					<p>Avoiding Tensors with <strong>Circular Convolution</strong></p>
+					<ul>
+						<li class="fragment">Tensor size grows exponentially ($N^{\text{cols}}$)</li>
+						<li class="fragment">Convolution theorem: $A * B = \mathcal{F}^{-1}(\mathcal{F}(A) \cdot \mathcal{F}(B))$
+						</li>
+						<li class="fragment">Compute in $O(N \log N)$ using Fast Fourier Transform!</li>
+					</ul>
+				</section>
+				<section>
+					<iframe src="demos/fft-convolution.html" class="r-stretch demo-iframe"></iframe>
+				</section>
 			</section>
 
 			<!-- ============================================ -->
 			<!-- SECTION 4: Other Sketches -->
 			<!-- ============================================ -->
 			<section>
-				<h2 class="section-header">Section 4: Other Sketches</h2>
-			</section>
+				<section>
+					<h2 class="section-header">Section 4: Other Sketches</h2>
+				</section>
 
-			<!-- Slide 11: Count-Min -->
-			<section>
-				<h3>Count-Min Sketch</h3>
-				<p>Simplified: Always increment (no $\xi$ hash)</p>
-				<iframe src="demos/countmin.html" class="r-stretch demo-iframe"></iframe>
-				<p class="fragment" style="font-size: 0.8em;">
-					<strong>Trade-off:</strong> Biased (overestimates), but simpler & faster
-				</p>
-			</section>
+				<!-- Slide 11: Count-Min -->
+				<section>
+					<h3>Count-Min Sketch</h3>
+					<p>Simplified: Always increment (no $\xi$ hash)</p>
+					<iframe src="demos/countmin.html" class="r-stretch demo-iframe"></iframe>
+					<p class="fragment" style="font-size: 0.8em;">
+						<strong>Trade-off:</strong> Biased (overestimates), but simpler & faster
+					</p>
+				</section>
 
-			<!-- Slide 12: Bound Sketch -->
-			<section>
-				<h3>Bound Sketch: Tighter Bounds</h3>
-				<p>Track <strong>maximum frequency</strong> per bucket</p>
-				<iframe src="demos/boundsketch.html" class="r-stretch demo-iframe"></iframe>
-				<p class="fragment">
-					$\max_i f_i \leq \sum_i f_i$ → Tighter than Count-Min!
-				</p>
-			</section>
-			
-			<!-- Slide 21: Sketch Properties Comparison -->
-			<section>
-				<h3>Sketch Properties Summary</h3>
-				<table style="font-size: 0.6em; margin: auto;">
-					<thead>
-						<tr>
-							<th>Sketch</th>
-							<th>Linear?</th>
-							<th>Unbiased?</th>
-							<th>Space</th>
-							<th>Update Time</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td><strong>AGMS</strong></td>
-							<td>✅ Yes</td>
-							<td>✅ Yes</td>
-							<td>O(d)</td>
-							<td>O(d)</td>
-						</tr>
-						<tr class="fragment">
-							<td><strong>Fast-AGMS</strong></td>
-							<td>✅ Yes</td>
-							<td>✅ Yes</td>
-							<td>O(dw)</td>
-							<td>O(d)</td>
-						</tr>
-						<tr class="fragment">
-							<td><strong>Count-Min</strong></td>
-							<td>✅ Yes</td>
-							<td>❌ No (upper bound)</td>
-							<td>O(dw)</td>
-							<td>O(d)</td>
-						</tr>
-						<tr class="fragment">
-							<td><strong>Bound</strong></td>
-							<td>❌ No</td>
-							<td>❌ No (upper bound)</td>
-							<td>O(dw)</td>
-							<td>O(d)</td>
-						</tr>
-					</tbody>
-				</table>
-				<p class="fragment" style="font-size: 0.8em; margin-top: 20px;">
-					d = # independent sketches, w = sketch width
-				</p>
+				<!-- Slide 12: Bound Sketch -->
+				<section>
+					<h3>Bound Sketch: Tighter Bounds</h3>
+					<p>Track <strong>maximum frequency</strong> per bucket</p>
+					<iframe src="demos/boundsketch.html" class="r-stretch demo-iframe"></iframe>
+					<p class="fragment">
+						$\max_i f_i \leq \sum_i f_i$ → Tighter than Count-Min!
+					</p>
+				</section>
+				
+				<!-- Slide 21: Sketch Properties Comparison -->
+				<section>
+					<h3>Sketch Properties Summary</h3>
+					<table style="font-size: 0.6em; margin: auto;">
+						<thead>
+							<tr>
+								<th>Sketch</th>
+								<th>Linear?</th>
+								<th>Unbiased?</th>
+								<th>Space</th>
+								<th>Update Time</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td><strong>AGMS</strong></td>
+								<td>✅ Yes</td>
+								<td>✅ Yes</td>
+								<td>O(d)</td>
+								<td>O(d)</td>
+							</tr>
+							<tr class="fragment">
+								<td><strong>Fast-AGMS</strong></td>
+								<td>✅ Yes</td>
+								<td>✅ Yes</td>
+								<td>O(dw)</td>
+								<td>O(d)</td>
+							</tr>
+							<tr class="fragment">
+								<td><strong>Count-Min</strong></td>
+								<td>✅ Yes</td>
+								<td>❌ No (upper bound)</td>
+								<td>O(dw)</td>
+								<td>O(d)</td>
+							</tr>
+							<tr class="fragment">
+								<td><strong>Bound</strong></td>
+								<td>❌ No</td>
+								<td>❌ No (upper bound)</td>
+								<td>O(dw)</td>
+								<td>O(d)</td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="fragment" style="font-size: 0.8em; margin-top: 20px;">
+						d = # independent sketches, w = sketch width
+					</p>
+				</section>
 			</section>
 
 			<!-- ============================================ -->
@@ -1685,44 +1705,46 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<h2 class="section-header">Section 4: The Dissertation's Contribution</h2>
 			</section>
 
-			<!-- Slide 14: The Problem with Sketches -->
 			<section>
-				<h3>The Problem with Sketches</h3>
-				<div style="text-align: left;">
-					<p class="fragment"><strong>Issue 1:</strong> Selections + Joins</p>
-					<p class="fragment">→ Would need exponential sketch tensors</p>
-					<br>
-					<p class="fragment"><strong>Issue 2:</strong> Query-specific construction</p>
-					<p class="fragment">→ Need to scan entire dataset for each query</p>
-					<br>
-					<p class="fragment"><strong>Issue 3:</strong> Many queries = many sketches</p>
-					<p class="fragment">→ Storage explosion for diverse workloads</p>
-					<br>
-				</div>
-			</section>
+				<!-- Slide 14: The Problem with Sketches -->
+				<section>
+					<h3>The Problem with Sketches</h3>
+					<div style="text-align: left;">
+						<p class="fragment"><strong>Issue 1:</strong> Selections + Joins</p>
+						<p class="fragment">→ Would need exponential sketch tensors</p>
+						<br>
+						<p class="fragment"><strong>Issue 2:</strong> Query-specific construction</p>
+						<p class="fragment">→ Need to scan entire dataset for each query</p>
+						<br>
+						<p class="fragment"><strong>Issue 3:</strong> Many queries = many sketches</p>
+						<p class="fragment">→ Storage explosion for diverse workloads</p>
+						<br>
+					</div>
+				</section>
 
-			<!-- Slide 15: Approximate Sketches via ML -->
-			<section>
-				<h3>Solution: Approximate Sketches</h3>
-				<p class="fragment"><strong>Idea:</strong> Use ML models to generate sketches on-demand</p>
-				<div class="fragment" style="margin-top: 40px;">
-					<div style="display: flex; justify-content: space-around;">
-						<div style="flex: 1; border: 2px solid #667eea; padding: 20px; border-radius: 10px;">
-							<strong>Offline</strong><br>
-							Train model on data<br>
-							Learn joint distribution
-						</div>
-						<div style="font-size: 2em; padding: 20px;">→</div>
-						<div style="flex: 1; border: 2px solid #764ba2; padding: 20px; border-radius: 10px;">
-							<strong>Online</strong><br>
-							Query arrives<br>
-							Generate sketch instantly
+				<!-- Slide 15: Approximate Sketches via ML -->
+				<section>
+					<h3>Solution: Approximate Sketches</h3>
+					<p class="fragment"><strong>Idea:</strong> Use ML models to generate sketches on-demand</p>
+					<div class="fragment" style="margin-top: 40px;">
+						<div style="display: flex; justify-content: space-around;">
+							<div style="flex: 1; border: 2px solid #667eea; padding: 20px; border-radius: 10px;">
+								<strong>Offline</strong><br>
+								Train model on data<br>
+								Learn joint distribution
+							</div>
+							<div style="font-size: 2em; padding: 20px;">→</div>
+							<div style="flex: 1; border: 2px solid #764ba2; padding: 20px; border-radius: 10px;">
+								<strong>Online</strong><br>
+								Query arrives<br>
+								Generate sketch instantly
+							</div>
 						</div>
 					</div>
-				</div>
-				<p class="fragment" style="margin-top: 40px;">
-					<strong>No data scan required!</strong> ✨
-				</p>
+					<p class="fragment" style="margin-top: 40px;">
+						<strong>No data scan required!</strong> ✨
+					</p>
+				</section>
 			</section>
 
 			<!-- Slide 16: Two Approaches -->
@@ -2377,22 +2399,18 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 
 			<section>
 				<h3>Upward-Biased Estimation</h3>
-				<p><strong>Observation:</strong> Overestimation is safer than underestimation</p>
+				<p><strong>Observation:</strong> Overestimation is safer</p>
 				<ul style="font-size: 0.85em;">
-					<li>Underestimation → risky query plans → catastrophic slowdown</li>
-					<li>Overestimation → cautious plans → marginally suboptimal</li>
+					<li>Underestimate → risky plans → catastrophic slowdown</li>
+					<li>Overestimate → cautious plans → marginally suboptimal</li>
 				</ul>
 				<div class="fragment" style="margin-top: 20px;">
 					<p><strong>Two Techniques for Upward Bias:</strong></p>
 					<ol>
-						<li><strong>Fast-AGMS Max:</strong> Take maximum instead of median
-							<ul>
-								<li>Multiple estimates → return max instead of median</li>
-							</ul>
-						</li>
+						<li><strong>Fast-AGMS Max:</strong> Take maximum instead of median</li>
 						<li><strong>Min-Product Node:</strong> Use min selectivity instead of product
 							<ul>
-								<li>P(φ) × sketch → min{P(φᵢ)} × sketch (upper bound)</li>
+								<li>P(φ) × sketch → min{P(φᵢ)} × sketch</li>
 							</ul>
 						</li>
 					</ol>
@@ -2403,196 +2421,200 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 			<!-- SUBSECTION: EXPERIMENTAL RESULTS -->
 			<!-- ============================================ -->
 			<section>
-				<h2 class="section-header">Experimental Results</h2>
-			</section>
+				<section>
+					<h2 class="section-header">Experimental Results</h2>
+				</section>
 
-			<section>
-				<h3>Experimental Setup</h3>
-				<p><strong>Datasets:</strong></p>
-				<ul style="font-size: 0.85em;">
-					<li><strong>JOB-light:</strong> 70 queries (696 subqueries) on 6 IMDb tables
-						<ul>
-							<li>Transitive joins, star schema, up to 5 tables</li>
-						</ul>
-					</li>
-					<li><strong>Stats-CEB:</strong> 146 queries (2603 subqueries) on 8 Stack Exchange tables
-						<ul>
-							<li>Non-transitive joins, more skewed/correlated data</li>
-						</ul>
-					</li>
-				</ul>
-				<div class="fragment" style="margin-top: 20px;">
-					<p><strong>Baselines:</strong></p>
+				<section>
+					<h3>Experimental Setup</h3>
+					<p><strong>Datasets:</strong></p>
 					<ul style="font-size: 0.85em;">
-						<li>Exact Fast-AGMS and Bound Sketch (computed at query time)</li>
-						<li>DeepDB, BayesCard, FactorJoin, FLAT (learned estimators)</li>
+						<li><strong>JOB-light:</strong> 70 queries (696 subqueries) on 6 IMDb tables
+							<ul>
+								<li>Transitive joins, star schema, up to 5 tables</li>
+							</ul>
+						</li>
+						<li><strong>Stats-CEB:</strong> 146 queries (2603 subqueries) on 8 Stack Exchange tables
+							<ul>
+								<li>Non-transitive joins, more skewed/correlated data</li>
+							</ul>
+						</li>
 					</ul>
-				</div>
-			</section>
-
-			<section>
-				<h3>Sketch Approximation Error</h3>
-				<img src="images/5_spns/l1_upper_bound.png" alt="Sketch Approximation Error Upper Bound" style="max-width: 90%;">
-				<p class="fragment" style="margin-top: 20px;">
-					<strong>Key Finding:</strong> 10% clustering threshold balances accuracy vs. model size
-				</p>
-			</section>
-			
-			<section>
-				<h3>Approximation Efficiency</h3>
-				<table style="font-size: 0.7em;">
-					<tr>
-						<th>Metric</th>
-						<th>Exact Sketches</th>
-						<th>Approximate Sketches</th>
-					</tr>
-					<tr>
-						<td>Sketch Construction Time</td>
-						<td>737s (JOB-light)<br>155s (Stats-CEB)</td>
-						<td>4.5s (JOB-light)<br>17.3s (Stats-CEB)</td>
-					</tr>
-					<tr>
-						<td>Space Required</td>
-						<td>473 MB (JOB-light)<br>3.1 GB (Stats-CEB)</td>
-						<td>1.2 GB model<br>676 MB model</td>
-					</tr>
-					<tr>
-						<td>Query Execution Time</td>
-						<td>2.88 hrs (JOB-light)<br>9.16 hrs (Stats-CEB)</td>
-						<td>2.88 hrs (0!)<br>9.31 hrs (+0.15)</td>
-					</tr>
-				</table>
-				<p class="fragment" style="margin-top: 15px; color: green;">
-					<strong>Within 3% of exact sketches!</strong> But much faster to compute.
-				</p>
-			</section>
-
-			<section>
-				<h3>Training Time Comparison</h3>
-				<table style="font-size: 0.7em;">
-					<tr>
-						<th>Method</th>
-						<th>Model</th>
-						<th>JOB-light</th>
-						<th>Stats-CEB</th>
-					</tr>
-					<tr>
-						<td>Approximate Sketches</td>
-						<td>BERT</td>
-						<td>148 min/epoch*</td>
-						<td>N/A</td>
-					</tr>
-					<tr>
-						<td>Sketched SPNs</td>
-						<td>SPN</td>
-						<td>21 min</td>
-						<td>2 min</td>
-					</tr>
-					<tr>
-						<td>DeepDB</td>
-						<td>SPN</td>
-						<td>30 min</td>
-						<td>55 min</td>
-					</tr>
-					<tr>
-						<td>BayesCard</td>
-						<td>Bayes Net</td>
-						<td>6 min</td>
-						<td>2 min</td>
-					</tr>
-					<tr>
-						<td>FactorJoin</td>
-						<td>Bayes Net</td>
-						<td>4 min</td>
-						<td>1 min</td>
-					</tr>
-				</table>
-				<p style="font-size: 0.7em; margin-top: 10px;">*GPU required; others CPU-only</p>
-				<p class="fragment" style="margin-top: 15px; color: green;">
-					Sketched SPNs competitive with other per-relation methods
-				</p>
-			</section>
-
-			<section>
-				<h3>Model Complexity Trade-off</h3>
-				<object type="image/svg+xml" data="images/estimation_heatmaps.svg" style="max-width: 90%;"></object>
-				<!-- <img src="images/estimation_heatmaps.svg" > -->
-			</section>
-
-			<section>
-				<h3>Query Execution Time</h3>
-				<!-- <div class="diagram-placeholder">
-					<p><strong>Figure: Total Query Execution Time</strong></p>
-					<p>Includes both cardinality estimation time + actual query execution</p>
-				</div> -->
-				<object type="image/svg+xml" data="images/query_execution_times.svg" style="max-width: 95%;"></object>
-				<p class="fragment" style="margin-top: 15px; color: green; font-weight: bold;">
-					Exact F-AGMS would be the fastest, if not for construction time!
-				</p>
-			</section>
-
-			<section>
-				<h3>Model Comparison on JOB-light</h3>
-				<div class="comparison-grid">
-					<div class="comparison-box traditional">
-						<h4>BERT</h4>
-						<ul style="font-size: 0.75em;">
-							<li>Limited by GPU memory</li>
-							<li>Model size: 167 MB</li>
-							<li>Training: 148 min/epoch</li>
-							<li>Query Execution: 3.05 hrs</li>
+					<div class="fragment" style="margin-top: 20px;">
+						<p><strong>Baselines:</strong></p>
+						<ul style="font-size: 0.85em;">
+							<li>Exact Fast-AGMS and Bound Sketch</li>
+							<li>DeepDB, BayesCard, FactorJoin, FLAT (learned estimators)</li>
 						</ul>
 					</div>
-					<div class="comparison-box approximate">
-						<h4>SPNs</h4>
-						<ul style="font-size: 0.75em;">
-							<li>No GPU required</li>
-							<li>Model size: 40 MB</li>
-							<li>Training: 18 min total</li>
-							<li>Query Execution: 2.93 hrs</li>
-						</ul>
+				</section>
+
+				<section>
+					<h3>Sketch Approximation Error</h3>
+					<img src="images/5_spns/l1_upper_bound.png" alt="Sketch Approximation Error Upper Bound" style="max-width: 90%;">
+					<p class="fragment" style="margin-top: 20px;">
+						<strong>Takeaway:</strong> Just cluster, even a little bit, to drastically reduce error!
+					</p>
+				</section>
+				
+				<section>
+					<h3>Approximation Efficiency</h3>
+					<table style="font-size: 0.7em;">
+						<tr>
+							<th>Metric</th>
+							<th>Exact Sketches</th>
+							<th>Approximate Sketches</th>
+						</tr>
+						<tr>
+							<td>Sketch Construction Time</td>
+							<td>737s (JOB-light)<br>155s (Stats-CEB)</td>
+							<td>4.5s (JOB-light)<br>17.3s (Stats-CEB)</td>
+						</tr>
+						<tr>
+							<td>Space Required</td>
+							<td>473 MB (JOB-light)<br>3.1 GB (Stats-CEB)</td>
+							<td>1.2 GB model<br>676 MB model</td>
+						</tr>
+						<tr>
+							<td>Query Execution Time</td>
+							<td>2.88 hrs (JOB-light)<br>9.16 hrs (Stats-CEB)</td>
+							<td>2.88 hrs (0!)<br>9.31 hrs (+0.15)</td>
+						</tr>
+					</table>
+					<p class="fragment" style="margin-top: 15px; color: green;">
+						<strong>Within 3% of exact sketches!</strong> But much faster to compute.
+					</p>
+				</section>
+
+				<section>
+					<h3>Training Time Comparison</h3>
+					<table style="font-size: 0.7em;">
+						<tr>
+							<th>Method</th>
+							<th>Model</th>
+							<th>JOB-light</th>
+							<th>Stats-CEB</th>
+						</tr>
+						<tr>
+							<td>Approximate Sketches</td>
+							<td>BERT</td>
+							<td>148 min/epoch*</td>
+							<td>N/A</td>
+						</tr>
+						<tr>
+							<td>Sketched SPNs</td>
+							<td>SPN</td>
+							<td>21 min</td>
+							<td>2 min</td>
+						</tr>
+						<tr>
+							<td>DeepDB</td>
+							<td>SPN</td>
+							<td>30 min</td>
+							<td>55 min</td>
+						</tr>
+						<tr>
+							<td>BayesCard</td>
+							<td>Bayes Net</td>
+							<td>6 min</td>
+							<td>2 min</td>
+						</tr>
+						<tr>
+							<td>FactorJoin</td>
+							<td>Bayes Net</td>
+							<td>4 min</td>
+							<td>1 min</td>
+						</tr>
+					</table>
+					<p style="font-size: 0.7em; margin-top: 10px;">*GPU required; others CPU-only</p>
+					<p class="fragment" style="margin-top: 15px; color: green;">
+						Sketched SPNs competitive with other per-relation methods
+					</p>
+				</section>
+
+				<section>
+					<h3>Model Complexity Trade-off</h3>
+					<object type="image/svg+xml" data="images/estimation_heatmaps.svg" style="max-width: 90%;"></object>
+					<!-- <img src="images/estimation_heatmaps.svg" > -->
+				</section>
+
+				<section>
+					<h3>Query Execution Time</h3>
+					<!-- <div class="diagram-placeholder">
+						<p><strong>Figure: Total Query Execution Time</strong></p>
+						<p>Includes both cardinality estimation time + actual query execution</p>
+					</div> -->
+					<object type="image/svg+xml" data="images/query_execution_times.svg" style="max-width: 95%;"></object>
+					<p class="fragment" style="margin-top: 15px; color: green; font-weight: bold;">
+						Exact F-AGMS would be the fastest, if not for construction time!
+					</p>
+				</section>
+
+				<section>
+					<h3>Model Comparison on JOB-light</h3>
+					<div class="comparison-grid">
+						<div class="comparison-box traditional">
+							<h4>BERT</h4>
+							<ul style="font-size: 0.75em;">
+								<li>Limited by GPU memory</li>
+								<li>Model size: 167 MB</li>
+								<li>Training: 148 min/epoch</li>
+								<li>Query Execution: 3.05 hrs</li>
+							</ul>
+						</div>
+						<div class="comparison-box approximate">
+							<h4>SPNs</h4>
+							<ul style="font-size: 0.75em;">
+								<li>No GPU required</li>
+								<li>Model size: 40 MB</li>
+								<li>Training: 18 min total</li>
+								<li>Query Execution: 2.93 hrs</li>
+							</ul>
+						</div>
 					</div>
-				</div>
+				</section>
 			</section>
 
 			<!-- ============================================ -->
 			<!-- SUBSECTION: CONTRIBUTIONS SUMMARY -->
 			<!-- ============================================ -->
 			<section>
-				<h2 class="section-header">Contributions Summary</h2>
-			</section>
+				<section>
+					<h2 class="section-header">Contributions Summary</h2>
+				</section>
 
-			<section>
-				<h3>Novel Contributions</h3>
-				<div style="text-align: left; margin-top: 30px;">
-					<h4 style="color: #667eea;">1. Approximate Sketches (SIGMOD 2024)</h4>
-					<ul style="font-size: 0.85em;">
-						<li>First application of transformers to sketch approximation</li>
-						<li>Enables sketches for arbitrary filter conditions</li>
-						<li>Bidirectional architecture handles any column ordering</li>
-					</ul>
-					<h4 style="color: #667eea; margin-top: 25px;">2. Sketched Sum-Product Networks (2025)</h4>
-					<ul style="font-size: 0.85em;">
-						<li>Scalability: larger sketches than transformers (no GPU needed)</li>
-						<li>Upward-biased estimators: Fast-AGMS Max + Min-Product nodes</li>
-						<li>Error bounds: worst-case = independence assumption</li>
-					</ul>
-				</div>
-			</section>
+				<section>
+					<h3>Novel Contributions</h3>
+					<div style="text-align: left; margin-top: 30px;">
+						<h4 style="color: #667eea;">1. Approximate Sketches (SIGMOD 2024)</h4>
+						<ul style="font-size: 0.85em;">
+							<li>First application of neural networks to sketching</li>
+							<li>Enables sketches for arbitrary filter conditions</li>
+							<li>Bidirectional architecture handles any column ordering</li>
+						</ul>
+						<h4 style="color: #667eea; margin-top: 25px;">2. Sketched Sum-Product Networks (2025)</h4>
+						<ul style="font-size: 0.85em;">
+							<li>Scalability: larger sketches (no GPU bottleneck)</li>
+							<li>Upward-bias: Fast-AGMS Max + Min-Product nodes</li>
+							<li>Error bounds: worst-case = independence assumption</li>
+						</ul>
+					</div>
+				</section>
 
-			<section>
-				<h3>Impact on Query Optimization</h3>
-				<div class="key-insight">
-					<p style="font-size: 1.2em; margin-bottom: 20px;">
-						<strong>Makes sketches practical</strong>
-					</p>
-					<ul style="text-align: left;">
-						<li>No need to pre-compute sketches for all selections</li>
-						<li>No expensive query-time sketch construction</li>
-						<li>Fast inference, suitable for optimization</li>
-						<li>Scales to large databases (per-relation models)</li>
-					</ul>
-				</div>
+				<section>
+					<h3>Impact on Query Optimization</h3>
+					<div class="key-insight">
+						<p style="font-size: 1.2em; margin-bottom: 20px;">
+							<strong>Makes sketches practical</strong>
+						</p>
+						<ul style="text-align: left;">
+							<li>No pre-computing sketches for selections</li>
+							<li>No expensive query-time sketch construction</li>
+							<li>Fast inference, suitable for optimization</li>
+							<li>Scales to large databases (per-relation models)</li>
+						</ul>
+					</div>
+				</section>
 			</section>
 
 			<!-- ============================================ -->
