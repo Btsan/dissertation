@@ -556,6 +556,114 @@
 			text-align: center;
 			margin-bottom: 5px;
 		}
+
+		/* CV Timeline - Flowing Cards */
+		.cv-timeline {
+			display: flex;
+			gap: 12px;
+			flex-wrap: wrap;
+			align-items: flex-start;
+			max-width: 1100px;
+			margin: 0 auto;
+		}
+
+		.cv-card {
+			background: #f7fafc;
+			border-radius: 10px;
+			padding: 16px 18px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+			transition: all 0.3s ease;
+			border-left: 4px solid #667eea;
+			flex-shrink: 0;
+		}
+
+		.cv-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+
+		.cv-card.milestone {
+			border-left-color: #f59e0b;
+			background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+		}
+
+		.cv-card.small {
+			width: 140px;
+		}
+
+		.cv-card.medium {
+			width: 180px;
+		}
+
+		.cv-card.large {
+			width: 280px;
+		}
+
+		.cv-card .year {
+			font-weight: 700;
+			font-size: 18px;
+			color: #667eea;
+			margin-bottom: 6px;
+		}
+
+		.cv-card.milestone .year {
+			color: #d97706;
+		}
+
+		.cv-card .title {
+			font-size: 13px;
+			font-weight: 600;
+			color: #1a202c;
+			margin-bottom: 4px;
+			line-height: 1.3;
+		}
+
+		.cv-card .venue {
+			font-size: 11px;
+			color: #718096;
+			font-style: italic;
+		}
+
+		.cv-card .pub-list {
+			font-size: 11px;
+			color: #4a5568;
+			line-height: 1.5;
+		}
+
+		.cv-card .pub-list div {
+			margin-bottom: 6px;
+		}
+
+		.cv-card .pub-list div:last-child {
+			margin-bottom: 0;
+		}
+
+		.cv-card .badge {
+			display: inline-block;
+			background: #667eea;
+			color: white;
+			font-size: 9px;
+			padding: 2px 6px;
+			border-radius: 3px;
+			margin-top: 4px;
+			font-weight: 600;
+		}
+
+		.cv-card .badge.education {
+			background: #f59e0b;
+		}
+
+		.cv-row {
+			display: flex;
+			gap: 12px;
+			width: 100%;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+
+		.cv-card-large {
+			grid-column: span 2;
+		}
 	</style>
 
 </head>
@@ -582,7 +690,8 @@
 			<section style="font-size: 0.8em;">
 				<h2 class="section-header">Table of Contents</h2>
 				<ol>
-					<li>Motivations — Query Optimization</li>
+					<li>Recap</li>
+					<li>Query Optimization Problem</li>
 					<li>AGMS (Tug-of-War) Sketch</li>
 					<li>Other Sketches</li>
 					<li><strong>Generative Models for Approximate Sketching</strong></li>
@@ -590,16 +699,173 @@
 						<li><em>Neural Networks</em></li>
 						<li><em>Sum-Product Networks</em></li>
 					</ol>
-					<li>Experimental Results</li>
 					<li>Summary & Conclusion</li>
 				</ol>
 			</section>
 
+			
 			<!-- ============================================ -->
-			<!-- SECTION 1: MOTIVATION & CONTEXT -->
+			<!-- SECTION 1: RECAP SINCE CANDIDACY -->
 			<!-- ============================================ -->
 			<section>
-				<h2 class="section-header">Section 1: Motivation & Context</h2>
+				<h2 class="section-header">Section 1: Recap</h2>
+			</section>
+
+			<section>
+				<h3>Curriculum Vita</h3>
+			<div class="cv-timeline">
+				<div class="cv-row">
+					<div class="cv-card milestone small">
+						<div class="year">2018</div>
+						<span class="badge education">Degree</span>
+						<div class="title">B.Sc. CSE</div>
+						<div class="venue">UC Merced</div>
+					</div>
+
+					<div class="cv-card milestone small">
+						<div class="year">2019</div>
+						<span class="badge education">Started</span>
+						<div class="title">MS Program</div>
+						<div class="venue">UC Merced</div>
+					</div>
+
+					<div class="cv-card small">
+						<div class="year">2021</div>
+						<div class="title">DJEnsemble: On the Selection of a Disjoint Ensemble of Deep Learning Black-Box Spatio-temporal Models</div>
+						<div class="venue">SSDBM'21</div>
+					</div>
+				</div>
+
+				<div class="cv-row">
+					<div class="cv-card medium">
+						<div class="year">2022</div>
+						<div class="title">Detect, retrieve, comprehend: a flexible framework for zero-shot document-level question answering</div>
+						<div class="venue">LLNL Internship</div>
+					</div>
+
+					<div class="cv-card medium">
+						<div class="year">2023</div>
+						<div class="title">Analyzing Query Optimizer Performance in the Presence and Absence of Cardinality Estimates</div>
+						<div class="venue">arXiv</div>
+					</div>
+
+					<div class="cv-card milestone small">
+						<div class="year">Jan 2024</div>
+						<span class="badge education">Milestone</span>
+						<div class="title">PhD Candidacy</div>
+					</div>
+				</div>
+
+				<div class="cv-row">
+					<div class="cv-card large">
+						<div class="year">2024</div>
+						<div class="pub-list">
+							<div>• Approximate Sketches <span class="venue">(SIGMOD'24)✨</span></div>
+							<div>• Sub-optimal Join Order... <span class="venue">(SIGMOD'24)</span></div>
+							<div>• Simpli-Squared... <span class="venue">(SiMoD'24)</span></div>
+						</div>
+					</div>
+
+					<div class="cv-card large">
+						<div class="year">2025</div>
+						<div class="title">Recent Work</div>
+						<div class="pub-list">
+							<div>• PLANSIEVE <span class="venue">(aiDM'25 workshop)</span></div>
+							<div>• Sketched Sum-Product Networks <span class="venue">(TBA)✨</span></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</section>
+
+			<section style="font-size: 0.8em;">
+				<h3>Approximate Sketches (SIGMOD'24)</h3>
+
+				<div class="query-box">
+					<div class="label">Example Query</div>
+					<pre>SELECT COUNT(*) FROM customers c JOIN orders o ON c.customer_id = o.customer_id
+WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF'</span></pre>
+				</div>
+
+				<div class="flow-diagram">
+					<!-- Input Table -->
+					<table class="flow-table">
+						<thead>
+							<tr>
+								<th colspan="2">Input Embeddings</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>age</td>
+								<td class="input-cell">h(35) = 7</td>
+							</tr>
+							<tr>
+								<td>city</td>
+								<td class="input-cell">h('SF') = 12</td>
+							</tr>
+							<tr>
+								<td>customer_id</td>
+								<td class="masked-cell">[MASK]</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<div class="arrow-large">→</div>
+
+					<div class="bert-box">
+						BERT
+					</div>
+
+					<div class="arrow-large">→</div>
+
+					<!-- Output -->
+					<div class="output-box">
+						<div class="output-title">
+							P(h(customer_id) | conditions)
+						</div>
+						<div class="output-values">
+							[0.12, 0.08, 0.15, 0.10, ...]
+						</div>
+						<div class="output-formula">
+							<strong>Sketch:</strong> p × |σ(customers)|
+						</div>
+					</div>
+				</div>
+			</section>
+			<section  class="join-section" >
+				<h3>Summary</h3>
+				<div class="comparison-container">
+					<div class="plan-box plan-good">
+						<h4 style="margin-top: 0; font-size: 1em;">✓Pros</h4>
+						<ol>
+							<li>Efficient approximation</li>
+							<li>Accurate sketches</li>
+							<li>Fast queries</li>
+						</ol>
+					</div>
+					<div class="plan-box plan-bad">
+						<h4 style="margin-top: 0; font-size: 1em;">❌Cons</h4>
+						<ol>
+							<li>Long training</li>
+							<li>Large model size</li>
+							<li><strong>GPU-bottlenecked</strong></li>
+						</ol>
+					</div>
+				</div>
+				<div class="fragment">Therefore, I need a new model!</div>
+			</section>
+
+			<section>
+				but first
+				<p class="fragment">the background</p>
+			</section>
+
+			<!-- ============================================ -->
+			<!-- SECTION 2: MOTIVATION & CONTEXT -->
+			<!-- ============================================ -->
+			<section>
+				<h2 class="section-header">Section 2: Query Optimization Problem</h2>
 			</section>
 
 			<!-- ============================================ -->
@@ -1161,7 +1427,7 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				</ul>
 				<div class="fragment">
 					<p><strong>Example:</strong> Wrong estimate leads to wrong join order</p>
-					<p style="color: red;">10x slower q uery execution!</p>
+					<p style="color: red;">10x slower query execution!</p>
 				</div>
 			</section>
 
@@ -1218,10 +1484,10 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 			</section>
 
 			<!-- ============================================ -->
-			<!-- SECTION 2: SKETCH FUNDAMENTALS -->
+			<!-- SECTION 3: SKETCH FUNDAMENTALS -->
 			<!-- ============================================ -->
 			<section>
-				<h2 class="section-header">Section 2: Sketch Fundamentals</h2>
+				<h2 class="section-header">Section 3: Sketch Fundamentals</h2>
 			</section>
  
 			<!-- Slide 5: Tug-of-War (AGMS) -->
@@ -1229,7 +1495,7 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<h3>The Tug-of-War Metaphor</h3>
 				<p>AGMS Sketch: Elements compete in a "tug-of-war"</p>
 				<img src="images/3_sketches/tugofwar.png" alt="Tug-of-War Sketch" style="max-width: 70%;">
-				<p style="font-size: 0.8em;">Each element assigned to +1 or -1 team</p>
+				<p style="font-size: 0.8em;">Each color assigned to +1 or -1 team</p>
 			</section>
 
 			<section>
@@ -1241,7 +1507,7 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<h3>Pairwise Independent Hashing</h3>
 				<p>Hash function: $\xi: \mathbb{R} \rightarrow \{\pm 1\}$</p>
 				<div class="fragment">
-					<p><strong>Key Property:</strong></p>
+					<p><strong>The reason tug-of-war works:</strong></p>
 					<p>$\mathbb{E}[\xi(i)\xi(j)] = \begin{cases} 0 & \text{if } i \neq j \\ 1 & \text{if } i = j
 						\end{cases}$</p>
 				</div>
@@ -1269,6 +1535,11 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<p class="fragment">High-frequency items → Lower variance</p>
 			</section>
 
+			<section>
+				<p>AGMS has high variance...</p>
+				<p class="fragment">so you need to play <em>a lot</em> of tug-of-war!</p>
+			</section>
+
 			<!-- Slide 8: Fast-AGMS -->
 			<section>
 				<h3>Fast-AGMS: The Speed-Up</h3>
@@ -1280,6 +1551,20 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<p style="font-size: 0.8em;">Each element goes to ONE counter → 1/w update time!</p>
 			</section>
 
+			<!-- Slide 10: Dyadic Intervals -->
+			<section>
+				<h3>Range Queries: Dyadic Intervals</h3>
+				<p>How to handle range predicates?</p>
+				<p class="fragment">Decompose range into dyadic intervals!</p>
+				<img src="images/3_sketches/dyadic_intervals.jpg" alt="Dyadic Intervals on a Number Line" style="max-width: 70%;"> 
+				<p class="fragment" style="font-size: 0.8em;">
+					Any range decomposes into ≤ $2(\log_2(b-a) - 1)$ intervals
+				</p>
+			</section>
+			<section>
+				<iframe src="demos/dyadic-intervals.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
 			<!-- Slide 9: Join Estimation -->
 			<section>
 				<h3>Join Cardinality Estimation</h3>
@@ -1287,12 +1572,41 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 				<p class="fragment">$|X \bowtie Y| \approx S_X \cdot S_Y$</p>
 				<p class="fragment">Dot product of sketch vectors!</p>
 			</section>
+			
+			<!-- Slide 13: Multiway Joins -->
+			<section style="font-size: 0.7em;">
+				<h3>$T_1 \bowtie T_2 \bowtie T_3$</p>
+				<img src="images/3_sketches/multi-way.png", alt="Sketch Construction for Multiway Joins" style="max-width: 50%;">
+			</section>
+			<section>
+				<iframe src="demos/multiway-join.html" class="r-stretch demo-iframe"></iframe>
+			</section>
+
+			<section>
+				<p>This generalizes to sktech tensors for more joins</p>
+				<p class="fragment">But tensor size grows exponentially...</p>
+			</section>
+
+			<!-- Slide 13b: FFT Approach -->
+			<section style="font-size: 0.8em;">
+				<h3>Efficient Multiway Joins: FFT</h3>
+				<p>Avoiding Tensors with <strong>Circular Convolution</strong></p>
+				<ul>
+					<li class="fragment">Tensor size grows exponentially ($N^{\text{cols}}$)</li>
+					<li class="fragment">Convolution theorem: $A * B = \mathcal{F}^{-1}(\mathcal{F}(A) \cdot \mathcal{F}(B))$
+					</li>
+					<li class="fragment">Compute in $O(N \log N)$ using Fast Fourier Transform!</li>
+				</ul>
+			</section>
+			<section>
+				<iframe src="demos/fft-convolution.html" class="r-stretch demo-iframe"></iframe>
+			</section>
 
 			<!-- ============================================ -->
-			<!-- SECTION 3: SKETCH VARIATIONS -->
+			<!-- SECTION 4: Other Sketches -->
 			<!-- ============================================ -->
 			<section>
-				<h2 class="section-header">Section 3: Sketch Variations</h2>
+				<h2 class="section-header">Section 4: Other Sketches</h2>
 			</section>
 
 			<!-- Slide 11: Count-Min -->
@@ -1314,45 +1628,6 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 					$\max_i f_i \leq \sum_i f_i$ → Tighter than Count-Min!
 				</p>
 			</section>
-
-			<!-- Slide 13: Multiway Joins -->
-			<section style="font-size: 0.7em;">
-				<h3>$T_1 \bowtie T_2 \bowtie T_3$</p>
-				<img src="images/3_sketches/multi-way.png", alt="Sketch Construction for Multiway Joins" style="max-width: 50%;">
-			</section>
-			<section>
-				<iframe src="demos/multiway-join.html" class="r-stretch demo-iframe"></iframe>
-			</section>
-
-			<!-- Slide 13b: FFT Approach -->
-			<section style="font-size: 0.8em;">
-				<h3>Efficient Multiway Joins: FFT</h3>
-				<p>Avoiding Tensors with <strong>Circular Convolution</strong></p>
-				<ul>
-					<li class="fragment">Tensor size grows exponentially ($N^{\text{cols}}$)</li>
-					<li class="fragment">Convolution theorem: $A * B = \mathcal{F}^{-1}(\mathcal{F}(A) \cdot \mathcal{F}(B))$
-					</li>
-					<li class="fragment">Compute in $O(N \log N)$ using Fast Fourier Transform!</li>
-				</ul>
-			</section>
-			<section>
-				<iframe src="demos/fft-convolution.html" class="r-stretch demo-iframe"></iframe>
-			</section>
-
-			<!-- Slide 10: Dyadic Intervals -->
-			<section>
-				<h3>Range Queries: Dyadic Intervals</h3>
-				<p>How to handle range predicates?</p>
-				<p class="fragment">Decompose range into dyadic intervals!</p>
-				<img src="images/3_sketches/dyadic_intervals.jpg" alt="Dyadic Intervals on a Number Line" style="max-width: 70%;"> 
-				<p class="fragment" style="font-size: 0.8em;">
-					Any range decomposes into ≤ $2(\log_2(b-a) - 1)$ intervals
-				</p>
-			</section>
-			<section>
-				<iframe src="demos/dyadic-intervals.html" class="r-stretch demo-iframe"></iframe>
-			</section>
-
 			
 			<!-- Slide 21: Sketch Properties Comparison -->
 			<section>
@@ -1404,7 +1679,7 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 			</section>
 
 			<!-- ============================================ -->
-			<!-- SECTION 4: DISSERTATION CONTRIBUTION -->
+			<!-- SECTION 5: DISSERTATION CONTRIBUTION -->
 			<!-- ============================================ -->
 			<section>
 				<h2 class="section-header">Section 4: The Dissertation's Contribution</h2>
@@ -2020,9 +2295,9 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 							<img src="images/learn_spn.png" style="max-width: 100%; max-height: 100%;">
 						</div>
 						<ul>
-							<li>One random variable <br> → terminate (leaf node)</li>
-							<li>Independent variables <br> → factorize (product node)</li>
-							<li>Otherwise <br> → cluster (sum node)</li>
+							<li class="fragment">One random variable <br> → terminate (leaf node)</li>
+							<li class="fragment">Independent variables <br> → factorize (product node)</li>
+							<li class="fragment">Otherwise <br> → cluster (sum node)</li>
 						</ul>
 					</div>
 				</section>
@@ -2032,7 +2307,7 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 						<div style="max-width: 60%; font-size: 14px; margin-right: 0.3in;">
 							<img src="images/infer_spn.png" style="max-width: 100%; max-height: 100%;">
 						</div>
-						<p>Query for<br>$P(Z \mid X=x_3)$</p>
+						<p>Query for<br>the distribution of $P(X, Z)$ where $X=x_2$</p>
 					</div>
 				</section>
 			</section>
@@ -2306,25 +2581,6 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 			</section>
 
 			<section>
-				<h3>Technical Innovations</h3>
-				<ol>
-					<li class="fragment">
-						<strong>Sketch Factorization:</strong>
-						<div class="formula-box">sketch = probability × cardinality</div>
-						Enables learning-based approximation
-					</li>
-					<li class="fragment">
-						<strong>SPN + Sketches:</strong>
-						Store sketches in leaf nodes, combine compositionally
-					</li>
-					<li class="fragment">
-						<strong>Upward Bias Techniques:</strong>
-						Max aggregation + min-product nodes for safer estimates
-					</li>
-				</ol>
-			</section>
-
-			<section>
 				<h3>Impact on Query Optimization</h3>
 				<div class="key-insight">
 					<p style="font-size: 1.2em; margin-bottom: 20px;">
@@ -2333,29 +2589,9 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 					<ul style="text-align: left;">
 						<li>No need to pre-compute sketches for all selections</li>
 						<li>No expensive query-time sketch construction</li>
-						<li>Fast inference (~5-10 ms) suitable for optimization</li>
+						<li>Fast inference, suitable for optimization</li>
 						<li>Scales to large databases (per-relation models)</li>
 					</ul>
-				</div>
-			</section>
-
-			<section>
-				<h3>Publications</h3>
-				<div style="text-align: left; margin-top: 30px;">
-					<p style="font-size: 0.8em; margin-bottom: 30px;">
-						<strong>Brian Tsan</strong>, Asoke Datta, Yesdaulet Izenov, Florin Rusu<br>
-						<em>"Approximate Sketches"</em><br>
-						<strong>SIGMOD 2024</strong> (ACM Conference on Management of Data)<br>
-						<a href="https://doi.org/10.1145/3639321"
-							style="font-size: 0.75em;">https://doi.org/10.1145/3639321</a>
-					</p>
-					<p style="font-size: 0.8em;">
-						<strong>Brian Tsan</strong>, Abylay Amanbayev, Asoke Datta, Florin Rusu<br>
-						<em>"Sketched Sum-Product Networks for Joins"</em><br>
-						<strong>Under Submission 2025</strong><br>
-						Open source: <a href="https://github.com/Btsan/Sketched-SPNs"
-							style="font-size: 0.75em;">github.com/Btsan/Sketched-SPNs</a>
-					</p>
 				</div>
 			</section>
 
@@ -2368,7 +2604,7 @@ WHERE <span class="filter-highlight">c.age = 35 AND c.city = 'SF' AND o.year = 2
 				<h3>Bringing It Together</h3>
 				<div style="text-align: left; font-size: 0.9em;">
 					<p class="fragment"><strong>1. Problem:</strong> Cardinality estimation is critical</p>
-					<p class="fragment"><strong>2. Challenge:</strong> Joins are hard</p>
+					<p class="fragment"><strong>2. Challenge:</strong> Joins are hard to estimate</p>
 					<p class="fragment"><strong>3. Sketches:</strong> Fast, accurate, but limited</p>
 					<p class="fragment"><strong>4. Our Solution:</strong> Learn distribution → Generate sketches
 					</p>
