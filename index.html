@@ -1666,15 +1666,15 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 								<td><strong>AGMS</strong></td>
 								<td>✅ Yes</td>
 								<td>✅ Yes</td>
-								<td>O(d)</td>
-								<td>O(d)</td>
+								<td>O(dw)</td>
+								<td>O(dw)</td>
 							</tr>
 							<tr class="fragment">
 								<td><strong>Fast-AGMS</strong></td>
 								<td>✅ Yes</td>
 								<td>✅ Yes</td>
 								<td>O(dw)</td>
-								<td>O(d)</td>
+								<td>O(2d)</td>
 							</tr>
 							<tr class="fragment">
 								<td><strong>Count-Min</strong></td>
@@ -1686,7 +1686,7 @@ JOIN SpecialCourses c ON e.course_id = c.course_id</pre>
 							<tr class="fragment">
 								<td><strong>Bound</strong></td>
 								<td>❌ No</td>
-								<td>❌ No (upper bound)</td>
+								<td>❌ No (tighter bound)</td>
 								<td>O(dw)</td>
 								<td>O(d)</td>
 							</tr>
